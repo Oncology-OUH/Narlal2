@@ -17,7 +17,7 @@ PlotToxicityData <- function(df,filepath){
   catVars <- listVars
   nonNormalVars <- c()
   table1 <- tableone::CreateTableOne(vars = listVars, data = df, factorVars = catVars,strata = c("arm"),includeNA = FALSE,test=TRUE,addOverall=TRUE)
-  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,
+  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F, exact = catVars,
                      dropEqual = F,explain = T)
   tab1_word <- cbind(rownames(tab1_word),tab1_word)
   colnames(tab1_word)[1] <- "Variable"
@@ -35,7 +35,7 @@ PlotToxicityData <- function(df,filepath){
   nonNormalVars <- c()
 
   table1 <- tableone::CreateTableOne(vars = listVars, data = df, factorVars = catVars,strata = c("arm"),includeNA = FALSE,test=TRUE,addOverall=TRUE)
-  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,
+  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F, exact = catVars,
                      dropEqual = F,explain = T)
   tab1_word <- cbind(rownames(tab1_word),tab1_word)
   colnames(tab1_word)[1] <- "Variable"
@@ -53,7 +53,7 @@ PlotToxicityData <- function(df,filepath){
   nonNormalVars <- c()
 
   table1 <- tableone::CreateTableOne(vars = listVars, data = df, factorVars = catVars,strata = c("arm"),includeNA = FALSE,test=TRUE,addOverall=TRUE)
-  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,
+  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F, exact = catVars,
                      dropEqual = F,explain = T)
   tab1_word <- cbind(rownames(tab1_word),tab1_word)
   colnames(tab1_word)[1] <- "Variable"
@@ -74,7 +74,7 @@ PlotToxicityData <- function(df,filepath){
   nonNormalVars <- c()
   index <- df$durvalumab == 'No'
   table1 <- tableone::CreateTableOne(vars = listVars, data = df[index,], factorVars = catVars,strata = c("arm"),includeNA = FALSE,test=TRUE,addOverall=TRUE)
-  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,
+  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,  exact = catVars,
                      dropEqual = F,explain = T)
   tab1_word <- cbind(rownames(tab1_word),tab1_word)
   colnames(tab1_word)[1] <- "Variable"
@@ -92,7 +92,7 @@ PlotToxicityData <- function(df,filepath){
   nonNormalVars <- c()
 
   table1 <- tableone::CreateTableOne(vars = listVars, data = df[index,], factorVars = catVars,strata = c("arm"),includeNA = FALSE,test=TRUE,addOverall=TRUE)
-  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,
+  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,  exact = catVars,
                      dropEqual = F,explain = T)
   tab1_word <- cbind(rownames(tab1_word),tab1_word)
   colnames(tab1_word)[1] <- "Variable"
@@ -110,7 +110,7 @@ PlotToxicityData <- function(df,filepath){
   nonNormalVars <- c()
 
   table1 <- tableone::CreateTableOne(vars = listVars, data = df[index,], factorVars = catVars,strata = c("arm"),includeNA = FALSE,test=TRUE,addOverall=TRUE)
-  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,
+  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,  exact = catVars,
                      dropEqual = F,explain = T)
   tab1_word <- cbind(rownames(tab1_word),tab1_word)
   colnames(tab1_word)[1] <- "Variable"
@@ -129,7 +129,7 @@ PlotToxicityData <- function(df,filepath){
   nonNormalVars <- c()
   index <- !index
   table1 <- tableone::CreateTableOne(vars = listVars, data = df[index,], factorVars = catVars,strata = c("arm"),includeNA = FALSE,test=TRUE,addOverall=TRUE)
-  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,
+  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,  exact = catVars,
                      dropEqual = F,explain = T)
   tab1_word <- cbind(rownames(tab1_word),tab1_word)
   colnames(tab1_word)[1] <- "Variable"
@@ -147,7 +147,7 @@ PlotToxicityData <- function(df,filepath){
   nonNormalVars <- c()
 
   table1 <- tableone::CreateTableOne(vars = listVars, data = df[index,], factorVars = catVars,strata = c("arm"),includeNA = FALSE,test=TRUE,addOverall=TRUE)
-  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,
+  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,  exact = catVars,
                      dropEqual = F,explain = T)
   tab1_word <- cbind(rownames(tab1_word),tab1_word)
   colnames(tab1_word)[1] <- "Variable"
@@ -165,7 +165,7 @@ PlotToxicityData <- function(df,filepath){
   nonNormalVars <- c()
 
   table1 <- tableone::CreateTableOne(vars = listVars, data = df[index,], factorVars = catVars,strata = c("arm"),includeNA = FALSE,test=TRUE,addOverall=TRUE)
-  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,
+  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,  exact = catVars,
                      dropEqual = F,explain = T)
   tab1_word <- cbind(rownames(tab1_word),tab1_word)
   colnames(tab1_word)[1] <- "Variable"
