@@ -1,14 +1,15 @@
 #' Load csv file from the clinical trial Narlal2
 #' @description 'LoadAndPrepareData'reads the data exported from the Narlal database (e.g. the included demo data)
-#' @param filename path to the cvs file that contains all the data from the NARLAL datbase
+#' @param filename path to the cvs file that contains all the data from the NARLAL database
 #'
-#' @return data.frame that contain all thhe data from the NARLAL database
+#' @return data.frame that contain all the data from the NARLAL database
 #' @export LoadAndPrepareData
 #'
 #' @examples file <- system.file('extdata','DemoData.csv',package="Narlal2")
 #' df <- LoadAndPrepareData(filename=file)
 LoadAndPrepareData <- function(filename='ExternalData/DemoData.csv'){
   data <- readr::read_csv(filename)
+  #data <- utils::read.csv(filename)
 
   Hmisc::label(data$patient_id)="Patient ID"
   Hmisc::label(data$redcap_event_name)="Event Name"

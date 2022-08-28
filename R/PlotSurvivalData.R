@@ -161,7 +161,7 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42){
                                 ll=rep(legendnames[k],length(tempdata[[k]]$est)))
 
         compsurvplot <-compsurvplot + ggplot2::geom_step(ggplot2::aes(y = est, x=time,col = ll),direction = "hv", alpha = 1,size=.5,linetype=1,inherit.aes = FALSE,data=temp_data)+
-          ggplot2::theme(legend.title=ggplot2::element_blank(),legend.position = c(0.2, 0.9))
+          ggplot2::theme(legend.title=ggplot2::element_blank(),legend.position = c(0.25, 0.8))
       }
       compsurvplot <-compsurvplot+ggplot2::ggtitle("Escalated") + ggplot2::scale_colour_manual(values=palette_temp)
       splots[[2]] <- compsurvplot
@@ -398,8 +398,8 @@ bootstrap_narlal <- function(df,formcox,formsurv,nboot=10,conf.int=.95,seed=42){
     pconst <- stats::qnorm(1-(1-conf.int)/2)
     for (k in seq_len(length(formsurv))){
       bootres$cox[[k]]$boot$coefficients <- bootres$cox[[k]]$main$coefficients
-      bootres$cox[[k]]$boot$coefficients_lower <- bootres$cox[[k]]$boot$coefficients - pconst*sqrt(bootres$cox$main$var)
-      bootres$cox[[k]]$boot$coefficients_upper <- bootres$cox[[k]]$boot$coefficients + pconst*sqrt(bootres$cox$main$var)
+      bootres$cox[[k]]$boot$coefficients_lower <- bootres$cox[[k]]$boot$coefficients - pconst*sqrt(bootres$cox[[k]]$main$var)
+      bootres$cox[[k]]$boot$coefficients_upper <- bootres$cox[[k]]$boot$coefficients + pconst*sqrt(bootres$cox[[k]]$main$var)
 
     }
     for (k in seq_len(length(formsurv))){

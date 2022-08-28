@@ -7,10 +7,10 @@
 LoadAndPrepareData(filename = "ExternalData/DemoData.csv")
 }
 \arguments{
-\item{filename}{path to the cvs file that contains all the data from the NARLAL datbase}
+\item{filename}{path to the cvs file that contains all the data from the NARLAL database}
 }
 \value{
-data.frame that contain all thhe data from the NARLAL database
+data.frame that contain all the data from the NARLAL database
 }
 \description{
 'LoadAndPrepareData'reads the data exported from the Narlal database (e.g. the included demo data)

@@ -326,7 +326,7 @@ form_durvalumab <- function(ptdata,uselabel=TRUE){
   }
   return(x)
 }
-form_recidivmors <- function(ptdata,uselabel=TRUE,h_loc = c(3.75e-4,6.35e-4),h_death = 5.23e-4, h_loc_death = 0.004, h_dist_met=0.0001){
+form_recidivmors <- function(ptdata,uselabel=TRUE,h_loc = c(6.35e-4,3.75e-4),h_death = 5.23e-4, h_loc_death = 0.004, h_dist_met=0.0002){
   labelindex <- 2
   if (uselabel){labelindex <- 1}
   x <- list()
@@ -424,7 +424,12 @@ form_recidivmors <- function(ptdata,uselabel=TRUE,h_loc = c(3.75e-4,6.35e-4),h_d
     temp <- list(c('Nej','Ja'),c(0,1))
     x$pd_cns <- temp[[labelindex]][index[1]]
     if (x$pd_cns=='Ja' || x$pd_cns==1){
-      x$d_pd_cns <- as.Date(as.numeric(ptdata$FirstFollowup$d_rt)+t_dist_met,origin ="1970-01-01")
+      #if also progressive disease in pulm use the same date with 80% chance to force some of these events to occur at the same time point
+      if (!is.na(x$pd_pul) && x$pd_pul!='Nej' && x$pd_pul!=0 && stats::runif(1,0,1)>.8){
+        x$d_pd_cns <- x$d_pd_pul
+      } else {
+        x$d_pd_cns <- as.Date(as.numeric(ptdata$FirstFollowup$d_rt)+t_dist_met,origin ="1970-01-01")
+      }
       temp2 <- list(c('Nej','Ja'),c(0,1))
       x$pd_cns2_biopsi <-  temp2[[labelindex]][ceiling(length(temp2[[labelindex]])*(stats::runif(1,0,1)))]
       if (x$pd_cns2_biopsi=='Ja' || x$pd_cns2_biopsi==1){
