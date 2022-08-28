@@ -132,7 +132,7 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42){
                                 ll=rep(legendnames[k],length(tempdata[[k]]$est)))
 
         compsurvplot <-compsurvplot + ggplot2::geom_step(ggplot2::aes(y = est, x=time,col = ll),direction = "hv", alpha = 1,size=.5,linetype=1,inherit.aes = FALSE,data=temp_data)+
-          ggplot2::theme(legend.title=ggplot2::element_blank(),legend.position = c(0.2, 0.9))
+          ggplot2::theme(legend.title=ggplot2::element_blank(),legend.position = c(0.25, 0.8))
 
       }
       compsurvplot <-compsurvplot+ggplot2::ggtitle("Standard") + ggplot2::scale_colour_manual(values=palette_temp)
