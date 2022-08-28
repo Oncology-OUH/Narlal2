@@ -19,7 +19,7 @@ PlotPatientCharacteristic <- function(df,filepath){
 
   #All data
   table1 <- tableone::CreateTableOne(vars = listVars, data = df, factorVars = catVars,strata = c("arm"),includeNA = FALSE,test=TRUE,addOverall=TRUE)
-  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,
+  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,nonnormal=nonNormalVars,
                      dropEqual = F,explain = T)
   tab1_word <- cbind(rownames(tab1_word),tab1_word)
   colnames(tab1_word)[1] <- "Variable"
@@ -35,7 +35,7 @@ PlotPatientCharacteristic <- function(df,filepath){
   #Patients without durvalumab
   index <- df$durvalumab == 'No'
   table1 <- tableone::CreateTableOne(vars = listVars, data = df[index,], factorVars = catVars,strata = c("arm"),includeNA = FALSE,test=TRUE,addOverall=TRUE)
-  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,
+  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,nonnormal=nonNormalVars,
                      dropEqual = F,explain = T)
   tab1_word <- cbind(rownames(tab1_word),tab1_word)
   colnames(tab1_word)[1] <- "Variable"
@@ -51,7 +51,7 @@ PlotPatientCharacteristic <- function(df,filepath){
   #Patients with durvalumab
   index <- !index
   table1 <- tableone::CreateTableOne(vars = listVars, data = df[index,], factorVars = catVars,strata = c("arm"),includeNA = FALSE,test=TRUE,addOverall=TRUE)
-  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,
+  tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F,nonnormal=nonNormalVars,
                      dropEqual = F,explain = T)
   tab1_word <- cbind(rownames(tab1_word),tab1_word)
   colnames(tab1_word)[1] <- "Variable"
