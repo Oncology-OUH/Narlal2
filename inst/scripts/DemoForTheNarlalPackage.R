@@ -32,7 +32,9 @@ ChangeText$ChangeVar <-c(
   ps='Performance status',
   n_nav_rt='No. Cisplatin',
   n_cis_rt='No. Navelbine',
-  n_carbo_rt='No. Carboplatin'
+  n_carbo_rt='No. Carboplatin',
+  cough='Cough',
+  infection='Infection'
 )
 ChangeText$ChangeLevels <- c(
   Standard='Standard',
@@ -51,10 +53,10 @@ ChangeText$ChangeLevels <- c(
 )
 
 VariablesInclInTox<-c()
-VariablesInclInTox$During<-c('dysphagia','fatigue','ps')
-VariablesInclInTox$Early<-c('dysphagia','fatigue','ps')
-VariablesInclInTox$DuringAndEarly<-c('dysphagia','fatigue','ps')
-VariablesInclInTox$Late<-c('dysphagia','fatigue','ps')
+VariablesInclInTox$During<-c('dysphagia','fatigue','cough','infection')
+VariablesInclInTox$Early<-c('dysphagia','fatigue','cough','infection')
+VariablesInclInTox$DuringAndEarly<-c('dysphagia','fatigue','cough','infection')
+VariablesInclInTox$Late<-c('dysphagia','fatigue','cough','infection')
 
 filepath<-tempdir()
 print(paste('Files are stored in: ',filepath,sep=''))

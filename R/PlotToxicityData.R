@@ -48,26 +48,26 @@ PlotToxicityData <- function(df,filepath,ChangeText=c(),VariablesInclInTox=c()){
   HistologyLabel <- c('AllHistology','Squamous','NonSquamous')
   TimeSinceRTLabel <-c('During','Early','DuringAndEarly','Late')
 
-  if ("During" %in% names(VariablesInclInTox)){
-    During<-VariablesInclInTox$During
-  } else{
-    During<-c('All')
-  }
-  if ("Early" %in% names(VariablesInclInTox)){
-    Early<-VariablesInclInTox$Early
-  } else{
-    Early<-c('All')
-  }
-  if ("DuringAndEarly" %in% names(VariablesInclInTox)){
-    DuringAndEarly<-VariablesInclInTox$DuringAndEarly
-  } else{
-    DuringAndEarly<-c('All')
-  }
-  if ("Late" %in% names(VariablesInclInTox)){
-    Late<-VariablesInclInTox$Late
-  } else{
-    Late<-c('All')
-  }
+  # if ("During" %in% names(VariablesInclInTox)){
+  #   During<-VariablesInclInTox$During
+  # } else{
+  #   During<-c('All')
+  # }
+  # if ("Early" %in% names(VariablesInclInTox)){
+  #   Early<-VariablesInclInTox$Early
+  # } else{
+  #   Early<-c('All')
+  # }
+  # if ("DuringAndEarly" %in% names(VariablesInclInTox)){
+  #   DuringAndEarly<-VariablesInclInTox$DuringAndEarly
+  # } else{
+  #   DuringAndEarly<-c('All')
+  # }
+  # if ("Late" %in% names(VariablesInclInTox)){
+  #   Late<-VariablesInclInTox$Late
+  # } else{
+  #   Late<-c('All')
+  # }
   index<-grep("^patient_id$|^arm$|^durvalumab$|^histology_squamous$|^During_*_*|^Early_*_*|^Late_*_*",names(df))
   df<-df[,index]
   #Loop over Durvalumab status
@@ -99,6 +99,9 @@ PlotToxicityData <- function(df,filepath,ChangeText=c(),VariablesInclInTox=c()){
         if (TimeSinceRTLabel[k]=='Late'){
           greppattern <- "^Early_(.+)_[^_]+$"
           VarSelection<-VariablesInclInTox$Late
+        }
+        if (is.null(VarSelection)){
+          VarSelection<-c('All')
         }
         extractedNames<-stringr::str_match(names(df), greppattern)
         dftemp<-data.frame(matrix(NA,nrow=nrow(df),ncol=0))
