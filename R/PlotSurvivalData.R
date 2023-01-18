@@ -1,6 +1,6 @@
 #' Creates survival plots
 #' @description
-#' Creates survival plots divided by treatment arm of local control, progression-free survival, and overall survival. Furthermore, a competing risk plot of the first event among local failure, distant failure and death is also created – the competing risk plots are made in two versions “standard”, including confidence intervals and a stacked version. For all plots, three versions are created: one for all patients and two for patients that have and have not had Durvalumab.
+#' Creates survival plots divided by treatment arm of local control, progression-free survival, and overall survival. Furthermore, a competing risk plot of the first event among local failure, distant failure and death is also created – the competing risk plots are made in two versions “standard”, including confidence intervals and a stacked version. For all plots, three versions are created: one for all patients and two for patients with tumours of histology squamous or non-squamous.
 #'
 #' @param df the output from the the function ExtractSurvivalData
 #' @param filepath the filepath to the directory where the patient survival data shall be stored

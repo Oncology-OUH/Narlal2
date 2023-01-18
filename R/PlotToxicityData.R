@@ -1,6 +1,6 @@
 #' Write word files containing patient toxicity data
 #' @description
-#' Creates patient toxicity tables divided by treatment arm and saves these as word files. For all plots, three versions are created: one for all patients and two for patients that have and have not had Durvalumab.
+#' Creates patient toxicity tables divided by treatment arm and saves these as word files. For all plots, three versions are created: one for all patients and two for patients with tumours of histology squamous or non-squamous.
 #' @param df the output from the the function ExtractToxicityData
 #' @param filepath the filepath to the directory where the patient toxicity shall be stored
 #' @param ChangeText is a variable used to change the text on plots just before they are plotted. The variable is defined in three part (see example below) that is used to change the text in variable/names, levels, and labels on the tables and plots. Note that ChangeText can also be used to combine different levels by mapping them to a common name (see the example in which toxicity levels 0, 1, and 2 are mapped to the same name)
