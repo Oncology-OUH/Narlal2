@@ -4,22 +4,52 @@
 \alias{PlotToxicityData}
 \title{Write word files containing patient toxicity data}
 \usage{
-PlotToxicityData(df, filepath)
+PlotToxicityData(df, filepath, ChangeText = c(), VariablesInclInTox = c())
 }
 \arguments{
 \item{df}{the output from the the function ExtractToxicityData}
 
 \item{filepath}{the filepath to the directory where the patient toxicity shall be stored}
+
+\item{ChangeText}{is a variable used to change the text on plots just before they are plotted. The variable is defined in three part (see example below) that is used to change the text in variable/names, levels, and labels on the tables and plots. Note that ChangeText can also be used to combine different levels by mapping them to a common name (see the example in which toxicity levels 0, 1, and 2 are mapped to the same name)}
+
+\item{VariablesInclInTox}{is used to select a subset of the available variables for the toxicity table. The variable is divided into four parts (see example below) such that variable selection can be made independently for toxicity during RT, early after RT, a combination of during and early, and late toxicity. For all tables, the values are the maximum score for the patient within the period. During is the toxicity scored during the RT course. Early includes all scheduled evaluations after RT until and including the 6-months follow-up visit. Late is all toxicity score after the 6-month follow-up visit (the 6-month visit is not included in late toxicity). If VariablesInclInTox includes the string  ‘All’, all available toxicity parameters will be included (also if other toxicity names are listed in VariablesInclInTox). Similarly, if VariablesInclInTox is not provided to the function, all toxicity variables will be included in the table.}
 }
 \value{
 Is returning word files with tables of patient toxicity data
 }
 \description{
-Write word files containing patient toxicity data
+Creates patient toxicity tables divided by treatment arm and saves these as word files. For all plots, three versions are created: one for all patients and two for patients that have and have not had Durvalumab.
 }
 \examples{
 file <- system.file('extdata','DemoData.csv',package="Narlal2")
 df <- LoadAndPrepareData(filename=file)
 PtTox <- ExtractToxicityData(df)
-PlotToxicityData(df=PtTox,filepath='c:/home/cab/temp')
+ChangeText<-c()
+ChangeText$ChangeLabels <- c(
+  y='Cumulative distribution',
+  `Time [months]`='Time since randomisation [months]'
+)
+ChangeText$ChangeVar <-c(
+  arm='Treatment Arm',
+  fatigue='Fatigue',
+  dysphagia='Dysphagia',
+  ps='Performance status'
+)
+ChangeText$ChangeLevels <- c(
+  Standard='Standard',
+  Eskaleret='Escalated',
+  Mand='Male',
+  Kvinde='Female',
+  `0`='0-2',
+  `1`='0-2',
+  `2`='0-2'
+)
+VariablesInclInTox<-c()
+VariablesInclInTox$During<-c('dysphagia','fatigue','ps')
+VariablesInclInTox$Early<-c('dysphagia','fatigue')
+VariablesInclInTox$DuringAndEarly<-c('dysphagia','fatigue')
+VariablesInclInTox$Late<-c('ps')
+PlotToxicityData(df=PtTox,filepath='c:/home/cab/temp',ChangeText=ChangeText,
+                    VariablesInclInTox=VariablesInclInTox)
 }

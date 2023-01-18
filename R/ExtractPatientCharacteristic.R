@@ -39,6 +39,8 @@ ExtractPatientCharacteristic <- function(rawdata){
   df$Vol_N <- NA
   df$durvalumab <- NA
   df$durvalumab <- factor(df$durvalumab,levels = levels(rawdata$durvalumab.factor))
+  df$histology_squamous <- NA
+  df$histology_squamous <- factor(df$durvalumab,levels = levels(rawdata$histology_squamous.factor))
 
   index_registration <- rawdata$redcap_event_name == 'registration_arm_1'
   index_haendelse <- rawdata$redcap_event_name == 'haendelser_arm_1'
@@ -69,6 +71,7 @@ ExtractPatientCharacteristic <- function(rawdata){
     df$MeanLung[[i]] <- rawdata$gy_lung_mean[index_followup1 & index]
     df$Vol_T[[i]] <- rawdata$vol_gtv_t[index_followup1 & index]
     df$Vol_N[[i]] <- rawdata$vol_gtv_n[index_followup1 & index]
+    df$histology_squamous[[i]] <- rawdata$histology_squamous.factor[index_registration & index]
   }
   return(df)
 }

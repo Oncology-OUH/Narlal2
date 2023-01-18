@@ -1,29 +1,38 @@
 Package: Narlal2
 Title: Statistical analysis for the clinical trial NARLAL2
 Version: 0.0.0.9000
-Authors@R: person("Carsten", "Brink", , "carsten.brink@rsyd.dk", role = c("aut", "cre"),
+Authors@R: 
+    person("Carsten", "Brink", , "carsten.brink@rsyd.dk", role = c("aut", "cre"),
            comment = c(ORCID = "https://orcid.org/0000-0003-3906-1962"))
-Description: The package is designed to analyse the primary endpoint of the lung trial NARLAL2 (ClinicalTrials.gov Identifier: NCT02354274). All software is developed without access to the clinical data and before the end of recruitment of the data. Included in this package is a function able to generate demo data. These demo data were imported into an empty copy of the clinical database. The demo data was then exported from the trial database and included as part of the current package. 
+Description: The package is designed to analyse the primary endpoint of
+    the lung trial NARLAL2 (ClinicalTrials.gov Identifier: NCT02354274).
+    All software is developed without access to the clinical data and
+    before the end of recruitment of the data. Included in this package is
+    a function able to generate demo data. These demo data were imported
+    into an empty copy of the clinical database. The demo data was then
+    exported from the trial database and included as part of the current
+    package. The package includes a demo script. To find the location of the
+    demo script, use the command: 
+    system.file(package='Narlal2','scripts/DemoForTheNarlalPackage.R')
+    after import of the library.
 License: MIT + file LICENSE
-Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
 Imports: 
     cmprsk,
     cowplot,
     data.table,
     flextable,
-    forcats,
     ggplot2,
-    ggpubr,
-    grDevices,
     Hmisc,
     lubridate,
     officer,
     ragg,
     readr,
     stats,
+    stringr,
     survival,
     survminer,
     tableone,
     tibble
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3

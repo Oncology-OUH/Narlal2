@@ -9,8 +9,14 @@
 #' @return write a csv file with demo data that can be loaded into a redcap database
 #' @export DemoData
 #'
-#' @examples file <- file.path(dirname(tempdir()),'demo.csv')
+#' @examples file <- file.path(tempdir(),'demo.csv')
 #' DemoData(nrpts=100,uselabels=FALSE,seed=17,filepath=file)
+
+#Problem with danish letters in variables should be possible to be adresed
+#using the method described in:
+#https://stackoverflow.com/questions/43850229/is-it-possible-to-write-package-documentation-using-non-ascii-characters-with-ro
+#This has not been implemented yet
+
 DemoData <- function(nrpts=360,uselabels=FALSE,seed=42,firstid=1,filepath){
   set.seed(seed)
   CohortData <- GeneratePtCohortData(nrpts,uselabel=uselabels,firstid=firstid)

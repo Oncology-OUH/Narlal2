@@ -8,7 +8,7 @@
 #' @export
 #' @importFrom tibble %>%
 
-custom_tab_Narlal <- function(df, header, footer){
+custom_tab_Narlal <- function(df, header, footer=c()){
   flextable::flextable(df) %>%
     flextable::add_header_lines(header) %>%
     flextable::add_footer_lines(footer) %>%
@@ -44,7 +44,7 @@ custom_tab_Narlal <- function(df, header, footer){
     flextable::align(j = 1, part = "all", align = "left")
 }
 #' customtab_defaults_Narlal
-#' @description An internal function used to define the some defaults for the flextable used to produce the table of the package
+#' @description An internal function used to define the defaults for the flextable used to produce the table of the package
 #' @keywords internal
 #' @return no direct returned values. Only setting flextable defaults
 #' @export
@@ -54,78 +54,86 @@ customtab_defaults_Narlal <- function(){
                          font.size = 10,
                          border.color = "black")
 }
-#' Copy of ggcompetingrisks.cuminc but need to enable edition of a two layout (order of plotting and conf.int usinng lines)
-#'
-#' @param fit see ggcompetingrisks {survminer}
-#' @param gnames see ggcompetingrisks {survminer}
-#' @param gsep see ggcompetingrisks {survminer}
-#' @param multiple_panels see ggcompetingrisks {survminer}
-#' @param coef see ggcompetingrisks {survminer}
-#' @param conf.int see ggcompetingrisks {survminer}
-#'  @keywords internal
-#' @return Returns an object of class gg.
-#' @export
-#'
-#'
-ggcompetingrisks.cuminc_narlal <- function(fit, gnames = NULL, gsep=" ",
-                                           multiple_panels = TRUE, coef = 1.96, conf.int = FALSE) {
 
-  if (!is.null(fit$Tests))
-    fit <- fit[names(fit) != "Tests"]
-  fit2 <- lapply(fit, `[`, 1:3)
-  if (is.null(gnames)) gnames <- names(fit2)
-  fit2_list <- lapply(seq_along(gnames), function(ind) {
-    df <- as.data.frame(fit2[[ind]])
-    df$name <- gnames[ind]
-    df
-  })
-  time <- est <- event <- group <- NULL
-  df <- do.call(rbind, fit2_list)
-  df$event <- sapply(strsplit(df$name, split=gsep), `[`, 2)
-  df$group <- sapply(strsplit(df$name, split=gsep), `[`, 1)
-  df$std <- std <- sqrt(df$var)
-  pl <- ggplot2::ggplot(df, ggplot2::aes(time, est, color=event))
-  if (multiple_panels) {
-    #in this line forcasts::fct:rev is introduced to invert the ordering of the plots. The problem is that the implicit factor in facet_wrap orders the levels alphabetically
-    pl <- ggplot2::ggplot(df, ggplot2::aes(time, est, color=event)) + ggplot2::facet_wrap(~forcats::fct_rev(group))
-  } else {
-    pl <- ggplot2::ggplot(df, ggplot2::aes(time, est, color=event, linetype=group))
+ChageLabels_ggplot<-function(p,ChangeText=c()){
+  if ("ChangeLabels" %in% names(ChangeText)){
+    ChangeLabels<-ChangeText$ChangeLabels
+  } else{
+    ChangeLabels<-vector(mode='character',length=0)
   }
-  if (conf.int) {
-    #in this line the line type around the confidence interval can be defined. ALso the intensity of the shaped area can be controled by alpha
-    pl <- pl + ggplot2::geom_ribbon(ggplot2::aes(ymin = est - coef*std, ymax=est + coef*std, fill = event), alpha = 0.0, size=.2,linetype=2)
+  if (any(names(p)=="labels")){
+    for (j in seq_along(p$labels)){
+      if (class(p$labels[[j]])[1]=="character"){
+        newlabel<-as.character(ChangeLabels[p$labels[[j]]])
+        if (!is.na(newlabel)){
+          p$labels[j]<-newlabel
+        }
+      }
+    }
   }
-  pl +
-    ggplot2::geom_line()
+  return(p)
 }
-#' Copy of ggcompetingrisks but needed to enable correction in a subfunction
-#'
-#' @param fit see ggcompetingrisks {survminer}
-#' @param gnames see ggcompetingrisks {survminer}
-#' @param gsep see ggcompetingrisks {survminer}
-#' @param multiple_panels see ggcompetingrisks {survminer}
-#' @param ggtheme see ggcompetingrisks {survminer}
-#' @param coef see ggcompetingrisks {survminer}
-#' @param conf.int see ggcompetingrisks {survminer}
-#' @param ... see ggcompetingrisks {survminer}
-#' @keywords internal
-#' @return Returns an object of class gg.
-#' @export
-#'
-#'
-ggcompetingrisks_narlal <- function(fit, gnames = NULL, gsep=" ",
-                                    multiple_panels = TRUE,
-                                    ggtheme = survminer::theme_survminer(),
-                                    coef = 1.96, conf.int = FALSE, ...) {
-  stopifnot(any(class(fit) %in% c("cuminc")))
-
-  if (any(class(fit) == "cuminc")) {
-    pl <- ggcompetingrisks.cuminc_narlal(fit = fit, gnames=gnames,
-                                  gsep=gsep, multiple_panels=multiple_panels,
-                                  coef = coef, conf.int = conf.int)
+ChangeVar_vector<-function(x,ChangeText=c()){
+  if ("ChangeVar" %in% names(ChangeText)){
+    ChangeVar<-ChangeText$ChangeVar
+  } else{
+    ChangeVar<-vector(mode='character',length=0)
   }
-  pl <- pl + ggtheme +
-    ggplot2::ylab("Probability of an event") + ggplot2::xlab("Time") +
-    ggplot2::ggtitle("Cumulative incidence functions")
-  ggpubr::ggpar(pl, ...)
+  for (i in seq_along(x)){
+    newvar<-as.character(ChangeVar[x[i]])
+    if (!is.na(newvar)){
+      x[i]<-newvar
+    }
+  }
+  return(x)
+}
+ChangeLevel_vector<-function(x,ChangeText=c()){
+  if ("ChangeLevels" %in% names(ChangeText)){
+    ChangeLevels<-ChangeText$ChangeLevels
+  } else{
+    ChangeLevels<-vector(mode='character',length=0)
+  }
+  for (i in seq_along(x)){
+    newlevel<-as.character(ChangeLevels[x[i]])
+    if (!is.na(newlevel)){
+      x[i]<-newlevel
+    }
+  }
+  return(x)
+}
+ChageVarAndLevels_dataframe<-function(df,ChangeText=c()){
+  if ("ChangeVar" %in% names(ChangeText)){
+    ChangeVar<-ChangeText$ChangeVar
+  } else{
+    ChangeVar<-vector(mode='character',length=0)
+  }
+  if ("ChangeLevels" %in% names(ChangeText)){
+    ChangeLevels<-ChangeText$ChangeLevels
+  } else{
+    ChangeLevels<-vector(mode='character',length=0)
+  }
+  tempcolnames<-colnames(df)
+  for (i in seq_along(tempcolnames)){
+    newvar<-as.character(ChangeVar[tempcolnames[i]])
+    if (is.na(newvar)){
+      newvar<-tempcolnames[i]
+    }
+    names(df)[names(df) == tempcolnames[i]] <- newvar
+  }
+  tempcolnames<-colnames(df)
+  for (i in seq_along(tempcolnames)){
+    if (is.factor(df[,i])){
+      templevels<-levels(df[,i])
+      newlabels<-c()
+      for (j in seq_along(templevels)){
+        newlabel<-as.character(ChangeLevels[templevels[j]])
+        if (is.na(newlabel)){
+          newlabel<-templevels[j]
+        }
+        newlabels<-c(newlabels,newlabel)
+      }
+      levels(df[,i])<-newlabels
+    }
+  }
+  return(df)
 }

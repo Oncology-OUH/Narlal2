@@ -4,22 +4,41 @@
 \alias{PlotPatientCharacteristic}
 \title{Write word files containing patient characteristics}
 \usage{
-PlotPatientCharacteristic(df, filepath)
+PlotPatientCharacteristic(df, filepath, ChangeText = c())
 }
 \arguments{
 \item{df}{the output from the the function ExtracPatientCharacteristic}
 
 \item{filepath}{the filepath to the directory where the patient characteristics shall be stored}
+
+\item{ChangeText}{a variable used to change the text on plots just before they are plotted. The variable is defined in three part (see example below) that is used to change the text in variable/names, levels, and labels on the tables and plots. Note that ChangeText can also be used to combine different levels by mapping them to a common name (see the example in which sublevels of T1 are mapped to the same name)}
 }
 \value{
-Is returning word files with tables of patient characteristics data
+Is returning word files with tables of patient characteristics data and cumulative plots of all non-categorical parameters separated in the two treatment groups (the plots are stored both separately but also combined in one figure)
 }
 \description{
-Write word files containing patient characteristics
+Creates patient characteristics tables divided by treatment arm and saves these as word files. For all plots, three versions are created: one for all patients and two for patients that have and have not had Durvalumab.
 }
 \examples{
 file <- system.file('extdata','DemoData.csv',package="Narlal2")
 df <- LoadAndPrepareData(filename=file)
 PtChar <- ExtractPatientCharacteristic(df)
-PlotPatientCharacteristic(df=PtChar,filepath='c:/home/cab/temp')
+ChangeText<-c()
+ChangeText$ChangeLabels <- c(
+  y='Cumulative distribution'
+)
+ChangeText$ChangeVar <-c(
+  arm='Treatment Arm',
+  age='Age [years]',
+  gender='Sex'
+)
+ChangeText$ChangeLevels <- c(
+  Standard='Standard',
+  Eskaleret='Escalated',
+  T1A='T1',
+  T1B='T1',
+  Mand='Male',
+  Kvinde='Female'
+)
+PlotPatientCharacteristic(df=PtChar,filepath='c:/home/cab/temp',ChangeText=ChangeText)
 }

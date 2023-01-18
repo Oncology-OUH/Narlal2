@@ -13,7 +13,7 @@ LoadAndPrepareData(filename = "ExternalData/DemoData.csv")
 data.frame that contain all the data from the NARLAL database
 }
 \description{
-'LoadAndPrepareData'reads the data exported from the Narlal database (e.g. the included demo data)
+'LoadAndPrepareData' reads the data exported from the Narlal database (e.g. the included demo data)
 }
 \examples{
 file <- system.file('extdata','DemoData.csv',package="Narlal2")

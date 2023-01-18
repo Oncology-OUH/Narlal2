@@ -8,7 +8,7 @@
 #'
 #' @examples file <- system.file('extdata','DemoData.csv',package="Narlal2")
 #' df <- LoadAndPrepareData(filename=file)
-#' PtTox <- ExtractSurvivalData(df,12*5)
+#' PtSurv <- ExtractSurvivalData(df,12*5)
 ExtractSurvivalData <- function(rawdata,censor_after_rt){
   patient_id <- unique((rawdata$patient_id))
   index <- !is.na(patient_id)
@@ -72,7 +72,7 @@ ExtractSurvivalData <- function(rawdata,censor_after_rt){
   temp[is.na(temp)] <- Inf
   progression_event_time <- apply(temp,1,min)
 
-  temp <- cbind(df$d_pd_cns,df$d_pd_hep,df$d_pd_bon,df$d_pd_skin,df$d_pd_and,df$d_pd)
+  temp <- cbind(df$d_pd_cns,df$d_pd_hep,df$d_pd_bon,df$d_pd_skin,df$d_pd_and,df$d_pd,df$d_mors) #death is also event
   temp[is.na(temp)] <- Inf
   temp_event_time <- apply(temp,1,min)
 
@@ -88,7 +88,7 @@ ExtractSurvivalData <- function(rawdata,censor_after_rt){
   df$event_os <- index_event
   df$t_os <- (os_event_time-as.numeric(df$d_rt))*12/365.25
 
-  #first event - death local control or progressive disease
+  #first event - death local control or progressive disease (the below-created variables are used to create all the competing risk tables)
   temp <- cbind(df$d_pd_cns,df$d_pd_hep,df$d_pd_bon,df$d_pd_skin,df$d_pd_and)
   temp[is.na(temp)] <- Inf
   first_met_event_time <- apply(temp,1,min)
@@ -108,7 +108,7 @@ ExtractSurvivalData <- function(rawdata,censor_after_rt){
   index <- as.numeric(df$d_mors) <= first_event_time
   index[is.na(index)] <- FALSE
   first_event[index] <- 'mors'
-  df$event_firstevent <- first_event
+  df$event_firstevent <- factor(first_event)
   df$t_firstevent <- (first_event_time-as.numeric(df$d_rt))*12/365.25
 
   return(df)

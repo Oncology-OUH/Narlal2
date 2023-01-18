@@ -1,5 +1,5 @@
 #' Load csv file from the clinical trial Narlal2
-#' @description 'LoadAndPrepareData'reads the data exported from the Narlal database (e.g. the included demo data)
+#' @description 'LoadAndPrepareData' reads the data exported from the Narlal database (e.g. the included demo data)
 #' @param filename path to the cvs file that contains all the data from the NARLAL database
 #'
 #' @return data.frame that contain all the data from the NARLAL database
@@ -7,8 +7,14 @@
 #'
 #' @examples file <- system.file('extdata','DemoData.csv',package="Narlal2")
 #' df <- LoadAndPrepareData(filename=file)
+
+#Problem with danish letters in variables should be possible to be adresed
+#using the method described in:
+#https://stackoverflow.com/questions/43850229/is-it-possible-to-write-package-documentation-using-non-ascii-characters-with-ro
+#This has not been implemented yet
+
 LoadAndPrepareData <- function(filename='ExternalData/DemoData.csv'){
-  data <- readr::read_csv(filename)
+  data <- readr::read_csv(filename,show_col_types = FALSE)
   #data <- utils::read.csv(filename)
 
   Hmisc::label(data$patient_id)="Patient ID"

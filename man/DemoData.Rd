@@ -24,6 +24,6 @@ write a csv file with demo data that can be loaded into a redcap database
 ‘Demodata’ writes a CSV file to disk containing demo data for the clinical trial Narlal2. The file can be imported to the Redcap data database used for the trial. The primary purpose of the demo data has been to develop the other functionalities utilising “realistic” data.
 }
 \examples{
-file <- file.path(dirname(tempdir()),'demo.csv')
+file <- file.path(tempdir(),'demo.csv')
 DemoData(nrpts=100,uselabels=FALSE,seed=17,filepath=file)
 }

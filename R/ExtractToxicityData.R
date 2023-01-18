@@ -29,6 +29,8 @@ ExtractToxicityData <- function(rawdata){
   df$arm <- factor(df$arm,levels = levels(rawdata$randomisering.factor))
   df$durvalumab <- NA
   df$durvalumab <- factor(df$durvalumab,levels = levels(rawdata$durvalumab.factor))
+  df$histology_squamous <- NA
+  df$histology_squamous <- factor(df$durvalumab,levels = levels(rawdata$histology_squamous.factor))
 
   for (j in week_number){
     redcap_name <- paste("uge_",as.character(j),"_arm_1",sep="")
@@ -84,6 +86,7 @@ ExtractToxicityData <- function(rawdata){
     }
     df$arm[[i]] <- rawdata$randomisering.factor[index_registration & index]
     df$durvalumab[[i]] <- rawdata$durvalumab.factor[index_haendelse & index]
+    df$histology_squamous[[i]] <- rawdata$histology_squamous.factor[index_registration & index]
   }
   #Add variable with maximum degree during RT
   for (k in tox_variable_rt){
@@ -128,6 +131,23 @@ ExtractToxicityData <- function(rawdata){
     temp[!is.finite(temp)] <- NA
     varname <- paste("Late_",k,sep="")
     df[[varname]]<- factor(temp)
+  }
+  #Find variables that start with the name During, Early, or Late and contains at least two underscores and extract the part between the first and the last underscore
+  extractedNames<-stringr::str_match(names(df), "^(?:During|Early|Late)_(.+)_[^_]+$") #
+  varNames<-names(df)[!is.na(extractedNames[,1])]
+  for (i in seq_along(varNames)){
+    if(is.factor(df[[varNames[i]]])){
+      levellist<-paste(paste(levels(df[[varNames[i]]]),collapse=";"),";",sep="")
+      checklevels<-regexpr("^(0;)?(1;)?(2;)?(3;)?(4;)(5;)?$",levellist) #Check that the levels are 0 to 5 and order from 0 to 5
+      if (!checklevels){
+        warning('Some of the levels of toxicity seem not to be in the range 0 to 5')
+      }
+      else{
+        df[[varNames[i]]]<-ordered(df[[varNames[i]]],levels=c(0,1,2,3,4,5)) #Force all levels in also if they are not present and make ensure that they are ordered
+      }
+    } else{
+      warning('Some of the levels of toxicity are not set as a factor')
+    }
   }
   return(df)
 }

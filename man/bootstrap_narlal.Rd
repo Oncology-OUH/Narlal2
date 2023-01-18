@@ -20,7 +20,39 @@ bootstrap_narlal(df, formcox, formsurv, nboot = 10, conf.int = 0.95, seed = 42)
 \item{seed}{a value to seed the random generator}
 }
 \value{
-return a list containing all the standard acall and the related bootstrap values
+The returned list from bootstrap_narlal consists of three items: Cox,
+surv, comprisk. Each of these consists of a list reflecting the number of
+models provided to the bootstrap (e.g. local control, progression-free
+survival and overall survival). Within each of these, there is a main and a
+boot part. The main part will contain all the information provided from the
+Cox, survival or competing risk model performed on the entire data set. The
+boot section contains information related to the bootstrapping of the models
+(see below). The Cox result is based on the coxph function in the survival
+package, surv on the function survfit of the survival package and comprisk
+on the function cuminc from the cmprsk package.
+
+Cox (boot section): Contains the Cox coefficient (copy from the main
+section) and the upper and lower bootstrapped confidence interval as
+requested by conf.int
+
+Surv (boot section): Consist of a list of strata (e.g. standard and
+escalated arm), and within each of these, six items are present: time,
+survival, lower_org, upper_org, lower_boot, and upper_boot. The time,
+survival, lower_org, and upper_org are obtained directly from the main
+section (time, surv, lower, upper). The lower_boot and upper_boot are the
+confidence intervals based on the bootstrap result.
+
+Comprisk (boot section): Consists of a list of strata. Each strata is named
+by the “strata” name (e.g. standard and escalated arm) followed by the name
+of the specific risk endpoint (e.g. local control, metastatic disease,
+death). So a name could e.g. be “escalated mors” (this is the layout
+provided by cuminc from the cmprsk package). Each strata has six items:
+time, est, lower_org, upper_org, lower_boot, upper_boot. The time, est,
+lower_org, upper_org are obtained from the main section, based on the main
+values time, est of var (upper_org and lower_org reflect the confidence
+interval provided by conf.int and uses est and var within that calculation).
+The upper_boot and lower_boot are the confidence intervals obtained from the
+bootstrapping.
 }
 \description{
 Bootstraping of all survival data of the NARLAL trial

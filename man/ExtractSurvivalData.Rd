@@ -20,5 +20,5 @@ data.frame that contain survival data
 \examples{
 file <- system.file('extdata','DemoData.csv',package="Narlal2")
 df <- LoadAndPrepareData(filename=file)
-PtTox <- ExtractSurvivalData(df,12*5)
+PtSurv <- ExtractSurvivalData(df,12*5)
 }

@@ -10,6 +10,6 @@ customtab_defaults_Narlal()
 no direct returned values. Only setting flextable defaults
 }
 \description{
-An internal function used to define the some defaults for the flextable used to produce the table of the package
+An internal function used to define the defaults for the flextable used to produce the table of the package
 }
 \keyword{internal}

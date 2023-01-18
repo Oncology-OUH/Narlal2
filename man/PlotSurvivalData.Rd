@@ -2,9 +2,16 @@
 % Please edit documentation in R/PlotSurvivalData.R
 \name{PlotSurvivalData}
 \alias{PlotSurvivalData}
-\title{Write word files containing patient toxicity data}
+\title{Creates survival plots}
 \usage{
-PlotSurvivalData(df, filepath, nboot = 10, conf.int = 0.95, seed = 42)
+PlotSurvivalData(
+  df,
+  filepath,
+  nboot = 10,
+  conf.int = 0.95,
+  seed = 42,
+  ChangeText = c()
+)
 }
 \arguments{
 \item{df}{the output from the the function ExtractSurvivalData}
@@ -13,19 +20,33 @@ PlotSurvivalData(df, filepath, nboot = 10, conf.int = 0.95, seed = 42)
 
 \item{nboot}{number of bootstraps (nboot=1 will replace the bootstrap values with the standard values)}
 
-\item{conf.int}{confidence intervals extracted from the bootstrap. Will typpical be 0.95}
+\item{conf.int}{confidence intervals extracted from the bootstrap. Will typical be 0.95}
 
 \item{seed}{a value to seed the random generator}
+
+\item{ChangeText}{is a variable used to change the text on plots just before they are plotted. The variable is defined in three part (see example below) that is used to change the text in variable/names, levels, and labels on the plots.}
 }
 \value{
 Is exporting survival figures
 }
 \description{
-Write word files containing patient toxicity data
+Creates survival plots divided by treatment arm of local control, progression-free survival, and overall survival. Furthermore, a competing risk plot of the first event among local failure, distant failure and death is also created – the competing risk plots are made in two versions “standard”, including confidence intervals and a stacked version. For all plots, three versions are created: one for all patients and two for patients that have and have not had Durvalumab.
 }
 \examples{
 file <- system.file('extdata','DemoData.csv',package="Narlal2")
 df <- LoadAndPrepareData(filename=file)
 PtSurvival <- ExtractSurvivalData(df,12*5)
-PlotSurvivalData(df=PtSurvival,filepath='c:/home/cab/temp',nboot=10,conf.int=.95,seed=42)
+ChangeText<-c()
+ChangeText$ChangeLabels <- c(
+  `Time [months]`='Time since randomisation [Months]'
+)
+ChangeText$ChangeVar <-c(
+  arm='Treatment Arm'
+)
+ChangeText$ChangeLevels <- c(
+  Standard='Standard',
+  Eskaleret='Escalated'
+)
+PlotSurvivalData(df=PtSurvival,filepath='c:/home/cab/temp',
+                 nboot=10,conf.int=.95,seed=42,ChangeText=ChangeText)
 }

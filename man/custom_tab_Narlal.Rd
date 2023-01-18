@@ -4,7 +4,7 @@
 \alias{custom_tab_Narlal}
 \title{custom_tab_Narlal}
 \usage{
-custom_tab_Narlal(df, header, footer)
+custom_tab_Narlal(df, header, footer = c())
 }
 \arguments{
 \item{df}{the data.frame containing the table}
