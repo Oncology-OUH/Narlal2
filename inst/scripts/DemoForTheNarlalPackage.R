@@ -29,7 +29,10 @@ ChangeText$ChangeVar <-c(
   Vol_N='Volume of N',
   fatigue='Fatigue',
   dysphagia='Dysphagia',
-  ps='Performance status'
+  ps='Performance status',
+  n_nav_rt='No. Cisplatin',
+  n_cis_rt='No. Navelbine',
+  n_carbo_rt='No. Carboplatin'
 )
 ChangeText$ChangeLevels <- c(
   Standard='Standard',

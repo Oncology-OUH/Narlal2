@@ -30,8 +30,8 @@
 #' PlotPatientCharacteristic(df=PtChar,filepath='c:/home/cab/temp',ChangeText=ChangeText)
 PlotPatientCharacteristic <- function(df,filepath,ChangeText=c()){
 
-  listVars <- c("age", "gender","histology","T","N","Stadium","Perform","FEV1","FVC","weight","height","MeanDose_T","MeanDose_N","MeanLung","Vol_T","Vol_N")
-  catVars <- c("gender","histology","T","N","Stadium","Perform")
+  listVars <- c("age", "gender","histology","T","N","Stadium","Perform","n_nav_rt","n_cis_rt","n_carbo_rt","FEV1","FVC","weight","height","MeanDose_T","MeanDose_N","MeanLung","Vol_T","Vol_N")
+  catVars <- c("gender","histology","T","N","Stadium","Perform","n_nav_rt","n_cis_rt","n_carbo_rt")
   nonNormalVars <- c("age","FEV1","FVC","weight","height","MeanDose_T","MeanDose_N","MeanLung","Vol_T","Vol_N")
 
 
