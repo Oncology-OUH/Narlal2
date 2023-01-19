@@ -112,9 +112,9 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
         temp$plot <- temp$plot + ggplot2::geom_step(ggplot2::aes(y = upper, x=time),direction = "hv",alpha = 0.5,size=.2,linetype=2,color=palette_temp[2],inherit.aes = FALSE,data=temp_bootdata)
 
         #Add the p-value and the hazard value as text labels
-        temp$plot <- temp$plot + ggplot2::annotate("text", x = 0, y = 0, label = pvaluelable, cex=4.5, col="black", vjust=0, hjust = 0.0, fontface=2)
-        temp$plot <- temp$plot + ggplot2::annotate("text", x = Inf, y = Inf, label = hlable, cex=4.5, col="black", vjust=1, hjust = 1, fontface=2)
-
+        temp$plot <- temp$plot + ggplot2::annotate("text", x = 0, y = 0.07, label = pvaluelable, cex=4.5, col="black", vjust=0, hjust = 0.0, fontface=2)
+        #temp$plot <- temp$plot + ggplot2::annotate("text", x = Inf, y = Inf, label = hlable, cex=4.5, col="black", vjust=1, hjust = 1, fontface=2)
+        temp$plot <- temp$plot + ggplot2::annotate("text", x = 0, y = 0.0, label = hlable, cex=4.5, col="black", vjust=0, hjust = 0, fontface=2)
         #Update labels on the plot as requested via ChangeText
         temp$plot<-ChageLabels_ggplot(temp$plot,ChangeText=ChangeText)
         temp$table<-ChageLabels_ggplot(temp$table,ChangeText=ChangeText)
@@ -187,7 +187,8 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
         alltimepoints<-c()
         datatemp<-list()
         palette_cumlist<-list()
-        mycolor<-c("red","blue","green","orange")
+        #mycolor<-c("red","blue","green","orange")
+        mycolor<-scales::viridis_pal(option='C')(4)
         for (k in seq_along(plot_endpoints)){
           palette_cumlist[[plot_endpoints[k]]]<-mycolor[k]
           datatemp[[k]]<-data.frame(bootdata$comprisk$boot$strata[[paste(plot_arms[karm],plot_endpoints[k],sep=' ')]])

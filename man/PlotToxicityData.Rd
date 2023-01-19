@@ -19,7 +19,7 @@ PlotToxicityData(df, filepath, ChangeText = c(), VariablesInclInTox = c())
 Is returning word files with tables of patient toxicity data
 }
 \description{
-Creates patient toxicity tables divided by treatment arm and saves these as word files. For all plots, three versions are created: one for all patients and two for patients that have and have not had Durvalumab.
+Creates patient toxicity tables divided by treatment arm and saves these as word files. For all plots, three versions are created: one for all patients and two for patients with tumours of histology squamous or non-squamous.
 }
 \examples{
 file <- system.file('extdata','DemoData.csv',package="Narlal2")

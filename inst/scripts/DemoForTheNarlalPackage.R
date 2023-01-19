@@ -10,8 +10,10 @@ PtSurv <- ExtractSurvivalData(NarlalData,12*5)
 ChangeText<-c()
 ChangeText$ChangeLabels <- c(
   y='Cumulative distribution',
+  count='Differential distribution',
   `Time [months]`='Time since randomisation [months]',
   `Time [Months]`='Time since randomisation [months]'
+
 )
 ChangeText$ChangeVar <-c(
   arm='Treatment Arm',

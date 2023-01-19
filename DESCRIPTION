@@ -27,6 +27,7 @@ Imports:
     officer,
     ragg,
     readr,
+    scales,
     stats,
     stringr,
     survival,

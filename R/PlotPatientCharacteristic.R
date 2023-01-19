@@ -4,7 +4,7 @@
 #' @param df the output from the the function ExtracPatientCharacteristic
 #' @param filepath the filepath to the directory where the patient characteristics shall be stored
 #' @param ChangeText a variable used to change the text on plots just before they are plotted. The variable is defined in three part (see example below) that is used to change the text in variable/names, levels, and labels on the tables and plots. Note that ChangeText can also be used to combine different levels by mapping them to a common name (see the example in which sublevels of T1 are mapped to the same name)
-#' @return Is returning word files with tables of patient characteristics data and cumulative plots of all non-categorical parameters separated in the two treatment groups (the plots are stored both separately but also combined in one figure)
+#' @return Is returning word files with tables of patient characteristics data and cumulative and differential plots of all non-categorical parameters separated in the two treatment groups
 #' @export PlotPatientCharacteristic
 #'
 #' @examples file <- system.file('extdata','DemoData.csv',package="Narlal2")
@@ -80,12 +80,14 @@ PlotPatientCharacteristic <- function(df,filepath,ChangeText=c()){
       tab1_df <- tab1_df[, !names(tab1_df) %in% c("test")]
       customtab_defaults_Narlal()
       header <- paste("Patient characteristics.",paste(headerlabel,collapse=", "),sep=" ")
-      filename<-gsub(':', '',header)
-      filename<-gsub('\\.', '',filename)
-      filename<-gsub(',', '',filename)
-      filename<-gsub(' ', '_',filename)
-      filename<-paste(filename,'.docx',sep='')
-      filename <- file.path(filepath,filename)
+      #filename<-gsub(':', '',header)
+      #filename<-gsub('\\.', '',filename)
+      #filename<-gsub(',', '',filename)
+      #filename<-gsub(' ', '_',filename)
+      #filename<-paste(filename,'.docx',sep='')
+      #filename <- file.path(filepath,filename)
+      filename <- file.path(filepath,paste('Patient_characteristics_',DurvalumabLabel[i],'_',HistologyLabel[j],'.docx',sep=''))
+
       footer <- ""
       #flextable_1 <- custom_tab_Narlal(tab1_df, header, footer)
       flextable_1 <- custom_tab_Narlal(tab1_df, header)
@@ -99,27 +101,41 @@ PlotPatientCharacteristic <- function(df,filepath,ChangeText=c()){
       })
       #Start plotting cumulative distributions
       p_combined<-list()
+      p_combined_differential<-list()
       varnames<-setdiff(templistVars,tempcatVars)
       for (k in seq_along(varnames)){
         palette_temp<-c("red","blue")
         #p<-ggplot2::ggplot(tempdf, ggplot2::aes(ggplot2::.data[[varnames[k]]], colour = ggplot2::.data[[tempstratavar]])) + ggplot2::theme_classic()+ggplot2::stat_ecdf()  +ggplot2::scale_colour_manual(values=palette_temp)
         p<-ggplot2::ggplot(tempdf, ggplot2::aes( !!ggplot2::sym(varnames[k]), colour =  !!ggplot2::sym(tempstratavar))) + ggplot2::theme_classic()+ggplot2::stat_ecdf()  +ggplot2::scale_colour_manual(values=palette_temp)
-        p<-p+ ggplot2::theme(legend.position="top")+ggplot2::guides(color=ggplot2::guide_legend(nrow=2, byrow=TRUE))
+        p<-p+ ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank())#+ggplot2::guides(color=ggplot2::guide_legend(nrow=1, byrow=TRUE))
         #p<-p+ theme(legend.justification = c(1, 0),legend.position = c(1,0))
         p<-ChageLabels_ggplot(p,ChangeText=ChangeText)
         p_combined[[length(p_combined)+1]]<-p
-        filename<-paste('PatientCharacteristicsPlot',paste(headerlabel,collapse=", "),'Variable',varnames[k],sep='_')
-        filename<-gsub(':', '',filename)
-        filename<-gsub('\\.', '',filename)
-        filename<-gsub(',', '',filename)
-        filename<-gsub(' ', '_',filename)
-        filename<-paste(filename,'.png',sep='')
-        filename <- file.path(filepath,filename)
-        ggplot2::ggsave(filename,plot=p,device = ragg::agg_png,bg ="white",width=6, height=6, units="cm", res =300, scaling=.5)
+        boundary<-min(tempdf[[varnames[k]]],na.rm=TRUE)
+        binwidth<-(max(tempdf[[varnames[k]]],na.rm=TRUE)-boundary)/20
+        index<-tempdf[[tempstratavar]]==levels(tempdf[[tempstratavar]])[1]
+        p_combined_differential[[k]]<-ggplot2::ggplot() +
+          ggplot2::geom_histogram(ggplot2::aes(x=!!ggplot2::sym(varnames[k]), color = !!ggplot2::sym(tempstratavar),fill=!!ggplot2::sym(tempstratavar)),data=tempdf, size=1,position= "identity",bins=20) +
+          ggplot2::scale_colour_manual(values=palette_temp)+
+          #ggplot2::scale_fill_manual(values = ggplot2::alpha(palette_temp, 0.1))+
+          ggplot2::scale_fill_manual(values = c('#ff000030','#0000ff00'))+
+          ggplot2::theme_classic()+
+          ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank())
+        p_combined_differential[[k]]<-ChageLabels_ggplot(p_combined_differential[[k]],ChangeText=ChangeText)
+        #filename<-paste('PatientCharacteristicsPlot',paste(headerlabel,collapse=", "),'Variable',varnames[k],sep='_')
+        #filename<-gsub(':', '',filename)
+        #filename<-gsub('\\.', '',filename)
+        #filename<-gsub(',', '',filename)
+        #filename<-gsub(' ', '_',filename)
+        #filename<-paste(filename,'.png',sep='')
+        #filename <- file.path(filepath,filename)
+        #ggplot2::ggsave(filename,plot=p,device = ragg::agg_png,bg ="white",width=6, height=6, units="cm", res =300, scaling=.5)
 
       }
       nCol <- floor(sqrt(length(p_combined)))
       p_combined<-cowplot::plot_grid(plotlist=p_combined,ncol=nCol)
+      p_combined_differential<-cowplot::plot_grid(plotlist=p_combined_differential,ncol=nCol)
+      p_combined<-cowplot::plot_grid(p_combined,p_combined_differential,ncol=2)
       filename<-paste('PatientCharacteristicsPlot',paste(headerlabel,collapse=", "),'Variables_combined',sep='_')
       filename<-gsub(':', '',filename)
       filename<-gsub('\\.', '',filename)
@@ -127,7 +143,8 @@ PlotPatientCharacteristic <- function(df,filepath,ChangeText=c()){
       filename<-gsub(' ', '_',filename)
       filename<-paste(filename,'.png',sep='')
       filename <- file.path(filepath,filename)
-      ggplot2::ggsave(filename,plot=p_combined,device = ragg::agg_png,bg ="white",width=12, height=24, units="cm", res =300, scaling=.6)
+      filename <- file.path(filepath,paste('Patient_characteristics_plots',DurvalumabLabel[i],'_',HistologyLabel[j],'.png',sep=''))
+      ggplot2::ggsave(filename,plot=p_combined,device = ragg::agg_png,bg ="white",width=20, height=24, units="cm", res =300, scaling=.4)
       #End plotting cumulative distributions
     }
   }
