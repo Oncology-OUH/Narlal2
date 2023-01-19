@@ -130,6 +130,7 @@ PlotToxicityData <- function(df,filepath,ChangeText=c(),VariablesInclInTox=c()){
 
 
         listVars <- names(dftemp)
+        listVars <- setdiff(listVars,c('arm'))
         if (length(listVars)>0){
           if(!(tolower("All") %in% tolower(VarSelection))){
             listVars<-intersect(listVars,VarSelection)

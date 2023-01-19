@@ -63,7 +63,7 @@ VariablesInclInTox$Late<-c('dysphagia','fatigue','cough','infection')
 filepath<-tempdir()
 print(paste('Files are stored in: ',filepath,sep=''))
 PlotPatientCharacteristic(PtChar,filepath=filepath,ChangeText=ChangeText)
-PlotSurvivalData(PtSurv,filepath=filepath,nboot=10,conf.int=.95,seed=42,ChangeText=ChangeText)
+PlotSurvivalData(PtSurv,filepath=filepath,nboot=2000,conf.int=.95,seed=42,ChangeText=ChangeText)
 
 ChangeText$ChangeLevels <- c(
   Standard='Standard',
