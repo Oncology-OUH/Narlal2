@@ -30,14 +30,26 @@
 #' PlotPatientCharacteristic(df=PtChar,filepath='c:/home/cab/temp',ChangeText=ChangeText)
 PlotPatientCharacteristic <- function(df,filepath,ChangeText=c()){
 
-  listVars <- c("age", "gender","histology","T","N","Stadium","Perform","n_nav_rt","n_cis_rt","n_carbo_rt","FEV1","FVC","weight","height","MeanDose_T","MeanDose_N","MeanLung","Vol_T","Vol_N")
-  catVars <- c("gender","histology","T","N","Stadium","Perform","n_nav_rt","n_cis_rt","n_carbo_rt")
-  nonNormalVars <- c("age","FEV1","FVC","weight","height","MeanDose_T","MeanDose_N","MeanLung","Vol_T","Vol_N")
+  listVars <- c("age", "gender","histology","Stadium","Perform","FEV1_percent","DLCO_percent","smoking_baseline","fx_factor","daysRT","MeanDose_T","MeanDose_N","MeanLung","Vol_T","Vol_N","n_nav_rt","n_platin_rt")
+  catVars <- c("gender","histology","Stadium","Perform","smoking_baseline","fx_factor","n_platin_rt")
+  nonNormalVars <- c("age","FEV1_percent","DLCO_percent","daysRT","MeanDose_T","MeanDose_N","MeanLung","Vol_T","Vol_N","n_nav_rt")
 
 
   #DurvalumabLabel <- c('AllDurvalumab','YesDurvalumab','NoDurvalumab')
   DurvalumabLabel <- c('AllDurvalumab')
   HistologyLabel <- c('AllHistology','Squamous','NonSquamous')
+  #Create a factor variable based on the number of treatment fractions with the levels <30, 30-32,33, >33
+  df$fx_factor<-NA
+  df$fx_factor<-factor(df$fx_factor,levels=c('<30','30-32','33','>33'),ordered=TRUE)
+  index<-df$fx<30
+  df$fx_factor[index]<-'<30'
+  index<-df$fx>=30 & df$fx<=32
+  df$fx_factor[index]<-'30-32'
+  index<-df$fx==33
+  df$fx_factor[index]<-'33'
+  index<-df$fx>33
+  df$fx_factor[index]<-'>33'
+
   dforg<-df
   for (i in seq_along(DurvalumabLabel)){
     for (j in seq_along(HistologyLabel)){
@@ -78,8 +90,9 @@ PlotPatientCharacteristic <- function(df,filepath,ChangeText=c()){
       colnames(tab1_word)[1] <- "Variable"
       tab1_df <- as.data.frame(tab1_word)
       tab1_df <- tab1_df[, !names(tab1_df) %in% c("test")]
+      #tab1_df[1,1]<-'N'
       customtab_defaults_Narlal()
-      header <- paste("Patient characteristics.",paste(headerlabel,collapse=", "),sep=" ")
+      header <- paste("Patient characteristics and treatment details.",paste(headerlabel,collapse=", "),sep=" ")
       #filename<-gsub(':', '',header)
       #filename<-gsub('\\.', '',filename)
       #filename<-gsub(',', '',filename)
@@ -112,16 +125,58 @@ PlotPatientCharacteristic <- function(df,filepath,ChangeText=c()){
         p<-ChageLabels_ggplot(p,ChangeText=ChangeText)
         p_combined[[length(p_combined)+1]]<-p
         boundary<-min(tempdf[[varnames[k]]],na.rm=TRUE)
-        binwidth<-(max(tempdf[[varnames[k]]],na.rm=TRUE)-boundary)/20
+        binwidth<-(max(tempdf[[varnames[k]]],na.rm=TRUE)-boundary)/15
         index<-tempdf[[tempstratavar]]==levels(tempdf[[tempstratavar]])[1]
-        p_combined_differential[[k]]<-ggplot2::ggplot() +
-          ggplot2::geom_histogram(ggplot2::aes(x=!!ggplot2::sym(varnames[k]), color = !!ggplot2::sym(tempstratavar),fill=!!ggplot2::sym(tempstratavar)),data=tempdf, size=1,position= "identity",bins=20) +
-          ggplot2::scale_colour_manual(values=palette_temp)+
-          #ggplot2::scale_fill_manual(values = ggplot2::alpha(palette_temp, 0.1))+
-          ggplot2::scale_fill_manual(values = c('#ff000030','#0000ff00'))+
+        #Method 1
+        # p_combined_differential[[k]]<-ggplot2::ggplot() +
+        #   ggplot2::geom_histogram(ggplot2::aes(x=!!ggplot2::sym(varnames[k]), color = !!ggplot2::sym(tempstratavar),fill=!!ggplot2::sym(tempstratavar)),data=tempdf, size=1,position= "identity",bins=20) +
+        #   ggplot2::scale_colour_manual(values=palette_temp)+
+        #   #ggplot2::scale_fill_manual(values = ggplot2::alpha(palette_temp, 0.1))+
+        #   ggplot2::scale_fill_manual(values = c('#ff000030','#0000ff00'))+
+        #   ggplot2::theme_classic()+
+        #   ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank())
+        #p_combined_differential[[k]]<-ChageLabels_ggplot(p_combined_differential[[k]],ChangeText=ChangeText)
+
+        #Method 2
+        # p_combined_differential[[k]]<-ggplot2::ggplot() +
+        #   ggplot2::geom_histogram(ggplot2::aes(x=!!ggplot2::sym(varnames[k]), color = !!ggplot2::sym(tempstratavar),fill=!!ggplot2::sym(tempstratavar)),data=tempdf, binwidth=binwidth,size=.3,position= ggplot2::position_dodge(width=0.65*binwidth)) +
+        #   ggplot2::scale_colour_manual(values=c('#ff000000','#0000ff00'))+
+        #   #ggplot2::scale_fill_manual(values = ggplot2::alpha(palette_temp, 0.1))+
+        #   ggplot2::scale_fill_manual(values = c('#ff0000FF','#0000ffFF'))+
+        #   ggplot2::theme_classic()+
+        #   ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank())
+        # p_combined_differential[[k]]<-ChageLabels_ggplot(p_combined_differential[[k]],ChangeText=ChangeText)
+
+        #Method 3
+        maxval<-max(tempdf[[varnames[k]]])
+        minval<-min(tempdf[[varnames[k]]])
+        ngroups<-10
+        breaks<-(seq_len(ngroups+1)-1)/ngroups
+        breaks<-breaks*(maxval-minval)+minval
+        breaks[1]<-breaks[1]-0.0001*(maxval-minval)
+        breaks[length(breaks)]<-breaks[length(breaks)]+0.0001*(maxval-minval)
+        binwidth<-breaks[2]-breaks[1]
+
+        boxdata<-data.frame(x=rep(NA,2*(length(breaks)-1)),y=rep(NA,2*(length(breaks)-1)),col=rep(NA,2*(length(breaks)-1)))
+        boxoffset<-0.35*binwidth
+        for (m in 1:(length(breaks)-1)){
+          for (n in seq_along(levels(tempdf[[tempstratavar]]))){
+            boxdata$col[m+(n-1)*(length(breaks)-1)]<-levels(tempdf[[tempstratavar]])[n]
+            boxdata$x[m+(n-1)*(length(breaks)-1)]<-mean(c(breaks[m+1],breaks[m]))-(2*n-3)*boxoffset/2
+            index<-tempdf[[tempstratavar]]==levels(tempdf[[tempstratavar]])[n]
+            boxdata$y[m+(n-1)*(length(breaks)-1)]<-sum(tempdf[[varnames[k]]][index]<breaks[m+1] & tempdf[[varnames[k]]][index]>=breaks[m])
+          }
+        }
+        boxdata$col<-factor(boxdata$col,levels = levels(tempdf[[tempstratavar]]))
+        x<-y<-NULL #Hack to prevent check error related to ggplot
+        p_combined_differential[[k]]<-ggplot2::ggplot(data=boxdata, ggplot2::aes(x=x, y=y, fill = col)) +
+          ggplot2::geom_bar(width =0.3*binwidth,stat = "identity") +
+          ggplot2::scale_x_continuous() +
+          ggplot2::scale_fill_manual(values = c('#ff0000FF','#0000ffFF'))+
           ggplot2::theme_classic()+
+          ggplot2::labs(y= "Number of observations", x = varnames[k]) +
           ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank())
-        p_combined_differential[[k]]<-ChageLabels_ggplot(p_combined_differential[[k]],ChangeText=ChangeText)
+
         #filename<-paste('PatientCharacteristicsPlot',paste(headerlabel,collapse=", "),'Variable',varnames[k],sep='_')
         #filename<-gsub(':', '',filename)
         #filename<-gsub('\\.', '',filename)

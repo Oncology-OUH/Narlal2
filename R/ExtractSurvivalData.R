@@ -18,6 +18,7 @@ ExtractSurvivalData <- function(rawdata,censor_after_rt){
   df$arm <- factor(df$arm,levels = levels(rawdata$randomisering.factor))
   df$d_mors <- as.Date(NA)
   df$d_rt <- as.Date(NA)
+  df$d_registrering <- as.Date(NA)
   df$d_pd <- as.Date(NA)
   df$d_pd_cns <- as.Date(NA)
   df$d_pd_hep <- as.Date(NA)
@@ -48,6 +49,7 @@ ExtractSurvivalData <- function(rawdata,censor_after_rt){
     df$arm[[i]] <- rawdata$randomisering.factor[index_registration & index]
     df$d_mors[[i]] <- rawdata$d_mors[index_haendelse & index]
     df$d_rt[[i]] <- rawdata$d_rt[index_followup1 & index]
+    df$d_registrering[[i]] <- rawdata$d_registrering[index_registration & index]
     df$d_pd[[i]] <- rawdata$d_pd[index_haendelse & index]
     df$d_pd_cns[[i]] <- rawdata$d_pd_cns[index_haendelse & index]
     df$d_pd_hep[[i]] <- rawdata$d_pd_hep[index_haendelse & index]
@@ -65,7 +67,7 @@ ExtractSurvivalData <- function(rawdata,censor_after_rt){
   index_event <- as.numeric(df$d_pd) <= first_event_time
   index_event[is.na(index_event)] <- FALSE
   df$event_localcontrol <- index_event
-  df$t_localcontrol <- (first_event_time-as.numeric(df$d_rt))*12/365.25
+  df$t_localcontrol <- (first_event_time-as.numeric(df$d_registrering))*12/365.25
 
   #progression time
   temp <- cbind(df$d_pd_cns,df$d_pd_hep,df$d_pd_bon,df$d_pd_skin,df$d_pd_and,df$d_pd,df$d_censoring,df$d_mors)
@@ -78,7 +80,7 @@ ExtractSurvivalData <- function(rawdata,censor_after_rt){
 
   index_event <- temp_event_time <= progression_event_time
   df$event_progression <- index_event
-  df$t_progression <- (progression_event_time-as.numeric(df$d_rt))*12/365.25
+  df$t_progression <- (progression_event_time-as.numeric(df$d_registrering))*12/365.25
 
   #overall survival time
   temp <- cbind(df$d_censoring,df$d_mors)
@@ -86,7 +88,7 @@ ExtractSurvivalData <- function(rawdata,censor_after_rt){
   os_event_time <- apply(temp,1,min)
   index_event <- df$d_mors <= os_event_time
   df$event_os <- index_event
-  df$t_os <- (os_event_time-as.numeric(df$d_rt))*12/365.25
+  df$t_os <- (os_event_time-as.numeric(df$d_registrering))*12/365.25
 
   #first event - death local control or progressive disease (the below-created variables are used to create all the competing risk tables)
   temp <- cbind(df$d_pd_cns,df$d_pd_hep,df$d_pd_bon,df$d_pd_skin,df$d_pd_and)
@@ -109,7 +111,7 @@ ExtractSurvivalData <- function(rawdata,censor_after_rt){
   index[is.na(index)] <- FALSE
   first_event[index] <- 'mors'
   df$event_firstevent <- factor(first_event)
-  df$t_firstevent <- (first_event_time-as.numeric(df$d_rt))*12/365.25
+  df$t_firstevent <- (first_event_time-as.numeric(df$d_registrering))*12/365.25
 
   return(df)
 }

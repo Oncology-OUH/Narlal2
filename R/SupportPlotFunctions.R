@@ -137,3 +137,15 @@ ChageVarAndLevels_dataframe<-function(df,ChangeText=c()){
   }
   return(df)
 }
+MaxOrderedFactorsPerRow<-function(df){
+  result<-data.frame(res=matrix(NA,nrow=nrow(df),ncol=1))
+  result$res<-factor(result$res, levels=levels(df[1,1]),ordered=TRUE)
+  for (i in seq_len(nrow(df))){
+    temp<-c(df[i,1])
+    for (j in seq_len(ncol(df)-1)){
+      temp<-c(temp,df[i,j+1])
+    }
+    result$res[i]<-max(temp)
+  }
+  return(result$res)
+}

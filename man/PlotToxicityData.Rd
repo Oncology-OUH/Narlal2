@@ -19,7 +19,7 @@ PlotToxicityData(df, filepath, ChangeText = c(), VariablesInclInTox = c())
 Is returning word files with tables of patient toxicity data
 }
 \description{
-Creates patient toxicity tables divided by treatment arm and saves these as word files. For all plots, three versions are created: one for all patients and two for patients with tumours of histology squamous or non-squamous.
+Creates patient toxicity tables divided by treatment arm and saves these as word files. For all plots, three versions are created: one for all patients and two for patients with tumours of histology squamous or non-squamous. Furthermore, eight different versions of the table are made for each of the three histologies. Four different versions are created for the different time windows: During RT, Early, combined During and Early, and late. For each of these four, two versions are created one that includes toxicity until the first recurrence and one that includes all toxicity independent of recurrence status.
 }
 \examples{
 file <- system.file('extdata','DemoData.csv',package="Narlal2")

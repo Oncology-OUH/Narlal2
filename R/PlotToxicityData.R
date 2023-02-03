@@ -1,6 +1,6 @@
 #' Write word files containing patient toxicity data
 #' @description
-#' Creates patient toxicity tables divided by treatment arm and saves these as word files. For all plots, three versions are created: one for all patients and two for patients with tumours of histology squamous or non-squamous.
+#' Creates patient toxicity tables divided by treatment arm and saves these as word files. For all plots, three versions are created: one for all patients and two for patients with tumours of histology squamous or non-squamous. Furthermore, eight different versions of the table are made for each of the three histologies. Four different versions are created for the different time windows: During RT, Early, combined During and Early, and late. For each of these four, two versions are created one that includes toxicity until the first recurrence and one that includes all toxicity independent of recurrence status.
 #' @param df the output from the the function ExtractToxicityData
 #' @param filepath the filepath to the directory where the patient toxicity shall be stored
 #' @param ChangeText is a variable used to change the text on plots just before they are plotted. The variable is defined in three part (see example below) that is used to change the text in variable/names, levels, and labels on the tables and plots. Note that ChangeText can also be used to combine different levels by mapping them to a common name (see the example in which toxicity levels 0, 1, and 2 are mapped to the same name)
@@ -46,7 +46,7 @@ PlotToxicityData <- function(df,filepath,ChangeText=c(),VariablesInclInTox=c()){
   #DurvalumabLabel <- c('AllDurvalumab','YesDurvalumab','NoDurvalumab')
   DurvalumabLabel <- c('AllDurvalumab')
   HistologyLabel <- c('AllHistology','Squamous','NonSquamous')
-  TimeSinceRTLabel <-c('During','Early','DuringAndEarly','Late')
+  TimeSinceRTLabel <-c('DuringAll','DuringBeforeProgres','EarlyAll','EarlyBeforeProgres','DuringAndEarlyAll','DuringAndEarlyBeforeProgress','LateAll','LateBeforeProgres')
 
   # if ("During" %in% names(VariablesInclInTox)){
   #   During<-VariablesInclInTox$During
@@ -68,7 +68,7 @@ PlotToxicityData <- function(df,filepath,ChangeText=c(),VariablesInclInTox=c()){
   # } else{
   #   Late<-c('All')
   # }
-  index<-grep("^patient_id$|^arm$|^durvalumab$|^histology_squamous$|^During_*_*|^Early_*_*|^Late_*_*",names(df))
+  index<-grep("^patient_id$|^arm$|^durvalumab$|^histology_squamous$|^DuringAll_*_*|^DuringBeforeProgres_*_*|^EarlyAll_*_*|^EarlyBeforeProgres_*_*|^LateAll_*_*|^LateBeforeProgres_*_*",names(df))
   df<-df[,index]
   #Loop over Durvalumab status
   for (i in seq_along(DurvalumabLabel)){
@@ -83,23 +83,40 @@ PlotToxicityData <- function(df,filepath,ChangeText=c(),VariablesInclInTox=c()){
     for (j in seq_along(HistologyLabel)){
       #loop over time since RT
       for (k in seq_along(TimeSinceRTLabel)){
-        if (TimeSinceRTLabel[k]=='During'){
-          greppattern <- "^During_(.+)_[^_]+$"
+        if (TimeSinceRTLabel[k]=='DuringAll'){
+          greppattern <- "^DuringAll_(.+)_[^_]+$"
           VarSelection<-VariablesInclInTox$During
         }
-
-        if (TimeSinceRTLabel[k]=='Early'){
-          greppattern <- "^Early_(.+)_[^_]+$"
+        if (TimeSinceRTLabel[k]=='DuringBeforeProgres'){
+          greppattern <- "^DuringBeforeProgres_(.+)_[^_]+$"
+          VarSelection<-VariablesInclInTox$During
+        }
+        if (TimeSinceRTLabel[k]=='EarlyAll'){
+          greppattern <- "^EarlyAll_(.+)_[^_]+$"
           VarSelection<-VariablesInclInTox$Early
         }
-        if (TimeSinceRTLabel[k]=='DuringAndEarly'){
-          greppattern <- "^(?:During|Early)_(.+)_[^_]+$"
+        if (TimeSinceRTLabel[k]=='EarlyAllBeforeProgres'){
+          greppattern <- "^EarlyBeforeProgres_(.+)_[^_]+$"
+          VarSelection<-VariablesInclInTox$Early
+        }
+
+        if (TimeSinceRTLabel[k]=='DuringAndEarlyAll'){
+          greppattern <- "^(?:DuringAll|EarlyAll)_(.+)_[^_]+$"
           VarSelection<-VariablesInclInTox$DuringAndEarly
         }
-        if (TimeSinceRTLabel[k]=='Late'){
-          greppattern <- "^Early_(.+)_[^_]+$"
+        if (TimeSinceRTLabel[k]=='DuringAndEarlyBeforeProgres'){
+          greppattern <- "^(?:DuringAll|EarlyAll)_(.+)_[^_]+$"
+          VarSelection<-VariablesInclInTox$DuringAndEarly
+        }
+        if (TimeSinceRTLabel[k]=='LateAll'){
+          greppattern <- "^EarlyAll_(.+)_[^_]+$"
           VarSelection<-VariablesInclInTox$Late
         }
+        if (TimeSinceRTLabel[k]=='LateBeforeProgres'){
+          greppattern <- "^EarlyBeforeProgres_(.+)_[^_]+$"
+          VarSelection<-VariablesInclInTox$Late
+        }
+
         if (is.null(VarSelection)){
           VarSelection<-c('All')
         }
@@ -109,9 +126,6 @@ PlotToxicityData <- function(df,filepath,ChangeText=c(),VariablesInclInTox=c()){
           if (!is.na(extractedNames[m,2])){
             index<-extractedNames[,2]==extractedNames[m,2]
             index[is.na(index)]<-FALSE
-            if (sum(index)==0){
-              k=1
-            }
             similarData<-df[,index,drop=FALSE]
             maxvalue<-rep(NA,nrow(similarData))
             maxvalue<-factor(maxvalue,levels=c(0,1,2,3,4,5),ordered = TRUE)

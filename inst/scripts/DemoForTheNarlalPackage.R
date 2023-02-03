@@ -13,7 +13,6 @@ ChangeText$ChangeLabels <- c(
   count='Differential distribution',
   `Time [months]`='Time since randomisation [months]',
   `Time [Months]`='Time since randomisation [months]'
-
 )
 ChangeText$ChangeVar <-c(
   arm='Treatment Arm',
@@ -32,11 +31,17 @@ ChangeText$ChangeVar <-c(
   fatigue='Fatigue',
   dysphagia='Dysphagia',
   ps='Performance status',
-  n_nav_rt='No. Cisplatin',
-  n_cis_rt='No. Navelbine',
+  n_nav_rt='No. Navelbine',
+  n_cis_rt='No. Cisplatin',
   n_carbo_rt='No. Carboplatin',
+  n_platin_rt='No. platin during RT',
   cough='Cough',
-  infection='Infection'
+  infection='Infection',
+  FEV1_percent='FEV1 % of expected',
+  DLCO_percent='DLCO % of expected',
+  fx_factor='No. RT fractions',
+  smoking_baseline='Smoking at start RT',
+  daysRT='No. days during RT'
 )
 ChangeText$ChangeLevels <- c(
   Standard='Standard',
@@ -51,7 +56,16 @@ ChangeText$ChangeLevels <- c(
   mors='Death',
   `local+met`='Simultaneous local and distant failure',
   local='Locale failure',
-  met='Distant failure'
+  met='Distant failure',
+  Planocellulær='Squamous carcinoma',
+  Adenocarcinom='Adeno carcinoma',
+  Adenosquamøs='Adenosquamous carcinoma',
+  Udifferentieret='NOS',
+  `NSCLC NOS`='NOS',
+  Andet='NOS',
+  Recidiv='Recurrence',
+  Nej='No',
+  Ja='Yes'
 )
 
 VariablesInclInTox<-c()
@@ -61,6 +75,7 @@ VariablesInclInTox$DuringAndEarly<-c('dysphagia','fatigue','cough','infection')
 VariablesInclInTox$Late<-c('dysphagia','fatigue','cough','infection')
 
 filepath<-tempdir()
+#filepath='c:/home/cab/temp'
 print(paste('Files are stored in: ',filepath,sep=''))
 PlotPatientCharacteristic(PtChar,filepath=filepath,ChangeText=ChangeText)
 PlotSurvivalData(PtSurv,filepath=filepath,nboot=2000,conf.int=.95,seed=42,ChangeText=ChangeText)

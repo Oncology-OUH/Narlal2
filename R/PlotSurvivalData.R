@@ -40,7 +40,7 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
   formulatext_surv <- c(paste('survival::Surv(t_localcontrol,event_localcontrol)~get("',stratavar,'")',sep=''),
                    paste('survival::Surv(t_progression,event_progression) ~get("',stratavar,'")',sep=''),
                    paste('survival::Surv(t_os,event_os) ~get("',stratavar,'")',sep=''))
-  survival_titles <- c('Local control rate','Progression free survival','Overall survival')
+  survival_titles <- c('Loco-regional control rate','Recurrence free survival','Overall survival')
   #Loop over Durvalumab status
   for (i in seq_along(DurvalumabLabel)){
     indexDurvalumab<-rep(TRUE,nrow(df))
@@ -134,7 +134,7 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
       #Start plot of each endpoint in separate windows with both arms in the same window ####
       est<-arm<-upper_boot<-lower_boot<-NULL
       splots <- list()
-      plot_endpoints<-ChangeLevel_vector(c('local','mors','met','local+met'),ChangeText)
+      plot_endpoints<-ChangeLevel_vector(c('local','met','local+met','mors'),ChangeText)
       plot_arms<-ChangeLevel_vector(c('Standard','Eskaleret'),ChangeText)
       palette_temp<-c()
       palette_temp[[plot_arms[1]]]="red"
@@ -197,7 +197,9 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
           }
           alltimepoints<-c(alltimepoints,datatemp[[k]]$time)
         }
-        palette_cumlist<-unlist(palette_cumlist)
+        #palette_cumlist<-unlist(palette_cumlist)
+        palette_cumlist<-RColorBrewer::brewer.pal(n = 4, name = "PRGn")
+        palette_cumlist_edge<-c('#000000FF','#000000FF','#000000FF','#000000FF')
         alltimepoints<-sort(unique(alltimepoints))
         resampled_est<-list()
         for (k in seq_along(datatemp)){
@@ -214,19 +216,38 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
           resampled_est[[k]]$col<-plot_endpoints[k]
           resampled_est[[k]]<-data.frame(resampled_est[[k]])
         }
-        cumlist[[karm]]<-ggplot2::ggplot()+ggplot2::theme_classic()+ggplot2::ylim(0,1)+ ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank())
-        cumlist[[karm]]<-cumlist[[karm]]+ ggplot2::xlab('Time [Months]') + ggplot2::ylab('Stacked probability of first event')
-        cumlist[[karm]]<-cumlist[[karm]]+ ggplot2::annotate("text", x = 0, y = .9, label = plot_arms[karm], cex=4.5, col="black", vjust=0, hjust = 0.0, fontface=2)
+        cumlist[[karm]]<-ggplot2::ggplot()+ggplot2::theme_classic()
+        cumlist[[karm]]<-cumlist[[karm]]+ggplot2::scale_fill_manual(values=palette_cumlist)
+        cumlist[[karm]]<-cumlist[[karm]]+ggplot2::scale_colour_manual(values=palette_cumlist_edge)
+        if(karm==1){
+          hjust<-0
+          cumlist[[karm]]<-cumlist[[karm]]+ggplot2::ylim(0,1)
+        }else{
+          hjust=1
+          cumlist[[karm]]<-cumlist[[karm]]+ggplot2::scale_x_reverse()+ggplot2::scale_y_continuous(limits=c(0,1),position = "right")
+        }
+        cumlist[[karm]]<-cumlist[[karm]]+ ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank())
+        cumlist[[karm]]<-cumlist[[karm]]+ggplot2::xlab('Time [Months]') + ggplot2::ylab('Stacked probability of first event')
+        cumlist[[karm]]<-cumlist[[karm]]+ ggplot2::annotate("text", x = 0, y = .9, label = plot_arms[karm], cex=4.5, col="black", vjust=0, hjust = hjust, fontface=2)
         cumlist[[karm]]<-cumlist[[karm]]+ ggplot2::guides(fill=ggplot2::guide_legend(nrow=2,byrow=TRUE))
+        if (karm==2){
+          #Make legend invisible on the right-hand-side plot
+          cumlist[[karm]]<-cumlist[[karm]]+
+            ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(fill=NA,col=NA) ) )+
+            ggplot2::theme(legend.title = ggplot2::element_text(color = "transparent"),
+                legend.text = ggplot2::element_text(color = "transparent"))
+
+        }
         for (k in seq_len(length(resampled_est))){
           ytop<-paste("y",as.character(k),sep='')
           ybottom<-paste("y",as.character(k-1),sep='')
-          cumlist[[karm]]<-cumlist[[karm]]+ggplot2::geom_ribbon(ggplot2::aes(x=x,ymin=y_lower,ymax=y_upper,fill=col),data=resampled_est[[k]])
+          cumlist[[karm]]<-cumlist[[karm]]+ggplot2::geom_ribbon(ggplot2::aes(x=x,ymin=y_lower,ymax=y_upper,fill=col,col=col),data=resampled_est[[k]])
         }
         #cumlist[[karm]]<-cumlist[[karm]]+ggplot2::scale_color_manual(values=palette_cumlist)+ggplot2::scale_fill_manual(values=palette_cumlist)
-        cumlist[[karm]]<-cumlist[[karm]]+ggplot2::scale_fill_manual(values=palette_cumlist)
+        #cumlist[[karm]]<-cumlist[[karm]]+ggplot2::scale_fill_manual(values=palette_cumlist)
 
       }
+      #cumlist[[2]]<-cumlist[[2]]+ggplot2::scale_y_continuous(position = "right")
       nCol <- 2
       z<-cowplot::plot_grid(plotlist=cumlist, ncol=nCol)
 

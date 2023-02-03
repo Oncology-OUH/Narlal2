@@ -25,11 +25,14 @@ ExtractPatientCharacteristic <- function(rawdata){
   df$N <- NA
   df$N <- factor(df$N,levels = levels(rawdata$n.factor))
   df$Stadium <- NA
-  df$Stadium <- factor(df$Stadium,levels = levels(rawdata$stadium.factor))
+  df$Stadium <- factor(df$Stadium,levels = levels(rawdata$std.factor))
   df$Perform <- NA
   df$Perform <- factor(df$Perform,levels = levels(rawdata$ps.factor))
   df$FEV1 <- NA
+  df$FEV1_percent <- NA
   df$FVC <- NA
+  df$DLCO <- NA
+  df$DLCO_percent <- NA
   df$weight <- NA
   df$height <- NA
   df$MeanDose_T <- NA
@@ -44,10 +47,18 @@ ExtractPatientCharacteristic <- function(rawdata){
   df$n_cis_rt<-NA
   df$n_carbo_rt<-NA
   df$n_nav_rt<-NA
+  df$n_platin_rt<-NA
+  df$fx<-NA
+  df$smoking_baseline<-NA
+  df$smoking_baseline<-factor(df$smoking_baseline,levels = levels(rawdata$smoking.factor))
+  df$d_rt <- as.Date(NA)
+  df$d_rtend <- as.Date(NA)
+  df$daysRT<-NA
+
   index_registration <- rawdata$redcap_event_name == 'registration_arm_1'
   index_haendelse <- rawdata$redcap_event_name == 'haendelser_arm_1'
   index_followup1 <- rawdata$redcap_event_name == '1_followup_arm_1'
-
+  index_uge1 <- rawdata$redcap_event_name == 'uge_1_arm_1'
 
   for (i in seq_len(nrow(df))){
     index <- rawdata$patient_id==df$patient_id[i]
@@ -61,10 +72,12 @@ ExtractPatientCharacteristic <- function(rawdata){
     df$histology[[i]] <- rawdata$hist.factor[index_registration & index]
     df$T[[i]] <- rawdata$t.factor[index_registration & index]
     df$N[[i]] <- rawdata$n.factor[index_registration & index]
-    df$Stadium[[i]] <- rawdata$stadium.factor[index_registration & index]
+    df$Stadium[[i]] <- rawdata$std.factor[index_registration & index]
     df$Perform[[i]] <- rawdata$ps.factor[index_registration & index]
     df$FEV1[[i]] <- rawdata$fev1[index_registration & index]
     df$FVC[[i]] <- rawdata$fvc[index_registration & index]
+    df$DLCO[[i]] <- rawdata$dlco[index_registration & index]
+    df$DLCO_percent[[i]] <- rawdata$dlcoref[index_registration & index]
     df$weight[[i]] <- rawdata$weight[index_registration & index]
     df$height[[i]] <- rawdata$height[index_registration & index]
     df$durvalumab[[i]] <- rawdata$durvalumab.factor[index_haendelse & index]
@@ -76,8 +89,20 @@ ExtractPatientCharacteristic <- function(rawdata){
     df$n_cis_rt[[i]]<-rawdata$n_cis_rt[index_followup1 & index]
     df$n_carbo_rt[[i]]<-rawdata$n_carbo_rt[index_followup1 & index]
     df$n_nav_rt[[i]]<-rawdata$n_nav_rt[index_followup1 & index]
+    df$fx[[i]]<-rawdata$fx[index_followup1 & index]
     df$histology_squamous[[i]] <- rawdata$histology_squamous.factor[index_registration & index]
-
+    df$smoking_baseline[[i]] <- rawdata$smoking.factor[index_uge1 & index]
+    df$d_rt[[i]] <- rawdata$d_rt[index_followup1 & index]
+    df$d_rtend[[i]] <- rawdata$d_rtsl[index_followup1 & index]
   }
+  #Calculate FEV1_percent since only available as absolute in the database
+  #The equation for reference values are obtained from Loekke A, et al. "New Danish reference values for spirometry" Clin Respir J. 2013;7(2):153-67.
+  index<-df$gender=="Kvinde"
+  df$FEV1_percent[index] <- 100*df$FEV1[index]/(-1.35015-0.00024*df$age[index]^2+0.02923*df$height[index])
+  df$FEV1_percent[!index] <- 100*df$FEV1[!index]/(-2.87615-0.00026*df$age[!index]^2+0.04201*df$height[!index])
+  #Extract as one variable the sum of n_carbo_rt and n_cis_rt
+  df$n_platin_rt <- apply(cbind(df$n_cis_rt,df$n_carbo_rt),1,max,na.rm=TRUE)
+  #Calculate number of days during RT
+  df$daysRT<-as.numeric(df$d_rtend-df$d_rt)
   return(df)
 }

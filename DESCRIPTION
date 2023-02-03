@@ -26,6 +26,7 @@ Imports:
     lubridate,
     officer,
     ragg,
+    RColorBrewer,
     readr,
     scales,
     stats,

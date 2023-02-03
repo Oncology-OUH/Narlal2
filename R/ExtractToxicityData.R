@@ -31,6 +31,14 @@ ExtractToxicityData <- function(rawdata){
   df$durvalumab <- factor(df$durvalumab,levels = levels(rawdata$durvalumab.factor))
   df$histology_squamous <- NA
   df$histology_squamous <- factor(df$durvalumab,levels = levels(rawdata$histology_squamous.factor))
+  df$d_rt <- as.Date(NA)
+  df$d_registrering <- as.Date(NA)
+  df$d_pd <- as.Date(NA)
+  df$d_pd_cns <- as.Date(NA)
+  df$d_pd_hep <- as.Date(NA)
+  df$d_pd_bon <- as.Date(NA)
+  df$d_pd_skin <- as.Date(NA)
+  df$d_pd_and <- as.Date(NA)
 
   for (j in week_number){
     redcap_name <- paste("uge_",as.character(j),"_arm_1",sep="")
@@ -87,53 +95,81 @@ ExtractToxicityData <- function(rawdata){
     df$arm[[i]] <- rawdata$randomisering.factor[index_registration & index]
     df$durvalumab[[i]] <- rawdata$durvalumab.factor[index_haendelse & index]
     df$histology_squamous[[i]] <- rawdata$histology_squamous.factor[index_registration & index]
+    df$d_rt[[i]] <- rawdata$d_rt[index_followup1 & index]
+    df$d_registrering[[i]] <- rawdata$d_registrering[index_registration & index]
+    df$d_pd[[i]] <- rawdata$d_pd[index_haendelse & index]
+    df$d_pd_cns[[i]] <- rawdata$d_pd_cns[index_haendelse & index]
+    df$d_pd_hep[[i]] <- rawdata$d_pd_hep[index_haendelse & index]
+    df$d_pd_bon[[i]] <- rawdata$d_pd_bon[index_haendelse & index]
+    df$d_pd_skin[[i]] <- rawdata$d_pd_skin[index_haendelse & index]
+    df$d_pd_and[[i]] <- rawdata$d_pd_and[index_haendelse & index]
   }
+  #Add first progression date (need to only count tox before progression)
+  temp <- data.frame(df$d_pd_cns,df$d_pd_hep,df$d_pd_bon,df$d_pd_skin,df$d_pd_and,df$d_pd)
+  temp[is.na(temp)] <- Sys.Date()+500*365 #Current time plus 500 years
+  df$d_progression <- as.Date(apply(temp,1,min))
+
   #Add variable with maximum degree during RT
   for (k in tox_variable_rt){
-    data <- c()
+    data_max<-data.frame(matrix(NA,nrow=nrow(df),ncol=0))
+    data_before<-data.frame(matrix(NA,nrow=nrow(df),ncol=0))
     for (j in week_number){
       early_var <- paste(k,"_uge_",as.character(j),sep="")
-      temp<-as.integer(as.character(df[[early_var]]))
-      data <- cbind(data,temp)
+      data_max[[as.character(j)]] <- factor(df[[early_var]],levels = c(0,1,2,3,4,5),ordered = TRUE)
+      data_before[[as.character(j)]] <- factor(df[[early_var]],levels = c(0,1,2,3,4,5),ordered = TRUE)
+      #index those with current time prior to progression
+      index<-(df$d_rt+j*7)<df$d_progression
+      data_before[[as.character(j)]][!index] <-0
     }
-    data[is.na(data)] <- -Inf
-    temp <- apply(data,1,max,na.rm=TRUE)
-    temp[!is.finite(temp)] <- NA
-    varname <- paste("During_",k,sep="")
-    df[[varname]]<- factor(temp)
+    data_max[is.na(data_max)] <- 0
+    data_before[is.na(data_before)] <- 0
+    varname <- paste("DuringAll_",k,sep="")
+    df[[varname]]<- MaxOrderedFactorsPerRow(data_max)
+    varname <- paste("DuringBeforeProgres_",k,sep="")
+    df[[varname]]<- MaxOrderedFactorsPerRow(data_before)
   }
   #Add variable with maximum degree during 3 and 6 month followup
   Early_followup <- c(3,6)
   for (k in tox_variable_fu){
-    data <- c()
+    data_max<-data.frame(matrix(NA,nrow=nrow(df),ncol=0))
+    data_before<-data.frame(matrix(NA,nrow=nrow(df),ncol=0))
     for (j in Early_followup){
       early_var <- paste(k,"_mdr_",as.character(j),sep="")
-      temp<-as.integer(as.character(df[[early_var]]))
-      data <- cbind(data,temp)
+      data_max[[as.character(j)]] <- factor(df[[early_var]],levels = c(0,1,2,3,4,5),ordered = TRUE)
+      data_before[[as.character(j)]] <- factor(df[[early_var]],levels = c(0,1,2,3,4,5),ordered = TRUE)
+      #index those with current time prior to progression
+      index<-(df$d_rt+j*365.25/12)<df$d_progression
+      data_before[[as.character(j)]][!index] <-0
     }
-    data[is.na(data)] <- -Inf
-    temp <- apply(data,1,max,na.rm=TRUE)
-    temp[!is.finite(temp)] <- NA
-    varname <- paste("Early_",k,sep="")
-    df[[varname]]<- factor(temp)
+    data_max[is.na(data_max)] <- 0
+    data_before[is.na(data_before)] <- 0
+    varname <- paste("EarlyAll_",k,sep="")
+    df[[varname]]<- MaxOrderedFactorsPerRow(data_max)
+    varname <- paste("EarlyBeforeProgres_",k,sep="")
+    df[[varname]]<- MaxOrderedFactorsPerRow(data_before)
   }
   #Add variable with maximum degree after 6 months
 
   for (k in tox_variable_fu){
-    data <- c()
+    data_max<-data.frame(matrix(NA,nrow=nrow(df),ncol=0))
+    data_before<-data.frame(matrix(NA,nrow=nrow(df),ncol=0))
     for (j in setdiff(month_number,Early_followup)){
       early_var <- paste(k,"_mdr_",as.character(j),sep="")
-      temp<-as.integer(as.character(df[[early_var]]))
-      data <- cbind(data,temp)
+      data_max[[as.character(j)]] <- factor(df[[early_var]],levels = c(0,1,2,3,4,5),ordered = TRUE)
+      data_before[[as.character(j)]] <- factor(df[[early_var]],levels = c(0,1,2,3,4,5),ordered = TRUE)
+      #index those with current time prior to progression
+      index<-(df$d_rt+j*365.25/12)<df$d_progression
+      data_before[[as.character(j)]][!index] <-0
     }
-    data[is.na(data)] <- -Inf
-    temp <- apply(data,1,max,na.rm=TRUE)
-    temp[!is.finite(temp)] <- NA
-    varname <- paste("Late_",k,sep="")
-    df[[varname]]<- factor(temp)
+    data_max[is.na(data_max)] <- 0
+    data_before[is.na(data_before)] <- 0
+    varname <- paste("LateAll_",k,sep="")
+    df[[varname]]<- MaxOrderedFactorsPerRow(data_max)
+    varname <- paste("LateBeforeProgres_",k,sep="")
+    df[[varname]]<- MaxOrderedFactorsPerRow(data_max)
   }
   #Find variables that start with the name During, Early, or Late and contains at least two underscores and extract the part between the first and the last underscore
-  extractedNames<-stringr::str_match(names(df), "^(?:During|Early|Late)_(.+)_[^_]+$") #
+  extractedNames<-stringr::str_match(names(df), "^(?:DuringAll|DuringBeforeProgres|EarlyAll|EarlyBeforeProgres|LateAll|LateBeforeProgres)_(.+)_[^_]+$")
   varNames<-names(df)[!is.na(extractedNames[,1])]
   for (i in seq_along(varNames)){
     if(is.factor(df[[varNames[i]]])){
