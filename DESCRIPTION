@@ -1,6 +1,6 @@
 Package: Narlal2
 Title: Statistical analysis for the clinical trial NARLAL2
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: 
     person("Carsten", "Brink", , "carsten.brink@rsyd.dk", role = c("aut", "cre"),
            comment = c(ORCID = "https://orcid.org/0000-0003-3906-1962"))
