@@ -120,6 +120,15 @@ PlotToxicityData <- function(df,filepath,ChangeText=c(),VariablesInclInTox=c()){
         if (is.null(VarSelection)){
           VarSelection<-c('All')
         }
+        # The grep pattern will select the relevant toxicity based on their time since RT:
+        # During, Early, Late, or During and Early. The extracted names will in the first column
+        # have the names that match the grep pattern, and in the second column, the toxicity
+        # name by removing characters before the first underscore and after the last underscore.
+        # The “During and Early” will leave two scores per toxicity (During and Early), which
+        # need to be combined using the max function. These scores are identified in a loop below
+        # with the variable similarData, and based on that, the help function
+        # MaxOrderedFactorsPerRow is called to produce the max value per patient.
+
         extractedNames<-stringr::str_match(names(df), greppattern)
         dftemp<-data.frame(matrix(NA,nrow=nrow(df),ncol=0))
         for(m in seq_len(nrow(extractedNames))){
@@ -127,16 +136,19 @@ PlotToxicityData <- function(df,filepath,ChangeText=c(),VariablesInclInTox=c()){
             index<-extractedNames[,2]==extractedNames[m,2]
             index[is.na(index)]<-FALSE
             similarData<-df[,index,drop=FALSE]
-            maxvalue<-rep(NA,nrow(similarData))
-            maxvalue<-factor(maxvalue,levels=c(0,1,2,3,4,5),ordered = TRUE)
-            for (n in seq_len(nrow(similarData))){
-              if (!all(is.na(similarData[n,]))){
-                temp<-unlist(similarData[n,])
-                temp<-ordered(temp,levels=c(0,1,2,3,4,5))
-                maxvalue[n]<-max(temp,na.rm=TRUE)
-              }
-            }
-            dftemp[[extractedNames[m,2]]]<-maxvalue
+            similarData[is.na(similarData)]<-0
+            dftemp[[extractedNames[m,2]]]<-MaxOrderedFactorsPerRow(similarData)
+
+            #maxvalue<-rep(NA,nrow(similarData))
+            #maxvalue<-factor(maxvalue,levels=c(0,1,2,3,4,5),ordered = TRUE)
+            #for (n in seq_len(nrow(similarData))){
+            #  if (!all(is.na(similarData[n,]))){
+            #   temp<-unlist(similarData[n,])
+            #    temp<-ordered(temp,levels=c(0,1,2,3,4,5))
+            #    maxvalue[n]<-max(temp,na.rm=TRUE)
+            #  }
+            #}
+            #dftemp[[extractedNames[m,2]]]<-maxvalue
             extractedNames[index,]<-NA
           }
         }
