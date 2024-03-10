@@ -38,6 +38,7 @@
 #' VariablesInclInTox$Early<-c('dysphagia','fatigue')
 #' VariablesInclInTox$DuringAndEarly<-c('dysphagia','fatigue')
 #' VariablesInclInTox$Late<-c('ps')
+#' VariablesInclInTox$AllMax<-c('dysphagia','fatigue','ps')
 
 #' PlotToxicityData(df=PtTox,filepath='c:/home/cab/temp',ChangeText=ChangeText,
 #'                     VariablesInclInTox=VariablesInclInTox)
@@ -46,7 +47,7 @@ PlotToxicityData <- function(df,filepath,ChangeText=c(),VariablesInclInTox=c()){
   #DurvalumabLabel <- c('AllDurvalumab','YesDurvalumab','NoDurvalumab')
   DurvalumabLabel <- c('AllDurvalumab')
   HistologyLabel <- c('AllHistology','Squamous','NonSquamous')
-  TimeSinceRTLabel <-c('DuringAll','DuringBeforeProgres','EarlyAll','EarlyBeforeProgres','DuringAndEarlyAll','DuringAndEarlyBeforeProgress','LateAll','LateBeforeProgres')
+  TimeSinceRTLabel <-c('During','Early','DuringAndEarly','Late','AllMax')
 
   # if ("During" %in% names(VariablesInclInTox)){
   #   During<-VariablesInclInTox$During
@@ -68,7 +69,7 @@ PlotToxicityData <- function(df,filepath,ChangeText=c(),VariablesInclInTox=c()){
   # } else{
   #   Late<-c('All')
   # }
-  index<-grep("^patient_id$|^arm$|^durvalumab$|^histology_squamous$|^DuringAll_*_*|^DuringBeforeProgres_*_*|^EarlyAll_*_*|^EarlyBeforeProgres_*_*|^LateAll_*_*|^LateBeforeProgres_*_*",names(df))
+  index<-grep("^patient_id$|^arm$|^durvalumab$|^histology_squamous$|^During_.*|^Early_.*|^DuringAndEarly_.*|^Late_.*|^AllMax_.*",names(df))
   df<-df[,index]
   #Loop over Durvalumab status
   for (i in seq_along(DurvalumabLabel)){
@@ -81,45 +82,41 @@ PlotToxicityData <- function(df,filepath,ChangeText=c(),VariablesInclInTox=c()){
     }
     #loop over histology status
     for (j in seq_along(HistologyLabel)){
+      indexHistology <- rep(TRUE,nrow(df))
+      if (HistologyLabel[j]=='Squamous'){
+        indexHistology[df$histology_squamous!='Squamous'] <- FALSE
+      }
+      if (HistologyLabel[j]=='NonSquamous'){
+        indexHistology[df$histology_squamous=='Squamous'] <- FALSE
+      }
       #loop over time since RT
       for (k in seq_along(TimeSinceRTLabel)){
-        if (TimeSinceRTLabel[k]=='DuringAll'){
-          greppattern <- "^DuringAll_(.+)_[^_]+$"
+        if (TimeSinceRTLabel[k]=='During'){
+          #greppattern <- "^DuringAll_(.+)_[^_]+$"
+          greppattern <- "^During_.*"
           VarSelection<-VariablesInclInTox$During
         }
-        if (TimeSinceRTLabel[k]=='DuringBeforeProgres'){
-          greppattern <- "^DuringBeforeProgres_(.+)_[^_]+$"
-          VarSelection<-VariablesInclInTox$During
-        }
-        if (TimeSinceRTLabel[k]=='EarlyAll'){
-          greppattern <- "^EarlyAll_(.+)_[^_]+$"
+        if (TimeSinceRTLabel[k]=='Early'){
+          greppattern <- "^Early_.*"
           VarSelection<-VariablesInclInTox$Early
         }
-        if (TimeSinceRTLabel[k]=='EarlyAllBeforeProgres'){
-          greppattern <- "^EarlyBeforeProgres_(.+)_[^_]+$"
-          VarSelection<-VariablesInclInTox$Early
-        }
-
-        if (TimeSinceRTLabel[k]=='DuringAndEarlyAll'){
-          greppattern <- "^(?:DuringAll|EarlyAll)_(.+)_[^_]+$"
+        if (TimeSinceRTLabel[k]=='DuringAndEarly'){
+          greppattern <- "^DuringAndEarly_.*"
           VarSelection<-VariablesInclInTox$DuringAndEarly
         }
-        if (TimeSinceRTLabel[k]=='DuringAndEarlyBeforeProgres'){
-          greppattern <- "^(?:DuringAll|EarlyAll)_(.+)_[^_]+$"
-          VarSelection<-VariablesInclInTox$DuringAndEarly
-        }
-        if (TimeSinceRTLabel[k]=='LateAll'){
-          greppattern <- "^EarlyAll_(.+)_[^_]+$"
+
+        if (TimeSinceRTLabel[k]=='Late'){
+          greppattern <- "^Late_.*"
           VarSelection<-VariablesInclInTox$Late
         }
-        if (TimeSinceRTLabel[k]=='LateBeforeProgres'){
-          greppattern <- "^EarlyBeforeProgres_(.+)_[^_]+$"
-          VarSelection<-VariablesInclInTox$Late
+        if (TimeSinceRTLabel[k]=='AllMax'){
+          greppattern <- "^AllMax_.*"
+          VarSelection<-VariablesInclInTox$AllMax
+        }
+        if (length(VariablesInclInTox)==0){
+          VarSelection<-c('AllVar')
         }
 
-        if (is.null(VarSelection)){
-          VarSelection<-c('All')
-        }
         # The grep pattern will select the relevant toxicity based on their time since RT:
         # During, Early, Late, or During and Early. The extracted names will in the first column
         # have the names that match the grep pattern, and in the second column, the toxicity
@@ -129,36 +126,41 @@ PlotToxicityData <- function(df,filepath,ChangeText=c(),VariablesInclInTox=c()){
         # with the variable similarData, and based on that, the help function
         # MaxOrderedFactorsPerRow is called to produce the max value per patient.
 
-        extractedNames<-stringr::str_match(names(df), greppattern)
-        dftemp<-data.frame(matrix(NA,nrow=nrow(df),ncol=0))
-        for(m in seq_len(nrow(extractedNames))){
-          if (!is.na(extractedNames[m,2])){
-            index<-extractedNames[,2]==extractedNames[m,2]
-            index[is.na(index)]<-FALSE
-            similarData<-df[,index,drop=FALSE]
-            similarData[is.na(similarData)]<-0
-            dftemp[[extractedNames[m,2]]]<-MaxOrderedFactorsPerRow(similarData)
+        indexSelect <- indexDurvalumab & indexHistology
+        dfSelected<-df[indexSelect,]
+        indexVar <- grepl(greppattern,names(dfSelected))
+        #extractedNames<-stringr::str_match(names(dfSelected), greppattern)
+        dftemp<-dfSelected[,indexVar]
+        # dftemp<-data.frame(matrix(NA,nrow=nrow(dfSelected),ncol=0))
+        # for(m in seq_len(nrow(extractedNames))){
+        #   if (!is.na(extractedNames[m,2])){
+        #     index<-extractedNames[,2]==extractedNames[m,2]
+        #     index[is.na(index)]<-FALSE
+        #     similarData<-dfSelected[,index,drop=FALSE]
+        #     #similarData[is.na(similarData)]<-0
+        #     dftemp[[extractedNames[m,2]]]<-MaxOrderedFactorsPerRow(similarData)
+        #
+        #     #maxvalue<-rep(NA,nrow(similarData))
+        #     #maxvalue<-factor(maxvalue,levels=c(0,1,2,3,4,5),ordered = TRUE)
+        #     #for (n in seq_len(nrow(similarData))){
+        #     #  if (!all(is.na(similarData[n,]))){
+        #     #   temp<-unlist(similarData[n,])
+        #     #    temp<-ordered(temp,levels=c(0,1,2,3,4,5))
+        #     #    maxvalue[n]<-max(temp,na.rm=TRUE)
+        #     #  }
+        #     #}
+        #     #dftemp[[extractedNames[m,2]]]<-maxvalue
+        #     extractedNames[index,]<-NA
+        #   }
+        # }
+        dftemp$arm<-dfSelected$arm
+        #extracted_text <- sub("^[^_]+_(.*)_[^_]+$", "\\1", names(dftemp))
 
-            #maxvalue<-rep(NA,nrow(similarData))
-            #maxvalue<-factor(maxvalue,levels=c(0,1,2,3,4,5),ordered = TRUE)
-            #for (n in seq_len(nrow(similarData))){
-            #  if (!all(is.na(similarData[n,]))){
-            #   temp<-unlist(similarData[n,])
-            #    temp<-ordered(temp,levels=c(0,1,2,3,4,5))
-            #    maxvalue[n]<-max(temp,na.rm=TRUE)
-            #  }
-            #}
-            #dftemp[[extractedNames[m,2]]]<-maxvalue
-            extractedNames[index,]<-NA
-          }
-        }
-        dftemp$arm<-df$arm
-
-
+        names(dftemp) <- sub("^[^_]+_(.*)_[^_]+$", "\\1", names(dftemp)) #Extract the partt of the name between the first and the last underscore
         listVars <- names(dftemp)
         listVars <- setdiff(listVars,c('arm'))
         if (length(listVars)>0){
-          if(!(tolower("All") %in% tolower(VarSelection))){
+          if(!(tolower("AllVar") %in% tolower(VarSelection))){
             listVars<-intersect(listVars,VarSelection)
           }
           catVars <- listVars
@@ -167,9 +169,11 @@ PlotToxicityData <- function(df,filepath,ChangeText=c(),VariablesInclInTox=c()){
           catVars <-  ChangeVar_vector(catVars,ChangeText=ChangeText)
           treatarm<-ChangeVar_vector(c("arm"),ChangeText=ChangeText)
           listVars<-ChangeVar_vector(listVars,ChangeText=ChangeText)
-          table1 <- tableone::CreateTableOne(vars = listVars, data = dftemp, factorVars = catVars,strata = treatarm,includeNA = FALSE,test=TRUE,addOverall=TRUE)
+          #table1 <- tableone::CreateTableOne(vars = listVars, data = dftemp, factorVars = catVars,strata = treatarm,includeNA = FALSE,test=TRUE,addOverall=TRUE)
+
+          table1 <- tableone::CreateTableOne(vars = listVars, data = dftemp,strata = treatarm,includeNA = TRUE,test=TRUE,addOverall=TRUE)
           tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F, exact = catVars,
-                             dropEqual = F,explain = T)
+                             dropEqual = F,explain = T,showAllLevels = TRUE)
           tab1_word <- cbind(rownames(tab1_word),tab1_word)
           colnames(tab1_word)[1] <- "Variable"
           tab1_df <- as.data.frame(tab1_word)

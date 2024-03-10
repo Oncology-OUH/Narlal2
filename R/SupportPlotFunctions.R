@@ -145,7 +145,12 @@ MaxOrderedFactorsPerRow<-function(df){
     for (j in seq_len(ncol(df)-1)){
       temp<-c(temp,df[i,j+1])
     }
-    result$res[i]<-max(temp)
+    if (!all(is.na(temp))){
+      result$res[i]<-max(temp,na.rm = TRUE)
+    }else{
+      result$res[i]<-NA
+    }
+
   }
   return(result$res)
 }

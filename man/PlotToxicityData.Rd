@@ -50,6 +50,7 @@ VariablesInclInTox$During<-c('dysphagia','fatigue','ps')
 VariablesInclInTox$Early<-c('dysphagia','fatigue')
 VariablesInclInTox$DuringAndEarly<-c('dysphagia','fatigue')
 VariablesInclInTox$Late<-c('ps')
+VariablesInclInTox$AllMax<-c('dysphagia','fatigue','ps')
 PlotToxicityData(df=PtTox,filepath='c:/home/cab/temp',ChangeText=ChangeText,
                     VariablesInclInTox=VariablesInclInTox)
 }

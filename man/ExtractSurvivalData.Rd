@@ -4,12 +4,10 @@
 \alias{ExtractSurvivalData}
 \title{Extract survival data}
 \usage{
-ExtractSurvivalData(rawdata, censor_after_rt)
+ExtractSurvivalData(rawdata)
 }
 \arguments{
 \item{rawdata}{the data.frame obtained from LoadAndPrepareData}
-
-\item{censor_after_rt}{value in month of the latest value to censor after RT. Needs to be fixed then the database has a censor date included}
 }
 \value{
 data.frame that contain survival data
@@ -20,5 +18,5 @@ data.frame that contain survival data
 \examples{
 file <- system.file('extdata','DemoData.csv',package="Narlal2")
 df <- LoadAndPrepareData(filename=file)
-PtSurv <- ExtractSurvivalData(df,12*5)
+PtSurv <- ExtractSurvivalData(df)
 }

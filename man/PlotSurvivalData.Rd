@@ -35,7 +35,7 @@ Creates survival plots divided by treatment arm of local control, progression-fr
 \examples{
 file <- system.file('extdata','DemoData.csv',package="Narlal2")
 df <- LoadAndPrepareData(filename=file)
-PtSurvival <- ExtractSurvivalData(df,12*5)
+PtSurvival <- ExtractSurvivalData(df)
 ChangeText<-c()
 ChangeText$ChangeLabels <- c(
   `Time [months]`='Time since randomisation [Months]'

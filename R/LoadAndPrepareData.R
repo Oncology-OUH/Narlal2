@@ -14,11 +14,278 @@
 #This has not been implemented yet
 
 LoadAndPrepareData <- function(filename='ExternalData/DemoData.csv'){
-  data <- readr::read_csv(filename,show_col_types = FALSE)
+  #browser()
+  data <- readr::read_csv(filename,show_col_types = FALSE,
+                          col_types = list( "n_neocarbo_aarsag" = readr::col_character(),
+                                            "othertox1_description"=readr::col_character(),
+                                            "othertox2_description"=readr::col_character(),
+                                            "othertox3_description"=readr::col_character(),
+                                            "heart_late_retro_notes"=readr::col_character(),
+                                            "lung_late_retro_notes"=readr::col_character(),
+                                            "esoph_late_retro_notes"=readr::col_character(),
+                                            "pain_late_retro_notes"=readr::col_character(),
+                                            "bron_late_retro_notes"=readr::col_character(),
+                                            "trachea_late_retro_notes"=readr::col_character(),
+                                            "rtmyelo_late_retro_notes"=readr::col_character(),
+                                            "cutis_late_retro_notes"=readr::col_character(),
+                                            "heart_late_pro_notes"=readr::col_character(),
+                                            "lung_late_pro_notes"=readr::col_character(),
+                                            "esoph_late_pro_notes"=readr::col_character(),
+                                            "pain_late_pro_notes"=readr::col_character(),
+                                            "bron_late_pro_notes"=readr::col_character(),
+                                            "trachea_late_pro_notes"=readr::col_character(),
+                                            "rtmyelo_late_pro_notes"=readr::col_character(),
+                                            "cutis_late_pro_notes"=readr::col_character(),
+                                            "n_and_rt_type"=readr::col_character(),
+                                            "other_imaging_modality"=readr::col_character(),
+                                            "further_imaging_other_1"=readr::col_character(),
+                                            "further_imaging_other_2"=readr::col_character(),
+                                            "further_imaging_other_3"=readr::col_character(),
+                                            "relapse_n_location_other"=readr::col_character(),
+                                            "no_kemo_rt_and_type"=readr::col_character(),
+                                            "no_kemo_rt_and_type2"=readr::col_character(),
+                                            "no_carbo_rt_and_type"=readr::col_character(),
+                                            "no_carbo_rt_and_type2"=readr::col_character(),
+                                            "no_nav_rt_and_type"=readr::col_character(),
+                                            "no_nav_rt_and_type2"=readr::col_character(),
+                                            "replan_2_aarsag"=readr::col_character(),
+                                            "replan_3_aarsag"=readr::col_character(),
+                                            "replan_4_aarsag"=readr::col_character(),
+                                            "pd_chemo1_type"=readr::col_character(),
+                                            "pd_chemo2_type"=readr::col_character(),
+                                            "pd_chemo3_type"=readr::col_character(),
+                                            "other_tox1_rt_type"=readr::col_character(),
+                                            "other_tox2_rt_type"=readr::col_character(),
+                                            "other_tox3_rt_type"=readr::col_character(),
+                                            "d_and2_rt"=readr::col_date(),
+                                            "d_and2_rtsl"=readr::col_date(),
+                                            "d_and3_rt"=readr::col_date(),
+                                            "d_and3_rtsl"=readr::col_date(),
+                                            "d_carbo_rt"=readr::col_date(),
+                                            "d_carbo_rtsl"=readr::col_date(),
+                                            "d_cis_rt"=readr::col_date(),
+                                            "d_cis_rtsl"=readr::col_date(),
+                                            "d_diag"=readr::col_date(),
+                                            #"d_durvalumab"=readr::col_date(),
+                                            #"d_durvalumab_end"=readr::col_date(),
+                                            "d_mors"=readr::col_date(),
+                                            "d_nav_rt"=readr::col_date(),
+                                            "d_nav_rtsl"=readr::col_date(),
+                                            "d_neocarbo"=readr::col_date(),
+                                            "d_neocis"=readr::col_date(),
+                                            "d_neonavel"=readr::col_date(),
+                                            "d_neovino"=readr::col_date(),
+                                            "d_pd"=readr::col_date(),
+                                            "d_pd_and"=readr::col_date(),
+                                            "d_pd_and_biopsi"=readr::col_date(),
+                                            "d_pd_biol"=readr::col_date(),
+                                            "d_pd_bon"=readr::col_date(),
+                                            "d_pd_bon_biopsi"=readr::col_date(),
+                                            "d_pd_chemo1"=readr::col_date(),
+                                            "d_pd_chemo2"=readr::col_date(),
+                                            "d_pd_chemo3"=readr::col_date(),
+                                            "d_pd_cns"=readr::col_date(),
+                                            "d_pd_cns_biopsi"=readr::col_date(),
+                                            "d_pd_hep"=readr::col_date(),
+                                            "d_pd_hep_biopsi"=readr::col_date(),
+                                            "d_pd_med"=readr::col_date(),
+                                            #"d_pd_med_biopsi"=readr::col_date(),
+                                            "d_pd_pul"=readr::col_date(),
+                                            "d_pd_pul_biopsi"=readr::col_date(),
+                                            "d_pd_rt1"=readr::col_date(),
+                                            "d_pd_rt2"=readr::col_date(),
+                                            "d_pd_scl"=readr::col_date(),
+                                            "d_pd_scl_biopsi"=readr::col_date(),
+                                            "d_pd_skin"=readr::col_date(),
+                                            "d_pd_skin_biopsi"=readr::col_date(),
+                                            "d_pd_surg"=readr::col_date(),
+                                            "d_registrering"=readr::col_date(),
+                                            "d_rt"=readr::col_date(),
+                                            "d_rt_plan2"=readr::col_date(),
+                                            "d_rt_plan3"=readr::col_date(),
+                                            "d_rt_plan4"=readr::col_date(),
+                                            "d_rtsl"=readr::col_date(),
+                                            "andrenal_biopsy_date"=readr::col_date(),
+                                            "bone_biopsy_date"=readr::col_date(),
+                                            "brain_biopsy_date"=readr::col_date(),
+                                            "bron_late_retro_date"=readr::col_date(),
+                                            "clinical_suspicion_date"=readr::col_date(),
+                                            "contra_hilus_biopsy_date"=readr::col_date(),
+                                            "contra_lung_biopsy_date"=readr::col_date(),
+                                            "contra_supra_biopsy_date"=readr::col_date(),
+                                            "cutis_biopsy_date"=readr::col_date(),
+                                            "cutis_late_retro_date"=readr::col_date(),
+                                            "date_of_imaging"=readr::col_date(),
+                                            "diffhist_biopsy_date"=readr::col_date(),
+                                            "emboli1_date"=readr::col_date(),
+                                            "emboli2_date"=readr::col_date(),
+                                            "emboli3_date"=readr::col_date(),
+                                            "esoph_late_retro_date"=readr::col_date(),
+                                            "followup_late_date"=readr::col_date(),
+                                            "further_images_date_1"=readr::col_date(),
+                                            "further_images_date_2"=readr::col_date(),
+                                            "further_images_date_3"=readr::col_date(),
+                                            "heart_late_retro_date"=readr::col_date(),
+                                            "heart1_date"=readr::col_date(),
+                                            "heart2_date"=readr::col_date(),
+                                            "heart3_date"=readr::col_date(),
+                                            "hemoptysis1_date"=readr::col_date(),
+                                            "hemoptysis2_date"=readr::col_date(),
+                                            "hemoptysis3_date"=readr::col_date(),
+                                            "infection1_date"=readr::col_date(),
+                                            "infection2_date"=readr::col_date(),
+                                            "infection3_date"=readr::col_date(),
+                                            "ipsi_hilus_biopsy_date"=readr::col_date(),
+                                            "ipsi_supraclav_biopsy_date"=readr::col_date(),
+                                            "liver_biopsy_date"=readr::col_date(),
+                                            "lung_late_retro_date"=readr::col_date(),
+                                            "mediastinal_biopsy_date"=readr::col_date(),
+                                            "mult_lungmet_biopsy_date"=readr::col_date(),
+                                            "neutropeni1_date"=readr::col_date(),
+                                            "neutropeni2_date"=readr::col_date(),
+                                            "neutropeni3_date"=readr::col_date(),
+                                            "other_biopsy_date"=readr::col_date(),
+                                            "otherlobe_biopsy_date"=readr::col_date(),
+                                            "othertox1_date"=readr::col_date(),
+                                            "othertox2_date"=readr::col_date(),
+                                            "othertox3_date"=readr::col_date(),
+                                            "pain_late_retro_date"=readr::col_date(),
+                                            "pleura_efus_biopsy_date"=readr::col_date(),
+                                            "pneumonitis_w_date"=readr::col_date(),
+                                            "rtmyelo_late_retro_date"=readr::col_date(),
+                                            "same_lobe_biopsy_date"=readr::col_date(),
+                                            "trachea_late_retro_date"=readr::col_date(),
+                                            "d_rt_plan2"=readr::col_date(),
+                                            "d_rt_plan3"=readr::col_date(),
+                                            "d_rt_plan4"=readr::col_date(),
+                                            "bivirkning_fu_complete"=readr::col_integer(),
+                                            "bivirkningsskema_strlebehandling_complete"=readr::col_integer(),
+                                            "blodprver_under_strlebehandling_complete"=readr::col_integer(),
+                                            "durvalumab_complete"=readr::col_integer(),
+                                            "first_relapse_complete"=readr::col_integer(),
+                                            "follow_up_complete"=readr::col_integer(),
+                                            "image_data_clinical_suspicion_of_recurrence_complete"=readr::col_integer(),
+                                            "inklusion_complete"=readr::col_integer(),
+                                            "kemoterapi_under_rt_complete"=readr::col_integer(),
+                                            "late_toxicity_complete"=readr::col_integer(),
+                                            "onstudy_skema_complete"=readr::col_integer(),
+                                            "recidiv_behandling_complete"=readr::col_integer(),
+                                            "recidivmors_complete"=readr::col_integer(),
+                                            "registrering_complete"=readr::col_integer(),
+                                            "retrospective_toxicity_collection_complete"=readr::col_integer(),
+                                            "rt_slut_complete"=readr::col_integer(),
+                                            "sae_form_complete"=readr::col_integer(),
+                                            "gtv_kongl_pet_suv"=readr::col_integer(),
+                                            "gtv_n1_pet_suv"=readr::col_integer(),
+                                            "gtv_n2_pet_suv"=readr::col_integer(),
+                                            "gtv_n3_pet_suv"=readr::col_integer(),
+                                            "gtv_n4_pet_suv"=readr::col_integer(),
+                                            "gtv_n5_pet_suv"=readr::col_integer(),
+                                            "gtv_n6_pet_suv"=readr::col_integer(),
+                                            "gtv_t1_pet_suv"=readr::col_integer(),
+                                            "gtv_t2_pet_suv"=readr::col_integer(),
+                                            "gtv_t3_pet_suv"=readr::col_integer(),
+                                            "bron_late_pro_degree"=readr::col_integer(),
+                                            "bron_late_retro_degree"=readr::col_integer(),
+                                            "cutis_late_pro_degree"=readr::col_integer(),
+                                            "cutis_late_retro_degree"=readr::col_integer(),
+                                            "emboli1_degree"=readr::col_integer(),
+                                            "emboli2_degree"=readr::col_integer(),
+                                            "emboli3_degree"=readr::col_integer(),
+                                            "esoph_late_pro_degree"=readr::col_integer(),
+                                            "esoph_late_retro_degree"=readr::col_integer(),
+                                            "heart_late_pro_degree"=readr::col_integer(),
+                                            "heart_late_retro_degree"=readr::col_integer(),
+                                            "heart1_degree"=readr::col_integer(),
+                                            "heart2_degree"=readr::col_integer(),
+                                            "heart3_degree"=readr::col_integer(),
+                                            "hemoptysis1_degree"=readr::col_integer(),
+                                            "hemoptysis2_degree"=readr::col_integer(),
+                                            "hemoptysis3_degree"=readr::col_integer(),
+                                            "infection1_degree"=readr::col_integer(),
+                                            "infection2_degree"=readr::col_integer(),
+                                            "infection3_degree"=readr::col_integer(),
+                                            "lung_late_pro_degree"=readr::col_integer(),
+                                            "lung_late_retro_degree"=readr::col_integer(),
+                                            "neutropeni1_degree"=readr::col_integer(),
+                                            "neutropeni2_degree"=readr::col_integer(),
+                                            "neutropeni3_degree"=readr::col_integer(),
+                                            "othertox1_degree"=readr::col_integer(),
+                                            "othertox2_degree"=readr::col_integer(),
+                                            "othertox3_degree"=readr::col_integer(),
+                                            "pain_late_pro_degree"=readr::col_integer(),
+                                            "pain_late_retro_degree"=readr::col_integer(),
+                                            "pneumonitis_w_degree"=readr::col_integer(),
+                                            "rtmyelo_late_pro_degree"=readr::col_integer(),
+                                            "rtmyelo_late_retro_degree"=readr::col_integer(),
+                                            "trachea_late_pro_degree"=readr::col_integer(),
+                                            "trachea_late_retro_degree"=readr::col_integer(),
+                                            "bron_late_pro_related"=readr::col_integer(),
+                                            "bron_late_retro_related"=readr::col_integer(),
+                                            "cutis_late_pro_related"=readr::col_integer(),
+                                            "cutis_late_retro_related"=readr::col_integer(),
+                                            "emboli1_related"=readr::col_integer(),
+                                            "emboli2_related"=readr::col_integer(),
+                                            "emboli3_related"=readr::col_integer(),
+                                            "esoph_late_pro_related"=readr::col_integer(),
+                                            "esoph_late_retro_related"=readr::col_integer(),
+                                            "heart_late_pro_related"=readr::col_integer(),
+                                            "heart_late_retro_related"=readr::col_integer(),
+                                            "heart1_related"=readr::col_integer(),
+                                            "heart2_related"=readr::col_integer(),
+                                            "heart3_related"=readr::col_integer(),
+                                            "hemoptysis1_related"=readr::col_integer(),
+                                            "hemoptysis2_related"=readr::col_integer(),
+                                            "hemoptysis3_related"=readr::col_integer(),
+                                            "infection1_related"=readr::col_integer(),
+                                            "infection2_related"=readr::col_integer(),
+                                            "infection3_related"=readr::col_integer(),
+                                            "lung_late_pro_related"=readr::col_integer(),
+                                            "lung_late_retro_related"=readr::col_integer(),
+                                            "neutropeni1_related"=readr::col_integer(),
+                                            "neutropeni2_related"=readr::col_integer(),
+                                            "neutropeni3_related"=readr::col_integer(),
+                                            "othertox1_related"=readr::col_integer(),
+                                            "othertox2_related"=readr::col_integer(),
+                                            "othertox3_related"=readr::col_integer(),
+                                            "pain_late_pro_related"=readr::col_integer(),
+                                            "pain_late_retro_related"=readr::col_integer(),
+                                            "rtmyelo_late_pro_related"=readr::col_integer(),
+                                            "rtmyelo_late_retro_related"=readr::col_integer(),
+                                            "trachea_late_pro_related"=readr::col_integer(),
+                                            "trachea_late_retro_related"=readr::col_integer(),
+                                            "furter_images_modal_1"=readr::col_integer(),
+                                            "furter_images_modal_2"=readr::col_integer(),
+                                            "furter_images_modal_3"=readr::col_integer(),
+                                            "reason_for_imaging"=readr::col_integer(),
+                                            "same_lobe_biopsy_val"=readr::col_integer(),
+                                            "mediastinal_biopsy_val"=readr::col_integer(),
+                                            "ipsi_hilus_biopsy_val"=readr::col_integer(),
+                                            "contra_hilus_biopsy_val"=readr::col_integer(),
+                                            "ipsi_supraclav_biopsy_val"=readr::col_integer(),
+                                            "diffhist_biopsy_val"=readr::col_integer(),
+                                            "otherlobe_biopsy_val"=readr::col_integer(),
+                                            "contra_lung_biopsy_val"=readr::col_integer(),
+                                            "contra_supra_biopsy_val"=readr::col_integer(),
+                                            "mult_lungmet_biopsy_val"=readr::col_integer(),
+                                            "pleura_efus_biopsy_val"=readr::col_integer(),
+                                            "brain_biopsy_val"=readr::col_integer(),
+                                            "liver_biopsy_val"=readr::col_integer(),
+                                            "andrenal_biopsy_val"=readr::col_integer(),
+                                            "bone_biopsy_val"=readr::col_integer(),
+                                            "cutis_biopsy_val"=readr::col_integer(),
+                                            "other_biopsy_val"=readr::col_integer(),
+                                            "plan2_fx"=readr::col_integer(),
+                                            "plan3_fx3"=readr::col_integer(),
+                                            "plan4_fx"=readr::col_integer()))
   #data <- utils::read.csv(filename)
-
+  #browser()
+  #problems(data)
   Hmisc::label(data$patient_id)="Patient ID"
   Hmisc::label(data$redcap_event_name)="Event Name"
+  Hmisc::label(data$redcap_repeat_instrument)="Repeat Instrument"
+  Hmisc::label(data$redcap_repeat_instance)="Repeat Instance"
+  Hmisc::label(data$redcap_data_access_group)="Data Access Group"
   Hmisc::label(data$cpr_nummer)="CPR nummer "
   Hmisc::label(data$initials)="Patientens Initialer"
   Hmisc::label(data$d_registrering)="Registreringsdato"
@@ -45,6 +312,7 @@ LoadAndPrepareData <- function(filename='ExternalData/DemoData.csv'){
   Hmisc::label(data$active_ulcus)="14. Aktivt ulcus"
   Hmisc::label(data$lactation)="15. Ammende kvinde"
   Hmisc::label(data$randomisering)="Randomisering"
+  Hmisc::label(data$date_of_randomization)="Dato for randomisering"
   Hmisc::label(data$inkl_doctor)="Patienten er inkluderet af (lægens navn)"
   Hmisc::label(data$inklusion_complete)="Complete?"
   Hmisc::label(data$d_diag)="Diagnose dato"
@@ -60,6 +328,7 @@ LoadAndPrepareData <- function(filename='ExternalData/DemoData.csv'){
   Hmisc::label(data$fvc)="Lungefunktion: FVC "
   Hmisc::label(data$dlcoref)="Lungefunktion: DLCO%"
   Hmisc::label(data$dlco)="Lungefunktion DLCO "
+  Hmisc::label(data$pack_years)="Pakkeår"
   Hmisc::label(data$n_neocis)="Neoadjuverende Cisplatin - antal serier"
   Hmisc::label(data$n_neocis_aarsag)="Årsag til mere end 1 serie"
   Hmisc::label(data$mg_neocis)="Neoadjuverende Cisplatin - total mg"
@@ -199,6 +468,8 @@ LoadAndPrepareData <- function(filename='ExternalData/DemoData.csv'){
   Hmisc::label(data$gy_t_mean)="Middeldosis GTV-T"
   Hmisc::label(data$gy_n_mean)="Middeldosis GTV-N"
   Hmisc::label(data$fx)="Fraktioner"
+  Hmisc::label(data$fx_standard)="Number of fractions treated as the standard arm"
+  Hmisc::label(data$fx_escalated)="Number of fractions treated as the escalated arm"
   Hmisc::label(data$gy_lung_mean)="Middeldosis lunge"
   Hmisc::label(data$d_rt_plan2)="Start på plan 2"
   Hmisc::label(data$plan2_fx)="Fraktion plan 2 start"
@@ -227,8 +498,10 @@ LoadAndPrepareData <- function(filename='ExternalData/DemoData.csv'){
   Hmisc::label(data$rt_slut_complete)="Complete?"
   Hmisc::label(data$durvalumab)="Durvalumab after study RT"
   Hmisc::label(data$pdl1)="PD-L1"
-  Hmisc::label(data$d_durvalumab)="Durvalumab start"
-  Hmisc::label(data$d_durvalumab_end)="Date of ending durvalumab"
+  #Hmisc::label(data$d_durvalumab)="Durvalumab start"
+  Hmisc::label(data$date_durvalumab)="Durvalumab start"
+  #Hmisc::label(data$d_durvalumab_end)="Date of ending durvalumab"
+  Hmisc::label(data$date_durvalumab_end)="Date of ending durvalumab"
   Hmisc::label(data$durvalumab_stop)="Durvalumab discontinued"
   Hmisc::label(data$durvalumab_stop_reason)="Reason for discontinueing"
   Hmisc::label(data$durvalumab_complete)="Complete?"
@@ -320,11 +593,270 @@ LoadAndPrepareData <- function(filename='ExternalData/DemoData.csv'){
   Hmisc::label(data$mors)="Dødsårsag"
   Hmisc::label(data$mors_and)="Dødsårsag anden/specificer"
   Hmisc::label(data$recidivmors_complete)="Complete?"
+  Hmisc::label(data$reason_for_imaging)="Are this report based on:"
+  Hmisc::label(data$clinical_suspicion_date)="Date of the clinical recurrence suspicion that requested futher investigation (thus likely different from date of imaging)"
+  Hmisc::label(data$suspicion_images)="Was the clinical suspicion followed by medical imaging"
+  Hmisc::label(data$date_of_imaging)="Date of imaging"
+  Hmisc::label(data$imaging_rand_months)="Number of months from randomisation to imaging:"
+  Hmisc::label(data$imaging_modality)="Modality of imaging"
+  Hmisc::label(data$other_imaging_modality)="Specify other imaging modality"
+  Hmisc::label(data$further_images)="Did the images result in further imaging to identify the possible recurrence"
+  Hmisc::label(data$further_images_date_1)="Date of 1. additional image modality"
+  Hmisc::label(data$furter_images_modal_1)="Modality of 1. additional image data"
+  Hmisc::label(data$further_imaging_other_1)="Specify other imaging modality"
+  Hmisc::label(data$further_images_date_2)="Date of 2. additional image modality"
+  Hmisc::label(data$furter_images_modal_2)="Modality of 2. additional image data"
+  Hmisc::label(data$further_imaging_other_2)="Specify other imaging modality"
+  Hmisc::label(data$further_images_date_3)="Date of 3. additional image modality"
+  Hmisc::label(data$furter_images_modal_3)="Modality of 3. additional image data"
+  Hmisc::label(data$further_imaging_other_3)="Specify other imaging modality"
+  Hmisc::label(data$any_recurrence)="Did the images identify a recurrence (both local and distant)"
+  Hmisc::label(data$recurence_type___1)="What type of recurrence  was observed in the imaging (choice=Locoregional)"
+  Hmisc::label(data$recurence_type___2)="What type of recurrence  was observed in the imaging (choice=Distant)"
+  Hmisc::label(data$local_recurrence_location___1)="Location of the local recurrence (If recurrence is of clearly different histology than the primary tumour it is not scored as a local recurrence) (choice=Recurrence in the same lung lobe as the primary tumour)"
+  Hmisc::label(data$local_recurrence_location___2)="Location of the local recurrence (If recurrence is of clearly different histology than the primary tumour it is not scored as a local recurrence) (choice=Recurrence within mediastinum)"
+  Hmisc::label(data$local_recurrence_location___3)="Location of the local recurrence (If recurrence is of clearly different histology than the primary tumour it is not scored as a local recurrence) (choice=Recurrence in the ipsilateral hilus (relative to the primary tumour))"
+  Hmisc::label(data$local_recurrence_location___4)="Location of the local recurrence (If recurrence is of clearly different histology than the primary tumour it is not scored as a local recurrence) (choice=Recurrence in the contralateral hilus (relative to the primary tumour))"
+  Hmisc::label(data$local_recurrence_location___5)="Location of the local recurrence (If recurrence is of clearly different histology than the primary tumour it is not scored as a local recurrence) (choice=Recurrence in the ipsilateral supraclavicular region (relative to the primary tumour))"
+  Hmisc::label(data$same_lobe_biopsy_val)="Was the recurrence in the same lung lobe as the primary tumour biopsy validated subsequently"
+  Hmisc::label(data$same_lobe_biopsy_date)="Date of biopsy validation of same lung lobe as the primary tumour"
+  Hmisc::label(data$mediastinal_biopsy_val)="Was the recurrence within mediastinum biopsy validated subsequently"
+  Hmisc::label(data$mediastinal_biopsy_date)="Date of biopsy validation of mediastinum"
+  Hmisc::label(data$ipsi_hilus_biopsy_val)="Was the recurrence in the ipsilateral hilus biopsy validated subsequently"
+  Hmisc::label(data$ipsi_hilus_biopsy_date)="Date of biopsy validation of recurrence in the ipsilateral hilus"
+  Hmisc::label(data$contra_hilus_biopsy_val)="Was the recurrence in the contralateral hilus biopsy validated subsequently"
+  Hmisc::label(data$contra_hilus_biopsy_date)="Date of biopsy validation of recurrence in the contralateral hilus"
+  Hmisc::label(data$ipsi_supraclav_biopsy_val)="Was the recurrence in the ipsilateral supraclavicular region biopsy validated subsequently"
+  Hmisc::label(data$ipsi_supraclav_biopsy_date)="Date of biopsy validation of recurrence in ipsilateral supraclavicular region"
+  Hmisc::label(data$distant_recurrence_loc___1)="Location of distant recurrence (choice=Recurrence in locale site but of clearly different histology than the primary tumour)"
+  Hmisc::label(data$distant_recurrence_loc___2)="Location of distant recurrence (choice=Recurrence in a lobe without primary tumour involvement, but same lung as the primary tumour)"
+  Hmisc::label(data$distant_recurrence_loc___3)="Location of distant recurrence (choice=Recurrence in the opposite lung than that of the primary tumour)"
+  Hmisc::label(data$distant_recurrence_loc___4)="Location of distant recurrence (choice=Recurrence in the opposite supraclavicular region)"
+  Hmisc::label(data$distant_recurrence_loc___5)="Location of distant recurrence (choice=Multiple lung metastases)"
+  Hmisc::label(data$distant_recurrence_loc___6)="Location of distant recurrence (choice=Malignant pleural effusion)"
+  Hmisc::label(data$distant_recurrence_loc___7)="Location of distant recurrence (choice=Brain)"
+  Hmisc::label(data$distant_recurrence_loc___8)="Location of distant recurrence (choice=Liver)"
+  Hmisc::label(data$distant_recurrence_loc___9)="Location of distant recurrence (choice=Adrenal gland)"
+  Hmisc::label(data$distant_recurrence_loc___10)="Location of distant recurrence (choice=Bone)"
+  Hmisc::label(data$distant_recurrence_loc___11)="Location of distant recurrence (choice=Cutis)"
+  Hmisc::label(data$distant_recurrence_loc___12)="Location of distant recurrence (choice=Other)"
+  Hmisc::label(data$diffhist_biopsy_val)="Was the recurrence in locale site but of clearly different histology than the primary tumour biopsy validated subsequently"
+  Hmisc::label(data$diffhist_biopsy_date)="Date of biopsy validation of recurrence in locale site but of clearly different histology than the primary tumour"
+  Hmisc::label(data$otherlobe_biopsy_val)="Was the recurrence in a lobe without primary tumour involvement, but same lung as the primary tumour, biopsy validated subsequently"
+  Hmisc::label(data$otherlobe_biopsy_date)="Date of biopsy validation of recurrence in a lobe without primary tumour involvement, but same lung as the primary tumour"
+  Hmisc::label(data$contra_lung_biopsy_val)="Was the recurrence in the opposite lung than that of the primary tumour biopsy validated subsequently"
+  Hmisc::label(data$contra_lung_biopsy_date)="Date of biopsy validation of recurrence in the opposite lung than that of the primary tumour"
+  Hmisc::label(data$contra_supra_biopsy_val)="Was the recurrence in the opposite supraclavicular region biopsy validated subsequently"
+  Hmisc::label(data$contra_supra_biopsy_date)="Date of biopsy validation of Recurrence in the opposite supraclavicular region"
+  Hmisc::label(data$mult_lungmet_biopsy_val)="Was the multiple lung metastases biopsy validated subsequently"
+  Hmisc::label(data$mult_lungmet_biopsy_date)="Date of biopsy validation of multiple lung metastases"
+  Hmisc::label(data$pleura_efus_biopsy_val)="Was the malignant pleural effusion biopsy validated subsequently"
+  Hmisc::label(data$pleura_efus_biopsy_date)="Date of biopsy validation of malignant pleural effusion"
+  Hmisc::label(data$brain_biopsy_val)="Was the brain recurrence biopsy validated subsequently"
+  Hmisc::label(data$brain_biopsy_date)="Date of biopsy validation of brain recurrence"
+  Hmisc::label(data$liver_biopsy_val)="Was the liver recurrence biopsy validated subsequently"
+  Hmisc::label(data$liver_biopsy_date)="Date of biopsy validation of liver recurrence"
+  Hmisc::label(data$andrenal_biopsy_val)="Was the adrenal gland recurrence biopsy validated subsequently"
+  Hmisc::label(data$andrenal_biopsy_date)="Date of biopsy validation of adrenal gland recurrence"
+  Hmisc::label(data$bone_biopsy_val)="Was the bone recurrence biopsy validated subsequently"
+  Hmisc::label(data$bone_biopsy_date)="Date of biopsy validation of bone recurrence"
+  Hmisc::label(data$cutis_biopsy_val)="Was the cutis recurrence biopsy validated subsequently"
+  Hmisc::label(data$cutis_biopsy_date)="Date of biopsy validation of cutis recurrence"
+  Hmisc::label(data$other_recurrence_type)="Specify the type of other recurrence"
+  Hmisc::label(data$other_biopsy_val)="Was the other recurrence biopsy validated subsequently"
+  Hmisc::label(data$other_biopsy_date)="Date of biopsy validation of other recurrence"
+  Hmisc::label(data$image_data_clinical_suspicion_of_recurrence_complete)="Complete?"
+  Hmisc::label(data$pneumonitis_w_degree)="Degree of worst pneumonitis"
+  Hmisc::label(data$pneumonitis_w_date)="Date of worst degree of pneumonitis"
+  Hmisc::label(data$heart_late_retro_degree)="Worst degree of heart"
+  Hmisc::label(data$heart_late_retro_date)="Start time of the worst degree of heart"
+  Hmisc::label(data$heart_late_retro_related)="Was the toxicity of heart expected to be related to RT/Chemo"
+  Hmisc::label(data$heart_late_retro_notes)="Potential comments"
+  Hmisc::label(data$lung_late_retro_degree)="Worst degree of lung"
+  Hmisc::label(data$lung_late_retro_date)="Start time of the worst degree of lung"
+  Hmisc::label(data$lung_late_retro_related)="Was the toxicity of lung expected to be related to RT/Chemo"
+  Hmisc::label(data$lung_late_retro_notes)="Potential comments"
+  Hmisc::label(data$esoph_late_retro_degree)="Worst degree of esophagus"
+  Hmisc::label(data$esoph_late_retro_date)="Start time of the worst degree of esophagus"
+  Hmisc::label(data$esoph_late_retro_related)="Was the toxicity of esophagus expected to be related to RT/Chemo"
+  Hmisc::label(data$esoph_late_retro_notes)="Potential comments"
+  Hmisc::label(data$pain_late_retro_degree)="Worst degree of pain"
+  Hmisc::label(data$pain_late_retro_date)="Start time of the worst degree of pain"
+  Hmisc::label(data$pain_late_retro_related)="Was the toxicity of pain expected to be related to RT/Chemo"
+  Hmisc::label(data$pain_late_retro_notes)="Potential comments"
+  Hmisc::label(data$bron_late_retro_degree)="Worst degree of bronchie"
+  Hmisc::label(data$bron_late_retro_date)="Start time of the worst degree of bronchie"
+  Hmisc::label(data$bron_late_retro_related)="Was the toxicity of bronchie expected to be related to RT/Chemo"
+  Hmisc::label(data$bron_late_retro_notes)="Potential comments"
+  Hmisc::label(data$trachea_late_retro_degree)="Worst degree of trachea"
+  Hmisc::label(data$trachea_late_retro_date)="Start time of the worst degree of trachea"
+  Hmisc::label(data$trachea_late_retro_related)="Was the toxicity of trachea expected to be related to RT/Chemo"
+  Hmisc::label(data$trachea_late_retro_notes)="Potential comments"
+  Hmisc::label(data$rtmyelo_late_retro_degree)="Worst degree of RT-myelopathy"
+  Hmisc::label(data$rtmyelo_late_retro_date)="Start time of the worst degree of RT-myelopathy"
+  Hmisc::label(data$rtmyelo_late_retro_related)="Was the toxicity of rtmyelopathy expected to be related to RT/Chemo"
+  Hmisc::label(data$rtmyelo_late_retro_notes)="Potential comments"
+  Hmisc::label(data$cutis_late_retro_degree)="Worst degree of cutis"
+  Hmisc::label(data$cutis_late_retro_date)="Start time of the worst degree of cutis"
+  Hmisc::label(data$cutis_late_retro_related)="Was the toxicity of cutis expected to be related to RT/Chemo"
+  Hmisc::label(data$cutis_late_retro_notes)="Potential comments"
+  Hmisc::label(data$retrospective_toxicity_collection_complete)="Complete?"
+  Hmisc::label(data$followup_late_date)="Date of followup visit"
+  Hmisc::label(data$heart_late_pro_degree)="Degree of heart"
+  Hmisc::label(data$heart_late_pro_related)="Was the toxicity of heart expected to be related to RT/Chemo"
+  Hmisc::label(data$heart_late_pro_notes)="Potential comments"
+  Hmisc::label(data$lung_late_pro_degree)="Degree of lung"
+  Hmisc::label(data$lung_late_pro_related)="Was the toxicity of lung expected to be related to RT/Chemo"
+  Hmisc::label(data$lung_late_pro_notes)="Potential comments"
+  Hmisc::label(data$esoph_late_pro_degree)="Degree of esophagus"
+  Hmisc::label(data$esoph_late_pro_related)="Was the toxicity of esophagus expected to be related to RT/Chemo"
+  Hmisc::label(data$esoph_late_pro_notes)="Potential comments"
+  Hmisc::label(data$pain_late_pro_degree)="Degree of pain"
+  Hmisc::label(data$pain_late_pro_related)="Was the toxicity of pain expected to be related to RT/Chemo"
+  Hmisc::label(data$pain_late_pro_notes)="Potential comments"
+  Hmisc::label(data$bron_late_pro_degree)="Degree of bronchie"
+  Hmisc::label(data$bron_late_pro_related)="Was the toxicity of bronchie expected to be related to RT/Chemo"
+  Hmisc::label(data$bron_late_pro_notes)="Potential comments"
+  Hmisc::label(data$trachea_late_pro_degree)="Degree of trachea"
+  Hmisc::label(data$trachea_late_pro_related)="Was the toxicity of trachea expected to be related to RT/Chemo"
+  Hmisc::label(data$trachea_late_pro_notes)="Potential comments"
+  Hmisc::label(data$rtmyelo_late_pro_degree)="Degree of RT-myelopathy"
+  Hmisc::label(data$rtmyelo_late_pro_related)="Was the toxicity of rtmyelopathy expected to be related to RT/Chemo"
+  Hmisc::label(data$rtmyelo_late_pro_notes)="Potential comments"
+  Hmisc::label(data$cutis_late_pro_degree)="Degree of cutis"
+  Hmisc::label(data$cutis_late_pro_related)="Was the toxicity of cutis expected to be related to RT/Chemo"
+  Hmisc::label(data$cutis_late_pro_notes)="Potential comments"
+  Hmisc::label(data$late_toxicity_complete)="Complete?"
+  Hmisc::label(data$neutropeni1_degree)="Worst degree of febril neutropeni1"
+  Hmisc::label(data$neutropeni1_date)="Start time of the worst degree of febril neutropeni1"
+  Hmisc::label(data$neutropeni1_related)="Was the SAE of febril neutropeni1 expected to be related to RT/Chemo"
+  Hmisc::label(data$hemoptysis1_degree)="Worst degree of hemoptysis1"
+  Hmisc::label(data$hemoptysis1_date)="Start time of the worst degree of hemoptysis1"
+  Hmisc::label(data$hemoptysis1_related)="Was the SAE of hemoptysis1 expected to be related to RT/Chemo"
+  Hmisc::label(data$heart1_degree)="Worst degree of heart1"
+  Hmisc::label(data$heart1_date)="Start time of the worst degree of heart1"
+  Hmisc::label(data$heart1_related)="Was the SAE of heart1 expected to be related to RT/Chemo"
+  Hmisc::label(data$emboli1_degree)="Worst degree of emboli1"
+  Hmisc::label(data$emboli1_date)="Start time of the worst degree of emboli1"
+  Hmisc::label(data$emboli1_related)="Was the SAE of emboli1 expected to be related to RT/Chemo"
+  Hmisc::label(data$infection1_degree)="Worst degree of infection1"
+  Hmisc::label(data$infection1_date)="Start time of the worst degree of infection1"
+  Hmisc::label(data$infection1_related)="Was the SAE of infection1 expected to be related to RT/Chemo"
+  Hmisc::label(data$othertox1_degree)="Worst degree of other toxicity"
+  Hmisc::label(data$othertox1_date)="Start time of the worst degree of other toxicity"
+  Hmisc::label(data$othertox1_related)="Was the SAE of other toxicity expected to be related to RT/Chemo"
+  Hmisc::label(data$othertox1_description)="Describe type of other toxicity"
+  Hmisc::label(data$neutropeni2_degree)="Worst degree of febril neutropeni2"
+  Hmisc::label(data$neutropeni2_date)="Start time of the worst degree of febril neutropeni2"
+  Hmisc::label(data$neutropeni2_related)="Was the SAE of febril neutropeni2 expected to be related to RT/Chemo"
+  Hmisc::label(data$hemoptysis2_degree)="Worst degree of hemoptysis2"
+  Hmisc::label(data$hemoptysis2_date)="Start time of the worst degree of hemoptysis2"
+  Hmisc::label(data$hemoptysis2_related)="Was the SAE of hemoptysis2 expected to be related to RT/Chemo"
+  Hmisc::label(data$heart2_degree)="Worst degree of heart2"
+  Hmisc::label(data$heart2_date)="Start time of the worst degree of heart2"
+  Hmisc::label(data$heart2_related)="Was the SAE of heart2 expected to be related to RT/Chemo"
+  Hmisc::label(data$emboli2_degree)="Worst degree of emboli2"
+  Hmisc::label(data$emboli2_date)="Start time of the worst degree of emboli2"
+  Hmisc::label(data$emboli2_related)="Was the SAE of emboli2 expected to be related to RT/Chemo"
+  Hmisc::label(data$infection2_degree)="Worst degree of infection2"
+  Hmisc::label(data$infection2_date)="Start time of the worst degree of infection2"
+  Hmisc::label(data$infection2_related)="Was the SAE of infection2 expected to be related to RT/Chemo"
+  Hmisc::label(data$othertox2_degree)="Worst degree of other toxicity"
+  Hmisc::label(data$othertox2_date)="Start time of the worst degree of other toxicity"
+  Hmisc::label(data$othertox2_related)="Was the SAE of other toxicity expected to be related to RT/Chemo"
+  Hmisc::label(data$othertox2_description)="Describe type of other toxicity"
+  Hmisc::label(data$neutropeni3_degree)="Worst degree of febril neutropeni3"
+  Hmisc::label(data$neutropeni3_date)="Start time of the worst degree of febril neutropeni3"
+  Hmisc::label(data$neutropeni3_related)="Was the SAE of febril neutropeni3 expected to be related to RT/Chemo"
+  Hmisc::label(data$hemoptysis3_degree)="Worst degree of hemoptysis3"
+  Hmisc::label(data$hemoptysis3_date)="Start time of the worst degree of hemoptysis3"
+  Hmisc::label(data$hemoptysis3_related)="Was the SAE of hemoptysis3 expected to be related to RT/Chemo"
+  Hmisc::label(data$heart3_degree)="Worst degree of heart3"
+  Hmisc::label(data$heart3_date)="Start time of the worst degree of heart3"
+  Hmisc::label(data$heart3_related)="Was the SAE of heart3 expected to be related to RT/Chemo"
+  Hmisc::label(data$emboli3_degree)="Worst degree of emboli3"
+  Hmisc::label(data$emboli3_date)="Start time of the worst degree of emboli3"
+  Hmisc::label(data$emboli3_related)="Was the SAE of emboli3 expected to be related to RT/Chemo"
+  Hmisc::label(data$infection3_degree)="Worst degree of infection3"
+  Hmisc::label(data$infection3_date)="Start time of the worst degree of infection3"
+  Hmisc::label(data$infection3_related)="Was the SAE of infection3 expected to be related to RT/Chemo"
+  Hmisc::label(data$othertox3_degree)="Worst degree of other toxicity"
+  Hmisc::label(data$othertox3_date)="Start time of the worst degree of other toxicity"
+  Hmisc::label(data$othertox3_related)="Was the SAE of other toxicity expected to be related to RT/Chemo"
+  Hmisc::label(data$othertox3_description)="Describe type of other toxicity"
+  Hmisc::label(data$sae_form_complete)="Complete?"
+  Hmisc::label(data$target_t___1)="T of intial tumour (choice=T/T1)"
+  Hmisc::label(data$target_t___2)="T of intial tumour (choice=T2)"
+  Hmisc::label(data$target_t___3)="T of intial tumour (choice=T3)"
+  Hmisc::label(data$target_t___4)="T of intial tumour (choice=No T)"
+  Hmisc::label(data$target_station_n___1)="N stations included in target (choice=1R)"
+  Hmisc::label(data$target_station_n___2)="N stations included in target (choice=1L)"
+  Hmisc::label(data$target_station_n___3)="N stations included in target (choice=2R)"
+  Hmisc::label(data$target_station_n___4)="N stations included in target (choice=2L)"
+  Hmisc::label(data$target_station_n___5)="N stations included in target (choice=3A)"
+  Hmisc::label(data$target_station_n___6)="N stations included in target (choice=3P)"
+  Hmisc::label(data$target_station_n___7)="N stations included in target (choice=4R)"
+  Hmisc::label(data$target_station_n___8)="N stations included in target (choice=4L)"
+  Hmisc::label(data$target_station_n___9)="N stations included in target (choice=5)"
+  Hmisc::label(data$target_station_n___10)="N stations included in target (choice=6)"
+  Hmisc::label(data$target_station_n___11)="N stations included in target (choice=7)"
+  Hmisc::label(data$target_station_n___12)="N stations included in target (choice=10 R)"
+  Hmisc::label(data$target_station_n___13)="N stations included in target (choice=10 L)"
+  Hmisc::label(data$target_station_n___14)="N stations included in target (choice=11 R)"
+  Hmisc::label(data$target_station_n___15)="N stations included in target (choice=11 L)"
+  Hmisc::label(data$target_station_n___16)="N stations included in target (choice=12 R)"
+  Hmisc::label(data$target_station_n___17)="N stations included in target (choice=12 L)"
+  Hmisc::label(data$target_station_n___18)="N stations included in target (choice=supraclav R)"
+  Hmisc::label(data$target_station_n___19)="N stations included in target (choice=Supraclav L)"
+  Hmisc::label(data$target_station_n___20)="N stations included in target (choice=No n-stations in target)"
+  Hmisc::label(data$target_station_n___21)="N stations included in target (choice=other)"
+  Hmisc::label(data$relapse_t)="Relapse T"
+  Hmisc::label(data$relapse_t_location___1)="Location of T relapse (choice=Inside PTV)"
+  Hmisc::label(data$relapse_t_location___2)="Location of T relapse (choice=Outside PTV)"
+  Hmisc::label(data$relapse_t_location___3)="Location of T relapse (choice=not evaluable)"
+  Hmisc::label(data$target_t_2___1)="Relapse T, mark where (choice=T/T1)"
+  Hmisc::label(data$target_t_2___2)="Relapse T, mark where (choice=T2)"
+  Hmisc::label(data$target_t_2___3)="Relapse T, mark where (choice=T3)"
+  Hmisc::label(data$target_t_2___4)="Relapse T, mark where (choice=New T)"
+  Hmisc::label(data$target_t_2___5)="Relapse T, mark where (choice=T relapse, but location not evaluable)"
+  Hmisc::label(data$relapse_n)="Relapse N"
+  Hmisc::label(data$n_relapse_loc___1)="Location of N relapse (choice=Inside PTV)"
+  Hmisc::label(data$n_relapse_loc___2)="Location of N relapse (choice=Outside PTV)"
+  Hmisc::label(data$n_relapse_loc___3)="Location of N relapse (choice=not evaluable)"
+  Hmisc::label(data$relapse_station_n_2___1)="Relapse station N (choice=1R)"
+  Hmisc::label(data$relapse_station_n_2___2)="Relapse station N (choice=1L)"
+  Hmisc::label(data$relapse_station_n_2___3)="Relapse station N (choice=2R)"
+  Hmisc::label(data$relapse_station_n_2___4)="Relapse station N (choice=2L)"
+  Hmisc::label(data$relapse_station_n_2___5)="Relapse station N (choice=3A)"
+  Hmisc::label(data$relapse_station_n_2___6)="Relapse station N (choice=3P)"
+  Hmisc::label(data$relapse_station_n_2___7)="Relapse station N (choice=4R)"
+  Hmisc::label(data$relapse_station_n_2___8)="Relapse station N (choice=4L)"
+  Hmisc::label(data$relapse_station_n_2___9)="Relapse station N (choice=5)"
+  Hmisc::label(data$relapse_station_n_2___10)="Relapse station N (choice=6)"
+  Hmisc::label(data$relapse_station_n_2___11)="Relapse station N (choice=7)"
+  Hmisc::label(data$relapse_station_n_2___12)="Relapse station N (choice=10 R)"
+  Hmisc::label(data$relapse_station_n_2___13)="Relapse station N (choice=10 L)"
+  Hmisc::label(data$relapse_station_n_2___14)="Relapse station N (choice=11 R)"
+  Hmisc::label(data$relapse_station_n_2___15)="Relapse station N (choice=11 L)"
+  Hmisc::label(data$relapse_station_n_2___16)="Relapse station N (choice=12 R)"
+  Hmisc::label(data$relapse_station_n_2___17)="Relapse station N (choice=12 L)"
+  Hmisc::label(data$relapse_station_n_2___18)="Relapse station N (choice=supraclav R)"
+  Hmisc::label(data$relapse_station_n_2___19)="Relapse station N (choice=Supraclav L)"
+  Hmisc::label(data$relapse_station_n_2___20)="Relapse station N (choice=other)"
+  Hmisc::label(data$relapse_station_n_2___21)="Relapse station N (choice=No information on n stations involved)"
+  Hmisc::label(data$relapse_n_location_other)="Specify, if other"
+  Hmisc::label(data$first_relapse_complete)="Complete?"
+  Hmisc::label(data$image_update_date)="Medical images:  All relevant Medical imaging information (Image data/Clinical suspicion of recurrence) until the provided date has been included in the clinical Redcap database."
+  Hmisc::label(data$clinical_update_date)="Clinical information:  All clinical information (i.e. follow-up information during and after RT, Chemotherapy during RT, Durvalumab, Recidiv/Mors,  Retro tox, and SAE reports but excluding imaging information and rt_slut - the latter is partly retrieved from DcmCollab) until the provided date has been included in the clinical Redcap database."
+  Hmisc::label(data$clinical_update_dates_complete)="Complete?"
+
   #Setting Units
 
 
   #Setting Factors(will create new variable for factors)
   data$redcap_event_name.factor = factor(data$redcap_event_name,levels=c("registration_arm_1","uge_1_arm_1","uge_2_arm_1","uge_3_arm_1","uge_4_arm_1","uge_5_arm_1","uge_6_arm_1","uge_7_arm_1","uge_8_arm_1","1_followup_arm_1","haendelser_arm_1","3_mdr_followup_arm_1","6_mdr_followup_arm_1","9_mdr_followup_arm_1","12_mdr_followup_arm_1","15_mdr_followup_arm_1","18_mdr_followup_arm_1","21_mdr_followup_arm_1","24_mdr_followup_arm_1","30_mdr_followup_arm_1","36_mdr_followup_arm_1","42_mdr_followup_arm_1","48_mdr_followup_arm_1","54_mdr_followup_arm_1","60_mdr_followup_arm_1"))
+  data$redcap_repeat_instrument.factor = factor(data$redcap_repeat_instrument,levels=c("image_data_clinical_suspicion_of_recurrence"))
+  data$redcap_data_access_group.factor = factor(data$redcap_data_access_group,levels=c("01_rh","02_herlev","03_naestved","04_ouh","05_aarhus","06_vejle","07_aalborg","08_radiumhospitale","09_trondheim","10_tromsoe","11_ullevaal","12"))
   data$center.factor = factor(data$center,levels=c("1","2","3","4","5","6","7","8","9","10","11","12"))
   data$gender.factor = factor(data$gender,levels=c("1","2"))
   data$registrering_complete.factor = factor(data$registrering_complete,levels=c("0","1","2"))
@@ -477,8 +1009,188 @@ LoadAndPrepareData <- function(filename='ExternalData/DemoData.csv'){
   data$pd_and2_a09.factor = factor(data$pd_and2_a09,levels=c("0","1"))
   data$mors.factor = factor(data$mors,levels=c("1","2","3","4","5","6","7","9"))
   data$recidivmors_complete.factor = factor(data$recidivmors_complete,levels=c("0","1","2"))
+  data$reason_for_imaging.factor = factor(data$reason_for_imaging,levels=c("1","2"))
+  data$suspicion_images.factor = factor(data$suspicion_images,levels=c("1","2"))
+  data$imaging_modality.factor = factor(data$imaging_modality,levels=c("1","2","3","4","5","6"))
+  data$further_images.factor = factor(data$further_images,levels=c("1","2"))
+  data$furter_images_modal_1.factor = factor(data$furter_images_modal_1,levels=c("1","2","3","4","5","6"))
+  data$furter_images_modal_2.factor = factor(data$furter_images_modal_2,levels=c("1","2","3","4","5","6"))
+  data$furter_images_modal_3.factor = factor(data$furter_images_modal_3,levels=c("1","2","3","4","5","6"))
+  data$any_recurrence.factor = factor(data$any_recurrence,levels=c("1","2"))
+  data$recurence_type___1.factor = factor(data$recurence_type___1,levels=c("0","1"))
+  data$recurence_type___2.factor = factor(data$recurence_type___2,levels=c("0","1"))
+  data$local_recurrence_location___1.factor = factor(data$local_recurrence_location___1,levels=c("0","1"))
+  data$local_recurrence_location___2.factor = factor(data$local_recurrence_location___2,levels=c("0","1"))
+  data$local_recurrence_location___3.factor = factor(data$local_recurrence_location___3,levels=c("0","1"))
+  data$local_recurrence_location___4.factor = factor(data$local_recurrence_location___4,levels=c("0","1"))
+  data$local_recurrence_location___5.factor = factor(data$local_recurrence_location___5,levels=c("0","1"))
+  data$same_lobe_biopsy_val.factor = factor(data$same_lobe_biopsy_val,levels=c("1","2","3","4"))
+  data$mediastinal_biopsy_val.factor = factor(data$mediastinal_biopsy_val,levels=c("1","2","3","4"))
+  data$ipsi_hilus_biopsy_val.factor = factor(data$ipsi_hilus_biopsy_val,levels=c("1","2","3","4"))
+  data$contra_hilus_biopsy_val.factor = factor(data$contra_hilus_biopsy_val,levels=c("1","2","3","4"))
+  data$ipsi_supraclav_biopsy_val.factor = factor(data$ipsi_supraclav_biopsy_val,levels=c("1","2","3","4"))
+  data$distant_recurrence_loc___1.factor = factor(data$distant_recurrence_loc___1,levels=c("0","1"))
+  data$distant_recurrence_loc___2.factor = factor(data$distant_recurrence_loc___2,levels=c("0","1"))
+  data$distant_recurrence_loc___3.factor = factor(data$distant_recurrence_loc___3,levels=c("0","1"))
+  data$distant_recurrence_loc___4.factor = factor(data$distant_recurrence_loc___4,levels=c("0","1"))
+  data$distant_recurrence_loc___5.factor = factor(data$distant_recurrence_loc___5,levels=c("0","1"))
+  data$distant_recurrence_loc___6.factor = factor(data$distant_recurrence_loc___6,levels=c("0","1"))
+  data$distant_recurrence_loc___7.factor = factor(data$distant_recurrence_loc___7,levels=c("0","1"))
+  data$distant_recurrence_loc___8.factor = factor(data$distant_recurrence_loc___8,levels=c("0","1"))
+  data$distant_recurrence_loc___9.factor = factor(data$distant_recurrence_loc___9,levels=c("0","1"))
+  data$distant_recurrence_loc___10.factor = factor(data$distant_recurrence_loc___10,levels=c("0","1"))
+  data$distant_recurrence_loc___11.factor = factor(data$distant_recurrence_loc___11,levels=c("0","1"))
+  data$distant_recurrence_loc___12.factor = factor(data$distant_recurrence_loc___12,levels=c("0","1"))
+  data$diffhist_biopsy_val.factor = factor(data$diffhist_biopsy_val,levels=c("1","2","3","4"))
+  data$otherlobe_biopsy_val.factor = factor(data$otherlobe_biopsy_val,levels=c("1","2","3","4"))
+  data$contra_lung_biopsy_val.factor = factor(data$contra_lung_biopsy_val,levels=c("1","2","3","4"))
+  data$contra_supra_biopsy_val.factor = factor(data$contra_supra_biopsy_val,levels=c("1","2","3","4"))
+  data$mult_lungmet_biopsy_val.factor = factor(data$mult_lungmet_biopsy_val,levels=c("1","2","3","4"))
+  data$pleura_efus_biopsy_val.factor = factor(data$pleura_efus_biopsy_val,levels=c("1","2","3","4"))
+  data$brain_biopsy_val.factor = factor(data$brain_biopsy_val,levels=c("1","2","3","4"))
+  data$liver_biopsy_val.factor = factor(data$liver_biopsy_val,levels=c("1","2","3","4"))
+  data$andrenal_biopsy_val.factor = factor(data$andrenal_biopsy_val,levels=c("1","2","3","4"))
+  data$bone_biopsy_val.factor = factor(data$bone_biopsy_val,levels=c("1","2","3","4"))
+  data$cutis_biopsy_val.factor = factor(data$cutis_biopsy_val,levels=c("1","2","3","4"))
+  data$other_biopsy_val.factor = factor(data$other_biopsy_val,levels=c("1","2","3","4"))
+  data$image_data_clinical_suspicion_of_recurrence_complete.factor = factor(data$image_data_clinical_suspicion_of_recurrence_complete,levels=c("0","1","2"))
+  data$pneumonitis_w_degree.factor = factor(data$pneumonitis_w_degree,levels=c("0","1","2","3","4","5"))
+  data$heart_late_retro_degree.factor = factor(data$heart_late_retro_degree,levels=c("0","3","4","5"))
+  data$heart_late_retro_related.factor = factor(data$heart_late_retro_related,levels=c("0","1","2"))
+  data$lung_late_retro_degree.factor = factor(data$lung_late_retro_degree,levels=c("0","3","4","5"))
+  data$lung_late_retro_related.factor = factor(data$lung_late_retro_related,levels=c("0","1","2"))
+  data$esoph_late_retro_degree.factor = factor(data$esoph_late_retro_degree,levels=c("0","3","4","5"))
+  data$esoph_late_retro_related.factor = factor(data$esoph_late_retro_related,levels=c("0","1","2"))
+  data$pain_late_retro_degree.factor = factor(data$pain_late_retro_degree,levels=c("0","3","4","5"))
+  data$pain_late_retro_related.factor = factor(data$pain_late_retro_related,levels=c("0","1","2"))
+  data$bron_late_retro_degree.factor = factor(data$bron_late_retro_degree,levels=c("0","3","4","5"))
+  data$bron_late_retro_related.factor = factor(data$bron_late_retro_related,levels=c("0","1","2"))
+  data$trachea_late_retro_degree.factor = factor(data$trachea_late_retro_degree,levels=c("0","3","4","5"))
+  data$trachea_late_retro_related.factor = factor(data$trachea_late_retro_related,levels=c("0","1","2"))
+  data$rtmyelo_late_retro_degree.factor = factor(data$rtmyelo_late_retro_degree,levels=c("0","3","4","5"))
+  data$rtmyelo_late_retro_related.factor = factor(data$rtmyelo_late_retro_related,levels=c("0","1","2"))
+  data$cutis_late_retro_degree.factor = factor(data$cutis_late_retro_degree,levels=c("0","3","4","5"))
+  data$cutis_late_retro_related.factor = factor(data$cutis_late_retro_related,levels=c("0","1","2"))
+  data$retrospective_toxicity_collection_complete.factor = factor(data$retrospective_toxicity_collection_complete,levels=c("0","1","2"))
+  data$heart_late_pro_degree.factor = factor(data$heart_late_pro_degree,levels=c("0","1","2","3","4","5"))
+  data$heart_late_pro_related.factor = factor(data$heart_late_pro_related,levels=c("0","1","2"))
+  data$lung_late_pro_degree.factor = factor(data$lung_late_pro_degree,levels=c("0","1","2","3","4","5"))
+  data$lung_late_pro_related.factor = factor(data$lung_late_pro_related,levels=c("0","1","2"))
+  data$esoph_late_pro_degree.factor = factor(data$esoph_late_pro_degree,levels=c("0","1","2","3","4","5"))
+  data$esoph_late_pro_related.factor = factor(data$esoph_late_pro_related,levels=c("0","1","2"))
+  data$pain_late_pro_degree.factor = factor(data$pain_late_pro_degree,levels=c("0","1","2","3","4","5"))
+  data$pain_late_pro_related.factor = factor(data$pain_late_pro_related,levels=c("0","1","2"))
+  data$bron_late_pro_degree.factor = factor(data$bron_late_pro_degree,levels=c("0","1","2","3","4","5"))
+  data$bron_late_pro_related.factor = factor(data$bron_late_pro_related,levels=c("0","1","2"))
+  data$trachea_late_pro_degree.factor = factor(data$trachea_late_pro_degree,levels=c("0","1","2","3","4","5"))
+  data$trachea_late_pro_related.factor = factor(data$trachea_late_pro_related,levels=c("0","1","2"))
+  data$rtmyelo_late_pro_degree.factor = factor(data$rtmyelo_late_pro_degree,levels=c("0","1","2","3","4","5"))
+  data$rtmyelo_late_pro_related.factor = factor(data$rtmyelo_late_pro_related,levels=c("0","1","2"))
+  data$cutis_late_pro_degree.factor = factor(data$cutis_late_pro_degree,levels=c("0","1","2","3","4","5"))
+  data$cutis_late_pro_related.factor = factor(data$cutis_late_pro_related,levels=c("0","1","2"))
+  data$late_toxicity_complete.factor = factor(data$late_toxicity_complete,levels=c("0","1","2"))
+  data$neutropeni1_degree.factor = factor(data$neutropeni1_degree,levels=c("0","1","2","3","4","5"))
+  data$neutropeni1_related.factor = factor(data$neutropeni1_related,levels=c("0","1","2"))
+  data$hemoptysis1_degree.factor = factor(data$hemoptysis1_degree,levels=c("0","1","2","3","4","5"))
+  data$hemoptysis1_related.factor = factor(data$hemoptysis1_related,levels=c("0","1","2"))
+  data$heart1_degree.factor = factor(data$heart1_degree,levels=c("0","1","2","3","4","5"))
+  data$heart1_related.factor = factor(data$heart1_related,levels=c("0","1","2"))
+  data$emboli1_degree.factor = factor(data$emboli1_degree,levels=c("0","1","2","3","4","5"))
+  data$emboli1_related.factor = factor(data$emboli1_related,levels=c("0","1","2"))
+  data$infection1_degree.factor = factor(data$infection1_degree,levels=c("0","1","2","3","4","5"))
+  data$infection1_related.factor = factor(data$infection1_related,levels=c("0","1","2"))
+  data$othertox1_degree.factor = factor(data$othertox1_degree,levels=c("0","1","2","3","4","5"))
+  data$othertox1_related.factor = factor(data$othertox1_related,levels=c("0","1","2"))
+  data$neutropeni2_degree.factor = factor(data$neutropeni2_degree,levels=c("0","1","2","3","4","5"))
+  data$neutropeni2_related.factor = factor(data$neutropeni2_related,levels=c("0","1","2"))
+  data$hemoptysis2_degree.factor = factor(data$hemoptysis2_degree,levels=c("0","1","2","3","4","5"))
+  data$hemoptysis2_related.factor = factor(data$hemoptysis2_related,levels=c("0","1","2"))
+  data$heart2_degree.factor = factor(data$heart2_degree,levels=c("0","1","2","3","4","5"))
+  data$heart2_related.factor = factor(data$heart2_related,levels=c("0","1","2"))
+  data$emboli2_degree.factor = factor(data$emboli2_degree,levels=c("0","1","2","3","4","5"))
+  data$emboli2_related.factor = factor(data$emboli2_related,levels=c("0","1","2"))
+  data$infection2_degree.factor = factor(data$infection2_degree,levels=c("0","1","2","3","4","5"))
+  data$infection2_related.factor = factor(data$infection2_related,levels=c("0","1","2"))
+  data$othertox2_degree.factor = factor(data$othertox2_degree,levels=c("0","1","2","3","4","5"))
+  data$othertox2_related.factor = factor(data$othertox2_related,levels=c("0","1","2"))
+  data$neutropeni3_degree.factor = factor(data$neutropeni3_degree,levels=c("0","1","2","3","4","5"))
+  data$neutropeni3_related.factor = factor(data$neutropeni3_related,levels=c("0","1","2"))
+  data$hemoptysis3_degree.factor = factor(data$hemoptysis3_degree,levels=c("0","1","2","3","4","5"))
+  data$hemoptysis3_related.factor = factor(data$hemoptysis3_related,levels=c("0","1","2"))
+  data$heart3_degree.factor = factor(data$heart3_degree,levels=c("0","1","2","3","4","5"))
+  data$heart3_related.factor = factor(data$heart3_related,levels=c("0","1","2"))
+  data$emboli3_degree.factor = factor(data$emboli3_degree,levels=c("0","1","2","3","4","5"))
+  data$emboli3_related.factor = factor(data$emboli3_related,levels=c("0","1","2"))
+  data$infection3_degree.factor = factor(data$infection3_degree,levels=c("0","1","2","3","4","5"))
+  data$infection3_related.factor = factor(data$infection3_related,levels=c("0","1","2"))
+  data$othertox3_degree.factor = factor(data$othertox3_degree,levels=c("0","1","2","3","4","5"))
+  data$othertox3_related.factor = factor(data$othertox3_related,levels=c("0","1","2"))
+  data$sae_form_complete.factor = factor(data$sae_form_complete,levels=c("0","1","2"))
+  data$target_t___1.factor = factor(data$target_t___1,levels=c("0","1"))
+  data$target_t___2.factor = factor(data$target_t___2,levels=c("0","1"))
+  data$target_t___3.factor = factor(data$target_t___3,levels=c("0","1"))
+  data$target_t___4.factor = factor(data$target_t___4,levels=c("0","1"))
+  data$target_station_n___1.factor = factor(data$target_station_n___1,levels=c("0","1"))
+  data$target_station_n___2.factor = factor(data$target_station_n___2,levels=c("0","1"))
+  data$target_station_n___3.factor = factor(data$target_station_n___3,levels=c("0","1"))
+  data$target_station_n___4.factor = factor(data$target_station_n___4,levels=c("0","1"))
+  data$target_station_n___5.factor = factor(data$target_station_n___5,levels=c("0","1"))
+  data$target_station_n___6.factor = factor(data$target_station_n___6,levels=c("0","1"))
+  data$target_station_n___7.factor = factor(data$target_station_n___7,levels=c("0","1"))
+  data$target_station_n___8.factor = factor(data$target_station_n___8,levels=c("0","1"))
+  data$target_station_n___9.factor = factor(data$target_station_n___9,levels=c("0","1"))
+  data$target_station_n___10.factor = factor(data$target_station_n___10,levels=c("0","1"))
+  data$target_station_n___11.factor = factor(data$target_station_n___11,levels=c("0","1"))
+  data$target_station_n___12.factor = factor(data$target_station_n___12,levels=c("0","1"))
+  data$target_station_n___13.factor = factor(data$target_station_n___13,levels=c("0","1"))
+  data$target_station_n___14.factor = factor(data$target_station_n___14,levels=c("0","1"))
+  data$target_station_n___15.factor = factor(data$target_station_n___15,levels=c("0","1"))
+  data$target_station_n___16.factor = factor(data$target_station_n___16,levels=c("0","1"))
+  data$target_station_n___17.factor = factor(data$target_station_n___17,levels=c("0","1"))
+  data$target_station_n___18.factor = factor(data$target_station_n___18,levels=c("0","1"))
+  data$target_station_n___19.factor = factor(data$target_station_n___19,levels=c("0","1"))
+  data$target_station_n___20.factor = factor(data$target_station_n___20,levels=c("0","1"))
+  data$target_station_n___21.factor = factor(data$target_station_n___21,levels=c("0","1"))
+  data$relapse_t.factor = factor(data$relapse_t,levels=c("1","0"))
+  data$relapse_t_location___1.factor = factor(data$relapse_t_location___1,levels=c("0","1"))
+  data$relapse_t_location___2.factor = factor(data$relapse_t_location___2,levels=c("0","1"))
+  data$relapse_t_location___3.factor = factor(data$relapse_t_location___3,levels=c("0","1"))
+  data$target_t_2___1.factor = factor(data$target_t_2___1,levels=c("0","1"))
+  data$target_t_2___2.factor = factor(data$target_t_2___2,levels=c("0","1"))
+  data$target_t_2___3.factor = factor(data$target_t_2___3,levels=c("0","1"))
+  data$target_t_2___4.factor = factor(data$target_t_2___4,levels=c("0","1"))
+  data$target_t_2___5.factor = factor(data$target_t_2___5,levels=c("0","1"))
+  data$relapse_n.factor = factor(data$relapse_n,levels=c("1","0"))
+  data$n_relapse_loc___1.factor = factor(data$n_relapse_loc___1,levels=c("0","1"))
+  data$n_relapse_loc___2.factor = factor(data$n_relapse_loc___2,levels=c("0","1"))
+  data$n_relapse_loc___3.factor = factor(data$n_relapse_loc___3,levels=c("0","1"))
+  data$relapse_station_n_2___1.factor = factor(data$relapse_station_n_2___1,levels=c("0","1"))
+  data$relapse_station_n_2___2.factor = factor(data$relapse_station_n_2___2,levels=c("0","1"))
+  data$relapse_station_n_2___3.factor = factor(data$relapse_station_n_2___3,levels=c("0","1"))
+  data$relapse_station_n_2___4.factor = factor(data$relapse_station_n_2___4,levels=c("0","1"))
+  data$relapse_station_n_2___5.factor = factor(data$relapse_station_n_2___5,levels=c("0","1"))
+  data$relapse_station_n_2___6.factor = factor(data$relapse_station_n_2___6,levels=c("0","1"))
+  data$relapse_station_n_2___7.factor = factor(data$relapse_station_n_2___7,levels=c("0","1"))
+  data$relapse_station_n_2___8.factor = factor(data$relapse_station_n_2___8,levels=c("0","1"))
+  data$relapse_station_n_2___9.factor = factor(data$relapse_station_n_2___9,levels=c("0","1"))
+  data$relapse_station_n_2___10.factor = factor(data$relapse_station_n_2___10,levels=c("0","1"))
+  data$relapse_station_n_2___11.factor = factor(data$relapse_station_n_2___11,levels=c("0","1"))
+  data$relapse_station_n_2___12.factor = factor(data$relapse_station_n_2___12,levels=c("0","1"))
+  data$relapse_station_n_2___13.factor = factor(data$relapse_station_n_2___13,levels=c("0","1"))
+  data$relapse_station_n_2___14.factor = factor(data$relapse_station_n_2___14,levels=c("0","1"))
+  data$relapse_station_n_2___15.factor = factor(data$relapse_station_n_2___15,levels=c("0","1"))
+  data$relapse_station_n_2___16.factor = factor(data$relapse_station_n_2___16,levels=c("0","1"))
+  data$relapse_station_n_2___17.factor = factor(data$relapse_station_n_2___17,levels=c("0","1"))
+  data$relapse_station_n_2___18.factor = factor(data$relapse_station_n_2___18,levels=c("0","1"))
+  data$relapse_station_n_2___19.factor = factor(data$relapse_station_n_2___19,levels=c("0","1"))
+  data$relapse_station_n_2___20.factor = factor(data$relapse_station_n_2___20,levels=c("0","1"))
+  data$relapse_station_n_2___21.factor = factor(data$relapse_station_n_2___21,levels=c("0","1"))
+  data$first_relapse_complete.factor = factor(data$first_relapse_complete,levels=c("0","1","2"))
+  data$clinical_update_dates_complete.factor = factor(data$clinical_update_dates_complete,levels=c("0","1","2"))
 
   levels(data$redcap_event_name.factor)=c("Registration","Uge 1","Uge 2","Uge 3","Uge 4","Uge 5","Uge 6","Uge 7","Uge 8","1. Followup","Haendelser","3 mdr followup","6 mdr followup","9 mdr followup","12 mdr followup","15 mdr followup","18 mdr followup","21 mdr followup","24 mdr followup","30 mdr followup","36 mdr followup","42 mdr followup","48 mdr followup","54 mdr followup","60 mdr followup")
+  levels(data$redcap_repeat_instrument.factor)=c("Image Data Clinical Suspicion Of Recurrence")
+  levels(data$redcap_data_access_group.factor)=c("01. RH","02. Herlev","03. Naestved","04. OUH","05. Aarhus","06. Vejle","07. Aalborg","08. Radiumhospitalet","09. Trondheim","10. Tromsoe","11. Ullevaal","12.")
   levels(data$center.factor)=c("RH,","Herlev","Næstved","OUH","Aarhus","Vejle","Aalborg","Radiumhospitalet","Trondheim","Tromsoe","Ullevål","12")
   levels(data$gender.factor)=c("Mand","Kvinde")
   levels(data$registrering_complete.factor)=c("Incomplete","Unverified","Complete")
@@ -631,5 +1343,192 @@ LoadAndPrepareData <- function(filename='ExternalData/DemoData.csv'){
   levels(data$pd_and2_a09.factor)=c("Nej","Ja")
   levels(data$mors.factor)=c("PD,","Akut toksicitet","Sen toksicitet","PD+ toksicitet","Hjertesygdom","Anden cancer","Anden årsag","Uoplyst")
   levels(data$recidivmors_complete.factor)=c("Incomplete","Unverified","Complete")
+  levels(data$reason_for_imaging.factor)=c("Clinical suspicion of recurrence","Standard planed images as part of the trial (no previous clinical suspicion of recurrence)")
+  levels(data$suspicion_images.factor)=c("yes","no")
+  levels(data$imaging_modality.factor)=c("CT","PET / PET-CT","MR","PET-MR","X-ray","Other")
+  levels(data$further_images.factor)=c("No","Yes")
+  levels(data$furter_images_modal_1.factor)=c("CT","PET / PET-CT","MR","PET-MR","X-ray","Other")
+  levels(data$furter_images_modal_2.factor)=c("CT","PET / PET-CT","MR","PET-MR","X-ray","Other")
+  levels(data$furter_images_modal_3.factor)=c("CT","PET / PET-CT","MR","PET-MR","X-ray","Other")
+  levels(data$any_recurrence.factor)=c("No","Yes")
+  levels(data$recurence_type___1.factor)=c("Unchecked","Checked")
+  levels(data$recurence_type___2.factor)=c("Unchecked","Checked")
+  levels(data$local_recurrence_location___1.factor)=c("Unchecked","Checked")
+  levels(data$local_recurrence_location___2.factor)=c("Unchecked","Checked")
+  levels(data$local_recurrence_location___3.factor)=c("Unchecked","Checked")
+  levels(data$local_recurrence_location___4.factor)=c("Unchecked","Checked")
+  levels(data$local_recurrence_location___5.factor)=c("Unchecked","Checked")
+  levels(data$same_lobe_biopsy_val.factor)=c("No biopsy","Confirmed imaging result","Rejected imaging result","Inconclusive biopsy")
+  levels(data$mediastinal_biopsy_val.factor)=c("No biopsy","Confirmed imaging result","Rejected imaging result","Inconclusive biopsy")
+  levels(data$ipsi_hilus_biopsy_val.factor)=c("No biopsy","Confirmed imaging result","Rejected imaging result","Inconclusive biopsy")
+  levels(data$contra_hilus_biopsy_val.factor)=c("No biopsy","Confirmed imaging result","Rejected imaging result","Inconclusive biopsy")
+  levels(data$ipsi_supraclav_biopsy_val.factor)=c("No biopsy","Confirmed imaging result","Rejected imaging result","Inconclusive biopsy")
+  levels(data$distant_recurrence_loc___1.factor)=c("Unchecked","Checked")
+  levels(data$distant_recurrence_loc___2.factor)=c("Unchecked","Checked")
+  levels(data$distant_recurrence_loc___3.factor)=c("Unchecked","Checked")
+  levels(data$distant_recurrence_loc___4.factor)=c("Unchecked","Checked")
+  levels(data$distant_recurrence_loc___5.factor)=c("Unchecked","Checked")
+  levels(data$distant_recurrence_loc___6.factor)=c("Unchecked","Checked")
+  levels(data$distant_recurrence_loc___7.factor)=c("Unchecked","Checked")
+  levels(data$distant_recurrence_loc___8.factor)=c("Unchecked","Checked")
+  levels(data$distant_recurrence_loc___9.factor)=c("Unchecked","Checked")
+  levels(data$distant_recurrence_loc___10.factor)=c("Unchecked","Checked")
+  levels(data$distant_recurrence_loc___11.factor)=c("Unchecked","Checked")
+  levels(data$distant_recurrence_loc___12.factor)=c("Unchecked","Checked")
+  levels(data$diffhist_biopsy_val.factor)=c("No biopsy","Confirmed imaging result","Rejected imaging result","Inconclusive biopsy")
+  levels(data$otherlobe_biopsy_val.factor)=c("No biopsy","Confirmed imaging result","Rejected imaging result","Inconclusive biopsy")
+  levels(data$contra_lung_biopsy_val.factor)=c("No biopsy","Confirmed imaging result","Rejected imaging result","Inconclusive biopsy")
+  levels(data$contra_supra_biopsy_val.factor)=c("No biopsy","Confirmed imaging result","Rejected imaging result","Inconclusive biopsy")
+  levels(data$mult_lungmet_biopsy_val.factor)=c("No biopsy","Confirmed imaging result","Rejected imaging result","Inconclusive biopsy")
+  levels(data$pleura_efus_biopsy_val.factor)=c("No biopsy","Confirmed imaging result","Rejected imaging result","Inconclusive biopsy")
+  levels(data$brain_biopsy_val.factor)=c("No biopsy","Confirmed imaging result","Rejected imaging result","Inconclusive biopsy")
+  levels(data$liver_biopsy_val.factor)=c("No biopsy","Confirmed imaging result","Rejected imaging result","Inconclusive biopsy")
+  levels(data$andrenal_biopsy_val.factor)=c("No biopsy","Confirmed imaging result","Rejected imaging result","Inconclusive biopsy")
+  levels(data$bone_biopsy_val.factor)=c("No biopsy","Confirmed imaging result","Rejected imaging result","Inconclusive biopsy")
+  levels(data$cutis_biopsy_val.factor)=c("No biopsy","Confirmed imaging result","Rejected imaging result","Inconclusive biopsy")
+  levels(data$other_biopsy_val.factor)=c("No biopsy","Confirmed imaging result","Rejected imaging result","Inconclusive biopsy")
+  levels(data$image_data_clinical_suspicion_of_recurrence_complete.factor)=c("Incomplete","Unverified","Complete")
+  levels(data$pneumonitis_w_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$heart_late_retro_degree.factor)=c("0-2","3","4","5")
+  levels(data$heart_late_retro_related.factor)=c("No","Yes","Potentially")
+  levels(data$lung_late_retro_degree.factor)=c("0-2","3","4","5")
+  levels(data$lung_late_retro_related.factor)=c("No","Yes","Potentially")
+  levels(data$esoph_late_retro_degree.factor)=c("0-2","3","4","5")
+  levels(data$esoph_late_retro_related.factor)=c("No","Yes","Potentially")
+  levels(data$pain_late_retro_degree.factor)=c("0-2","3","4","5")
+  levels(data$pain_late_retro_related.factor)=c("No","Yes","Potentially")
+  levels(data$bron_late_retro_degree.factor)=c("0-2","3","4","5")
+  levels(data$bron_late_retro_related.factor)=c("No","Yes","Potentially")
+  levels(data$trachea_late_retro_degree.factor)=c("0-2","3","4","5")
+  levels(data$trachea_late_retro_related.factor)=c("No","Yes","Potentially")
+  levels(data$rtmyelo_late_retro_degree.factor)=c("0-2","3","4","5")
+  levels(data$rtmyelo_late_retro_related.factor)=c("No","Yes","Potentially")
+  levels(data$cutis_late_retro_degree.factor)=c("0-2","3","4","5")
+  levels(data$cutis_late_retro_related.factor)=c("No","Yes","Potentially")
+  levels(data$retrospective_toxicity_collection_complete.factor)=c("Incomplete","Unverified","Complete")
+  levels(data$heart_late_pro_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$heart_late_pro_related.factor)=c("No","Yes","Potentially")
+  levels(data$lung_late_pro_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$lung_late_pro_related.factor)=c("No","Yes","Potentially")
+  levels(data$esoph_late_pro_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$esoph_late_pro_related.factor)=c("No","Yes","Potentially")
+  levels(data$pain_late_pro_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$pain_late_pro_related.factor)=c("No","Yes","Potentially")
+  levels(data$bron_late_pro_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$bron_late_pro_related.factor)=c("No","Yes","Potentially")
+  levels(data$trachea_late_pro_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$trachea_late_pro_related.factor)=c("No","Yes","Potentially")
+  levels(data$rtmyelo_late_pro_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$rtmyelo_late_pro_related.factor)=c("No","Yes","Potentially")
+  levels(data$cutis_late_pro_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$cutis_late_pro_related.factor)=c("No","Yes","Potentially")
+  levels(data$late_toxicity_complete.factor)=c("Incomplete","Unverified","Complete")
+  levels(data$neutropeni1_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$neutropeni1_related.factor)=c("No","Yes","Potentially")
+  levels(data$hemoptysis1_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$hemoptysis1_related.factor)=c("No","Yes","Potentially")
+  levels(data$heart1_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$heart1_related.factor)=c("No","Yes","Potentially")
+  levels(data$emboli1_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$emboli1_related.factor)=c("No","Yes","Potentially")
+  levels(data$infection1_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$infection1_related.factor)=c("No","Yes","Potentially")
+  levels(data$othertox1_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$othertox1_related.factor)=c("No","Yes","Potentially")
+  levels(data$neutropeni2_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$neutropeni2_related.factor)=c("No","Yes","Potentially")
+  levels(data$hemoptysis2_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$hemoptysis2_related.factor)=c("No","Yes","Potentially")
+  levels(data$heart2_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$heart2_related.factor)=c("No","Yes","Potentially")
+  levels(data$emboli2_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$emboli2_related.factor)=c("No","Yes","Potentially")
+  levels(data$infection2_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$infection2_related.factor)=c("No","Yes","Potentially")
+  levels(data$othertox2_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$othertox2_related.factor)=c("No","Yes","Potentially")
+  levels(data$neutropeni3_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$neutropeni3_related.factor)=c("No","Yes","Potentially")
+  levels(data$hemoptysis3_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$hemoptysis3_related.factor)=c("No","Yes","Potentially")
+  levels(data$heart3_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$heart3_related.factor)=c("No","Yes","Potentially")
+  levels(data$emboli3_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$emboli3_related.factor)=c("No","Yes","Potentially")
+  levels(data$infection3_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$infection3_related.factor)=c("No","Yes","Potentially")
+  levels(data$othertox3_degree.factor)=c("0","1","2","3","4","5")
+  levels(data$othertox3_related.factor)=c("No","Yes","Potentially")
+  levels(data$sae_form_complete.factor)=c("Incomplete","Unverified","Complete")
+  levels(data$target_t___1.factor)=c("Unchecked","Checked")
+  levels(data$target_t___2.factor)=c("Unchecked","Checked")
+  levels(data$target_t___3.factor)=c("Unchecked","Checked")
+  levels(data$target_t___4.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___1.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___2.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___3.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___4.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___5.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___6.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___7.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___8.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___9.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___10.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___11.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___12.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___13.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___14.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___15.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___16.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___17.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___18.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___19.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___20.factor)=c("Unchecked","Checked")
+  levels(data$target_station_n___21.factor)=c("Unchecked","Checked")
+  levels(data$relapse_t.factor)=c("Yes","No")
+  levels(data$relapse_t_location___1.factor)=c("Unchecked","Checked")
+  levels(data$relapse_t_location___2.factor)=c("Unchecked","Checked")
+  levels(data$relapse_t_location___3.factor)=c("Unchecked","Checked")
+  levels(data$target_t_2___1.factor)=c("Unchecked","Checked")
+  levels(data$target_t_2___2.factor)=c("Unchecked","Checked")
+  levels(data$target_t_2___3.factor)=c("Unchecked","Checked")
+  levels(data$target_t_2___4.factor)=c("Unchecked","Checked")
+  levels(data$target_t_2___5.factor)=c("Unchecked","Checked")
+  levels(data$relapse_n.factor)=c("Yes","No")
+  levels(data$n_relapse_loc___1.factor)=c("Unchecked","Checked")
+  levels(data$n_relapse_loc___2.factor)=c("Unchecked","Checked")
+  levels(data$n_relapse_loc___3.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___1.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___2.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___3.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___4.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___5.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___6.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___7.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___8.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___9.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___10.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___11.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___12.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___13.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___14.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___15.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___16.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___17.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___18.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___19.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___20.factor)=c("Unchecked","Checked")
+  levels(data$relapse_station_n_2___21.factor)=c("Unchecked","Checked")
+  levels(data$first_relapse_complete.factor)=c("Incomplete","Unverified","Complete")
+  levels(data$clinical_update_dates_complete.factor)=c("Incomplete","Unverified","Complete")
+
+
+  #Diaries have been spelt in Danish for the months's measurements and in English for the weeks. Correct to English.
+  names(data)[names(data) == "diare_fu.factor"] <- "diaria_fu.factor"
+  names(data)[names(data) == "diare_fu"] <- "diaria_fu"
+  # Smoking is missing an _rt in the weekly scores. Correct
+  names(data)[names(data) == "smoking.factor"] <- "smoking_rt.factor"
+  names(data)[names(data) == "smoking"] <- "smoking_rt"
+
   return(data)
 }

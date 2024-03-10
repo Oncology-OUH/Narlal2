@@ -4,19 +4,51 @@
 \alias{ExtractToxicityData}
 \title{Extract toxicity data}
 \usage{
-ExtractToxicityData(rawdata)
+ExtractToxicityData(
+  rawdata,
+  SAERelationToInclude = c("No", "Yes", "Potentially"),
+  variablesToImpute = c("fatigue", "cough", "dyspnoe", "constipation", "nausea",
+    "vomiting", "dysphagia", "pain", "sens_neuropati", "infection", "diaria",
+    "skinreaction", "other_tox"),
+  removeToxAfterLocalFailure = FALSE,
+  removeToxAfterDistantFailure = FALSE
+)
 }
 \arguments{
 \item{rawdata}{the data.frame obtained from LoadAndPrepareData}
+
+\item{SAERelationToInclude}{Describe which SAEs to include in the toxicity
+data. The SAE are classified by their relation to the radiotherapy in the
+groups No, Yes, and  Potentially. The returned toxicity data will only
+include SAEs with RT relations as those specified in this variable. The
+default is to return all SAE toxicity information.}
+
+\item{variablesToImpute}{is a list of toxicity varibales to impute.
+Imputation is performed per toxicity. The imputation will be performed if
+all toxicity values (per patient/toxicity) are grade 0 or 1. In that case,
+all data points that are in time before the last entered values will be
+imputed with the value grade 0. This imputation is made since some of those
+entering data in the database might have thought that grade zero and no
+value (NA) are the same within the database. Thus, to correct this "bias",
+the described imputation will be performed in the current code. The
+default list of toxicity variables that will be imputed is those scored
+prospectively during the study.}
+
+\item{removeToxAfterLocalFailure}{will, if set to TRUE, set all toxicity
+scores after local failure to NA. The default is to keep all toxicity.}
+
+\item{removeToxAfterDistantFailure}{will, if set to TRUE, set all toxicity
+scores after distant failure to NA. The default is to keep all toxicity.}
 }
 \value{
 data.frame that contain toxicity data
 }
 \description{
-'ExtracToxicityData' extract the patient toxicity from the initial raw data obtained using LoadAndPrepareData
+'ExtracToxicityData' extract the patient toxicity from the
+initial raw data obtained using LoadAndPrepareData
 }
 \examples{
 file <- system.file('extdata','DemoData.csv',package="Narlal2")
 df <- LoadAndPrepareData(filename=file)
-PtTox <- ExtractToxicityData(df)
+PtTox <- ExtractToxicityData(df,SAERelationToInclude=c('No','Yes','Potentially'))
 }

@@ -15,7 +15,7 @@
 #' @importFrom stats as.formula pchisq
 #' @examples file <- system.file('extdata','DemoData.csv',package="Narlal2")
 #' df <- LoadAndPrepareData(filename=file)
-#' PtSurvival <- ExtractSurvivalData(df,12*5)
+#' PtSurvival <- ExtractSurvivalData(df)
 #' ChangeText<-c()
 #' ChangeText$ChangeLabels <- c(
 #'   `Time [months]`='Time since randomisation [Months]'
@@ -180,7 +180,7 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
       #End plot of each endpoint in separate windows with both arms in the same window
       #Start plot of stacking of the individual endpoint in separate plots for the two arms ####
 
-      x<-y_lower<-y_upper<-NULL #Hack to avoid notes in cheking related to ggplot
+      x<-y_lower<-y_upper<-NULL #Hack to avoid notes in cheeking related to ggplot
 
       cumlist<-list()
       for(karm in 1:2){
@@ -366,7 +366,7 @@ bootstrap_narlal <- function(df,formcox,formsurv,nboot=10,conf.int=.95,seed=42){
     bootres$comprisk$boot$strata[[k]]$upper_org <- bootres$comprisk$main[[k]]$est + pconst*sqrt(bootres$comprisk$main[[k]]$var)
     bootres$comprisk$boot$strata[[k]]$n <- 0
   }
-  #Done with the intialising for the bootstrap
+  #Done with the initializing for the bootstrap
 
   #Perform the boot-strapping
   if (nboot >1){
@@ -381,7 +381,7 @@ bootstrap_narlal <- function(df,formcox,formsurv,nboot=10,conf.int=.95,seed=42){
       tempdata=df[bootstrap,]
       #Calculate the Cox model for all requested models. Needed to define the confidence interval for the hazard ratio.
       for (k in seq_len(length(formcox))){
-        bootres$cox[[k]]$boot$coefficients[i] <- tryCatch({7
+        bootres$cox[[k]]$boot$coefficients[i] <- tryCatch({
           survival::coxph(formcox[[k]],data=tempdata)$coefficients[1]
         }, error = function(e) {
           NA
@@ -389,6 +389,7 @@ bootstrap_narlal <- function(df,formcox,formsurv,nboot=10,conf.int=.95,seed=42){
         )
       }
       #Calculate the survival curves. Need to define the confidence interval of the survival curves
+      zz<-1
       for (k in seq_len(length(formsurv))){
 
         bootsurv <- survival::survfit(formsurv[[k]],data=tempdata)
@@ -471,6 +472,7 @@ bootstrap_narlal <- function(df,formcox,formsurv,nboot=10,conf.int=.95,seed=42){
       boot_cmp_strata_names <- boot_cmp_strata_names[index]
       for (j in boot_cmp_strata_names){
 
+
         temp_time <- bootcomprisk[[j]]$time
         temp_surv <- bootcomprisk[[j]]$est
         temp_surv[temp_surv>.999] <- 0.999
@@ -503,6 +505,7 @@ bootstrap_narlal <- function(df,formcox,formsurv,nboot=10,conf.int=.95,seed=42){
         bootres$comprisk$boot$strata[[j]]$y[n,] <- temp_new_surv
         #bootres$comprisk$boot$strata[[j]]$time_boot <- resampled_times
       }
+
     }
 
     #Combine bootstrap result to confidence intervals
