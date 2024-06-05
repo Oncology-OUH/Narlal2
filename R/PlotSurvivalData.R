@@ -8,6 +8,7 @@
 #' @param conf.int confidence intervals extracted from the bootstrap. Will typical be 0.95
 #' @param seed a value to seed the random generator
 #' @param ChangeText is a variable used to change the text on plots just before they are plotted. The variable is defined in three part (see example below) that is used to change the text in variable/names, levels, and labels on the plots.
+#' @param maxTimeToColorAreaBetweenKM This value is the maximum time for which the region between the two survival curves will be coloured. This feature can be used to illustrate the restricted mean survival test. The default value is zero, which will result in no colouring
 #'
 #' @return Is exporting survival figures
 #' @export PlotSurvivalData
@@ -31,7 +32,7 @@
 #'                  nboot=10,conf.int=.95,seed=42,ChangeText=ChangeText)
 
 
-PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeText=c()){
+PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeText=c(),maxTimeToColorAreaBetweenKM=0){
   df<-ChageVarAndLevels_dataframe(df,ChangeText)
   stratavar<-ChangeVar_vector(c("arm"),ChangeText)
   #DurvalumabLabel <- c('AllDurvalumab','YesDurvalumab','NoDurvalumab')
@@ -41,6 +42,8 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
                    paste('survival::Surv(t_progression,event_progression) ~get("',stratavar,'")',sep=''),
                    paste('survival::Surv(t_os,event_os) ~get("',stratavar,'")',sep=''))
   survival_titles <- c('Loco-regional control rate','Recurrence free survival','Overall survival')
+
+  dfExcell=data.frame(hist=c(),text=c(),v1=c(),v2=c(),v3=c(),v4=c())
   #Loop over Durvalumab status
   for (i in seq_along(DurvalumabLabel)){
     indexDurvalumab<-rep(TRUE,nrow(df))
@@ -61,7 +64,7 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
       }
       dftemp <- df[indexDurvalumab & indexHistology,]
 
-      #Perform all the bootstrap calculations for the given plot both survival and competink risk
+      #Perform all the bootstrap calculations for the given plot both survival and competing risk
       formsurv <- list()
       for (k in seq_along(formulatext_surv)){
         formsurv <- append(formsurv, as.formula(formulatext_surv[[k]]))
@@ -89,12 +92,43 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
         #fit$call$formula <- as.formula(formulatext[[k]])
         fit <- bootdata$surv[[k]]$main
 
-        palette_temp = c("red","blue")
+        palette_temp = c("blue","red")
 
         #Make the primary plot that includes the curves of the two arms without confidence intervals
         temp <- survminer::ggsurvplot(fit,xlab="Time [months]",ylab=survival_titles[k],palette=palette_temp,
-                                      risk.table = TRUE,fontsinze=1,break.time.by = 12,legend = c(0.8, 0.8),legend.title=ggplot2::element_blank(),legend.labs = levels(df[[stratavar]]),
-                                      risk.table.height = .1,conf.int = FALSE,conf.int.style = "step",pval = FALSE,  data = dftemp)
+                                      risk.table = TRUE,fontsinze=1,break.y.by=0.1,break.time.by = 12,legend = c(0.8, 0.8),legend.title=ggplot2::element_blank(),legend.labs = levels(df[[stratavar]]),
+                                      risk.table.height = .1,conf.int = FALSE,conf.int.style = "step",pval = FALSE, axes.offset = FALSE,xlim=c(0,max(fit[["time"]])+2),ylim=c(0,1.02), data = dftemp)
+
+        #Add color shading between curves
+        if (maxTimeToColorAreaBetweenKM>0){
+          x1<-fit$time[1:fit$strata[1]]
+          index1<-x1<=maxTimeToColorAreaBetweenKM
+          x1<-x1[index1]
+          x2<-fit$time[(fit$strata[1]+1):length(fit$time)]
+          index2<-x2<=maxTimeToColorAreaBetweenKM
+          x2<-x2[index2]
+          y1<-fit$surv[1:fit$strata[1]]
+          y2<-fit$surv[(fit$strata[1]+1):length(fit$surv)]
+          y1<-y1[index1]
+          y2<-y2[index2]
+          x1 <- c(rbind(x1, x1))
+          x2 <- c(rbind(x2, x2))
+          y1 <- c(rbind(y1, y1))
+          y2 <- c(rbind(y2, y2))
+          x1<-c(0,x1[2:length(x1)],maxTimeToColorAreaBetweenKM)
+          x2<-c(0,x2[2:length(x2)],maxTimeToColorAreaBetweenKM)
+          y1<-c(1,y1)
+          y2<-c(1,y2)
+          time<-c(x1,rev(x2))
+          yvalues<-c(y1,rev(y2))
+          dfArea<-data.frame(x=time,y=yvalues)
+          #Hack made to remove error in package check. Related to a 'feature' in ggplot
+          x <- y <- NULL
+          temp$plot<-temp$plot+ggplot2::geom_polygon(ggplot2::aes(x=x,y=y),data = dfArea, fill = "#00B000")
+          temp$plot$layers<- c(temp$plot$layers[length(temp$plot$layers)], temp$plot$layers[-length(temp$plot$layers)])
+
+        }
+
         #Make confidence intervals for curve one
         time <- lower <- upper <- NULL
         temp_bootdata <- data.frame(time=bootdata$surv[[k]]$boot$strata[[1]]$time,
@@ -112,9 +146,8 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
         temp$plot <- temp$plot + ggplot2::geom_step(ggplot2::aes(y = upper, x=time),direction = "hv",alpha = 0.5,size=.2,linetype=2,color=palette_temp[2],inherit.aes = FALSE,data=temp_bootdata)
 
         #Add the p-value and the hazard value as text labels
-        temp$plot <- temp$plot + ggplot2::annotate("text", x = 0, y = 0.07, label = pvaluelable, cex=4.5, col="black", vjust=0, hjust = 0.0, fontface=2)
-        #temp$plot <- temp$plot + ggplot2::annotate("text", x = Inf, y = Inf, label = hlable, cex=4.5, col="black", vjust=1, hjust = 1, fontface=2)
-        temp$plot <- temp$plot + ggplot2::annotate("text", x = 0, y = 0.0, label = hlable, cex=4.5, col="black", vjust=0, hjust = 0, fontface=2)
+        temp$plot <- temp$plot + ggplot2::annotate("text", x = 2, y = 0.1, label = pvaluelable, cex=4.5, col="black", vjust=0, hjust = 0.0, fontface=2)
+        temp$plot <- temp$plot + ggplot2::annotate("text", x = 2, y = 0.03, label = hlable, cex=4.5, col="black", vjust=0, hjust = 0, fontface=2)
         #Update labels on the plot as requested via ChangeText
         temp$plot<-ChageLabels_ggplot(temp$plot,ChangeText=ChangeText)
         temp$table<-ChageLabels_ggplot(temp$table,ChangeText=ChangeText)
@@ -126,6 +159,8 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
       survivalplot <- survminer::arrange_ggsurvplots(splots, print = FALSE,ncol = 3, nrow = 1, risk.table.height = 0.2)
       filename <- file.path(filepath,paste('Survival_',DurvalumabLabel[i],'_',HistologyLabel[j],'.png',sep=''))
       ggplot2::ggsave(filename,plot=survivalplot,device = ragg::agg_png,bg ="white",width=15, height=6.75, units="cm", res =300, scaling=.375)
+      #ggplot2::ggsave(filename,plot=survivalplot,device = ragg::agg_png,bg ="white",width=65, height=20, units="cm", res =1200, scaling=1.25)
+      #browser()
       #End plotting survival plots
 
       #Section: Plot competing risk models
@@ -137,8 +172,8 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
       plot_endpoints<-ChangeLevel_vector(c('local','met','local+met','mors'),ChangeText)
       plot_arms<-ChangeLevel_vector(c('Standard','Eskaleret'),ChangeText)
       palette_temp<-c()
-      palette_temp[[plot_arms[1]]]="red"
-      palette_temp[[plot_arms[2]]]="blue"
+      palette_temp[[plot_arms[1]]]="blue"
+      palette_temp[[plot_arms[2]]]="red"
       palette_temp<-unlist(palette_temp)
       for (k in seq_along(plot_endpoints)){
         dataCurve<-list()
@@ -254,8 +289,59 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
       filename <- file.path(filepath,paste('CompetingRiskStacked_',DurvalumabLabel[i],'_',HistologyLabel[j],'.png',sep=''))
       ggplot2::ggsave(filename,plot=z,device = ragg::agg_png,bg ="white",width=15, height=10, units="cm", res =300, scaling=.7)
       # End section plot competing risk ####
+
+      #Dump some key number to an Excell sheet
+      dfExcell[nrow(dfExcell)+1,'hist']<-HistologyLabel[j]
+      dfExcell[nrow(dfExcell)+1,'hist']<-DurvalumabLabel[i]
+      dfExcell[nrow(dfExcell)+1,'text']<-'Cox numbers'
+      for (iModels in seq_len(length(bootdata[["cox"]]))){
+        dfExcell[nrow(dfExcell)+1,'text']<-'Model:'
+        dfExcell[nrow(dfExcell),'v1']<-Reduce(paste, deparse(bootdata[["cox"]][[iModels]][["main"]][["formula"]]))
+        dfExcell[nrow(dfExcell)+1,'v1']<-'p proportonal hazard:'
+        dfExcell[nrow(dfExcell),'v2']<-bootdata[["cox"]][[iModels]][["coxzph"]][["table"]]['GLOBAL','p']
+        dfExcell[nrow(dfExcell)+1,'v1']<-'p cox:'
+        dfExcell[nrow(dfExcell),'v2']<-summary(bootdata[["cox"]][[iModels]][["main"]])[["logtest"]][["pvalue"]]
+        dfExcell[nrow(dfExcell)+1,'v1']<-'hazard:'
+        dfExcell[nrow(dfExcell),'v2']<-exp(bootdata[["cox"]][[iModels]][["main"]][["coefficients"]])
+        dfExcell[nrow(dfExcell),'v3']<-exp(bootdata[["cox"]][[iModels]][["boot"]][["coefficients_lower"]])
+        dfExcell[nrow(dfExcell),'v4']<-exp(bootdata[["cox"]][[iModels]][["boot"]][["coefficients_upper"]])
+      }
+      dfExcell[nrow(dfExcell)+1,'text']<-''
+      dfExcell[nrow(dfExcell)+1,'text']<-'Survival numbers'
+      for (iModels in seq_len(length(bootdata[["surv"]]))){
+        dfExcell[nrow(dfExcell)+1,'text']<-'Model:'
+        dfExcell[nrow(dfExcell),'v1']<-Reduce(paste, deparse(bootdata[["surv"]][[iModels]][["main"]][["call"]]))
+        dfExcell[nrow(dfExcell)+1,'v1']<-'Restriced mean survival'
+        dfExcell[nrow(dfExcell)+1,'v1']<-'cutOffTime'
+        dfExcell[nrow(dfExcell),'v2']<-'p'
+        index<-nrow(dfExcell)
+        dfExcell[(index+1):(index+nrow(bootdata[["surv"]][[iModels]][["rmst"]])),'v1']<-bootdata[["surv"]][[iModels]][["rmst"]][,1]
+        dfExcell[(index+1):(index+nrow(bootdata[["surv"]][[iModels]][["rmst"]])),'v2']<-bootdata[["surv"]][[iModels]][["rmst"]][,2]
+        for (strataName in names(bootdata[["surv"]][[iModels]][["boot"]][["strata"]])){
+          dfExcell[nrow(dfExcell)+1,'v1']<-paste('Survival values', strataName)
+          dfExcell[nrow(dfExcell)+1,'v1']<-'Month'
+          dfExcell[nrow(dfExcell),'v2']<-'Survival'
+          dfExcell[nrow(dfExcell),'v3']<-'lower'
+          dfExcell[nrow(dfExcell),'v4']<-'upper'
+
+          time<-bootdata[["surv"]][[iModels]][["boot"]][["strata"]][[strataName]]$time
+          surv<- bootdata[["surv"]][[iModels]][["boot"]][["strata"]][[strataName]]$survival
+          lower<-bootdata[["surv"]][[iModels]][["boot"]][["strata"]][[strataName]]$lower_boot
+          upper<-bootdata[["surv"]][[iModels]][["boot"]][["strata"]][[strataName]]$upper_boot
+          timeValues<-c(12,24,36,48,60)
+          index<-nrow(dfExcell)
+          dfExcell[(index+1):(index+length(timeValues)),'v1']<-timeValues
+          dfExcell[(index+1):(index+length(timeValues)),'v2']<-stats::approx(time,surv,timeValues,method='constant',f=0)$y
+          dfExcell[(index+1):(index+length(timeValues)),'v3']<-stats::approx(time,lower,timeValues,method='constant',f=0)$y
+          dfExcell[(index+1):(index+length(timeValues)),'v4']<-stats::approx(time,upper,timeValues,method='constant',f=0)$y
+        }
+      }
+
     }
   }
+  writexl::write_xlsx(dfExcell,path = paste(filepath,"/KeySurvivalValues.xlsx",sep=''),col_names=FALSE)
+
+
 }
 #' Bootstraping of all survival data of the NARLAL trial
 #'
@@ -312,19 +398,45 @@ bootstrap_narlal <- function(df,formcox,formsurv,nboot=10,conf.int=.95,seed=42){
   }
   nboot <- as.integer(nboot)
   if (nboot<1){nboot=1}
-  nboot_times <- 1000
+  #nboot_times <- 1000
   bootres <- c()
   treatarm<-as.character(formsurv[[1]][[3]])[2] #Extract this name from the formula since the user might have changed it to something other than “arm”
   #Start calculating the point estimates
   bootres$cox <- vector(mode = "list", length = length(formcox))
   for (i in seq_len(length(formcox))){
-    bootres$cox[[i]]$main <- survival::coxph(formcox[[i]],data=df)
+    #A bug in cox.zph finds the data in the function one level up. More
+    #precisely, it is the line cget <- coxph.getdata(fit, y = TRUE, x = TRUE,
+    #stratax = TRUE, weights = TRUE) in cox.zph that get the wrong data
+    #returned. The data will be the data of the “data.frame” one level up. Since
+    #the calling function uses dftemp, the same name must be used here. The
+    #fault might only occur with a function in a package (a different
+    #namespace). This fault should be reported to the authors of cox.zph. That
+    #is not done currently.
+    dftemp<-df
+    bootres$cox[[i]]$main <- survival::coxph(formcox[[i]],data=dftemp)
+    #Add info about test of proportional hazard
+    bootres$cox[[i]]$coxzph<-survival::cox.zph(bootres$cox[[i]]$main)
   }
   bootres$surv <- vector(mode = "list", length = length(formsurv))
   for (i in seq_len(length(formsurv))){
     bootres$surv[[i]]$main <- survival::survfit(formsurv[[i]],conf.int=conf.int,data=df)
     #The next line is fix of a problem in survfit that it does not replace the calling function which creates problems in ggplot
     bootres$surv[[i]]$main$call$formula <-formsurv[[i]]
+    #Add information about restricted mean survival test
+    time_rms<-df[[stats::terms(formsurv[[i]])[[2]][[2]]]]
+    event_rms<-df[[stats::terms(formsurv[[i]])[[2]][[3]]]]
+    arm_rms<-df[[stats::terms(formsurv[[i]])[[3]][[2]]]]
+    arm_rms<-arm_rms==levels(arm_rms)[2]
+
+    tauList<-c(12,24,36,48,60)
+    pList<-c()
+    for (tau in tauList){
+      temp<-survRM2::rmst2(time=time_rms, status=event_rms, arm=arm_rms, tau = tau)
+      temp<-temp[["unadjusted.result"]]
+      temp<-temp["RMST (arm=1)-(arm=0)","p"]
+      pList<-c(pList,temp)
+    }
+    bootres$surv[[i]]$rmst<-data.frame(cutOffTime=tauList,p=pList)
   }
 
   bootres$comprisk$main <- cmprsk::cuminc(ftime = df$t_firstevent, fstatus = df$event_firstevent, cencode = "censoring",group=df[[treatarm]])

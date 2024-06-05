@@ -10,7 +10,10 @@ PlotEarlyToxTables(
   nBootImputation = 20,
   p_values = NULL,
   p_value_save_path = NULL,
-  Q = 0.1
+  Q = 0.1,
+  plotVariables = NULL,
+  ChangeText = c(),
+  OutPutFileName = "c:/home/cab/temp/EarlyToxTable.docx"
 )
 }
 \arguments{
@@ -36,6 +39,17 @@ The multiple testing procedure is based on Benjamini Y, Hochberg Y.
 Controlling the False Discovery Rate: A Practical and Powerful Approach to
 Multiple Testing. Journal of the Royal Statistical Society Series B
 (Methodological). 1995;57:289-300. (the default value is 0.1)}
+
+\item{plotVariables}{is a list of variables that should be plotted in the
+table. The variables will be plotted in the order they appear in
+plotVariables. If not provided, all toxicity variables will be plotted}
+
+\item{ChangeText}{is a character list of variable names and the names that
+should be used in the plot e.g. ChangeText = c(pneumonitis='Pneumonitis',
+ps='Performance status')}
+
+\item{OutPutFileName}{is the filename (including full path) for where the
+toxicity tables are stored}
 }
 \value{
 A flextable that can be saved as a Word file

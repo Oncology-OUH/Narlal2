@@ -22,6 +22,7 @@ Imports:
     data.table,
     flextable,
     ggplot2,
+    ggprism,
     Hmisc,
     lubridate,
     officer,
@@ -34,8 +35,10 @@ Imports:
     stats,
     survival,
     survminer,
+    survRM2,
     tableone,
-    tibble
+    tibble,
+    writexl
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1

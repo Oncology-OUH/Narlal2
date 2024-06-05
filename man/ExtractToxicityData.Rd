@@ -7,9 +7,13 @@
 ExtractToxicityData(
   rawdata,
   SAERelationToInclude = c("No", "Yes", "Potentially"),
+  LateToxRelationToInclude = c("No", "Yes", "Potentially"),
+  addLateRetroToLateProspective = TRUE,
   variablesToImpute = c("fatigue", "cough", "dyspnoe", "constipation", "nausea",
     "vomiting", "dysphagia", "pain", "sens_neuropati", "infection", "diaria",
-    "skinreaction", "other_tox"),
+    "skinreaction", "other_tox", "heart_late_pro", "lung_late_pro", "esoph_late_pro",
+    "pain_late_pro", "bron_late_pro", "trachea_late_pro", "rtmyelo_late_pro",
+    "cutis_late_pro"),
   removeToxAfterLocalFailure = FALSE,
   removeToxAfterDistantFailure = FALSE
 )
@@ -23,7 +27,23 @@ groups No, Yes, and  Potentially. The returned toxicity data will only
 include SAEs with RT relations as those specified in this variable. The
 default is to return all SAE toxicity information.}
 
-\item{variablesToImpute}{is a list of toxicity varibales to impute.
+\item{LateToxRelationToInclude}{Describe which of late toxicity to include in
+the toxicity data. The late toxicities are classified by their relation to
+the radiotherapy in the groups No, Yes, and  Potentially. The returned
+toxicity data will only include late toxicity with RT relations as those
+specified in this variable. The default is to return all late toxicity
+information.}
+
+\item{addLateRetroToLateProspective}{is a boolean that, if true, will add the
+late retrospective toxicity score to the late prospectively scored
+toxicity. If the retro toxicity is scored at the lowest level, there will
+not be any date information. In that case, the zero values will be placed
+in the nine-month follow-up (unless a score is already present). This
+procedure is made to ensure that all zero values are represented in the
+late toxicity score. The default value of addLateRetroToLateProspective is
+true}
+
+\item{variablesToImpute}{is a list of toxicity variables to impute.
 Imputation is performed per toxicity. The imputation will be performed if
 all toxicity values (per patient/toxicity) are grade 0 or 1. In that case,
 all data points that are in time before the last entered values will be
@@ -46,6 +66,72 @@ data.frame that contain toxicity data
 \description{
 'ExtracToxicityData' extract the patient toxicity from the
 initial raw data obtained using LoadAndPrepareData
+}
+\details{
+In the RedCap database, there are five sources of toxicity
+variables:
+\enumerate{
+\item Prospectively scored toxicity during RT
+\item Prospectively scored toxicity at follow-up months 3-120
+\item Prospectively scored late toxicity
+\item Retrospective scored toxicity
+\item SAE reports
+}
+Typical variable names returned from this function related to the four
+categories are:
+\enumerate{
+\item Infection_rt_uge_3: The first part, infection_rt, is a variable name
+from RedCap (the rt refers to that it is during RT), and uge_3 (Danish for
+week 3) is the RedCap event name. So, in general the names will be
+variableName_rt_ug_x (x=1-8)
+\item fatigue_fu_mdr_6: The first part,
+fatigue_fu, is a variable name from RedCap (the fu refers to that this is
+related to a follow-up visit), and mdr_6 (Danish for Month 6) is the RedCap
+event name. So in general the names will be variableName_fu_mdr_x (x=3-120)
+\item lung_late_pro_fu_mdr_12: The first part lung describes the type of
+toxicity, late_pro states that this is a late prospectively scored
+toxicity, and fu_mdr_12 states the months of the follow-up visit.
+\item SAE_heart_fu_mdr_18 or SAE_heart_rt_uge_2. The first part, SAE,
+indicates that it is an SAE, heart indicates the type of toxicity, while
+fu_mdr_18 or rt_uge indicates that it is related to follow-up at 18 months
+or at week 2 during RT.
+}
+On top of all these individual variables, several aggregate the above
+variables. There are five different types of time aggregation, each
+reporting the maximum value of the aggregated variables.
+\enumerate{
+\item During: e.g., During_cough_rt is the maximum value of cough during RT
+\item Early: e.g., Early_fatigue_fu is the maximum value of fatigue during the
+two early follow-up visits defined as the visits at months 3 and 6 after
+randomization
+\item DuringAndEarly: e.g., DuringAndEarly_sens_neuropati_rtfu
+is the maximum value of the variable sens_neuropati during RT and at
+follow-up months 3 and 6 (hence the rtfu ending)
+\item Late: e.g.,
+Late_pain_late_pro_fu or Late_dyspnoe_fu is the maximum grade at follow-up
+visits after the follow-up visit at 6 months for the in the example for the
+two variables  pain in the late perspective scoring or dyspnoe during the
+follow-up visits from month 9-120
+\item AllMax: e.g., AllMax_nausea_rtfu is
+the maximum score over all values of, in this case, nausea during RT and
+follow-up visits
+}
+Furthermore, there are three aggregations across variables:
+\enumerate{
+\item lungOrgan Group is the aggregation over cough, dyspnoe, and pneumonitis.
+Variable example names are lungOrganGroup_fu_mdr_12 or
+Early_lungOrganGroup_fu. The latter combines the Early group from above
+with the aggregation over the stated variables.
+\item gastroOrgan Group is the
+aggregation over constipation, vomiting, diaria, and nausea. Example
+variables names are: DuringAndEarly_gastroOrganGroup_rtfu
+\item allTox Group
+is the aggregation over all toxicitites except for the type “other”.
+Example variable names are allToxGroup_rt_uge_6 and
+DuringAndEarly_allToxGroup_rtfu. The latter being the maximum toxicity
+score for measured toxicities (except for the type other) during RT and the
+follow-up months at 3 and 6 months
+}
 }
 \examples{
 file <- system.file('extdata','DemoData.csv',package="Narlal2")

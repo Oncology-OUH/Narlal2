@@ -10,7 +10,8 @@ PlotSurvivalData(
   nboot = 10,
   conf.int = 0.95,
   seed = 42,
-  ChangeText = c()
+  ChangeText = c(),
+  maxTimeToColorAreaBetweenKM = 0
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ PlotSurvivalData(
 \item{seed}{a value to seed the random generator}
 
 \item{ChangeText}{is a variable used to change the text on plots just before they are plotted. The variable is defined in three part (see example below) that is used to change the text in variable/names, levels, and labels on the plots.}
+
+\item{maxTimeToColorAreaBetweenKM}{This value is the maximum time for which the region between the two survival curves will be coloured. This feature can be used to illustrate the restricted mean survival test. The default value is zero, which will result in no colouring}
 }
 \value{
 Is exporting survival figures

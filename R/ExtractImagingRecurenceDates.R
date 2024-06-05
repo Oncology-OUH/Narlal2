@@ -26,15 +26,36 @@ ExtractImagingRecurrenceDates <- function(df){
     dateLocoRegional <- NA
     dateDistant <- NA
     dateLastImaging <- NA
+    indexPt <- datadf$patient_id==pts[iPts]
     if (nrow(dftemp)>0){
       index<- !is.na(dftemp$date_of_imaging)
       if (any(index)){
-        datadf[iPts,'numberImageSessions'] <- sum(index)
+
+        datadf[indexPt,'numberImageSessions'] <- sum(index)
         dateLastImaging <- max(dftemp$date_of_imaging[index])
-        indexLocoRegional <- dftemp$recurence_type___1.factor=='Checked'
-        indexLocoRegional[is.na(indexLocoRegional)] <- FALSE
-        indexDistant <- dftemp$recurence_type___2.factor=='Checked'
-        indexDistant[is.na(indexDistant)] <- FALSE
+
+        #For each possible recurrence position, the imaging recurrence status is selected. However, if there is a related biopsy with the result “rejected image information” or “Inconclusive result”, the image recurrence observation is disregarded. For both “Rejected” and “Inconclusive,” the image result was not validated within the biopsy and is thus ignored.
+        localRecureceBiopsyVariables<-c('same_lobe_biopsy_val','mediastinal_biopsy_val','ipsi_hilus_biopsy_val','contra_hilus_biopsy_val','ipsi_supraclav_biopsy_val')
+        indexLocoRegional<-rep(FALSE,nrow(dftemp))
+        for (iBiopsy in seq_along(localRecureceBiopsyVariables)){
+          localRecurrence<-dftemp[[paste('local_recurrence_location___',iBiopsy,'.factor',sep='')]]=='Checked'
+          localRecurrence[is.na(localRecurrence)]<-FALSE
+          rejectByBiopsy<-dftemp[[localRecureceBiopsyVariables[iBiopsy]]]==3 | dftemp[[localRecureceBiopsyVariables[iBiopsy]]]==4
+          rejectByBiopsy[is.na(rejectByBiopsy)]<-FALSE
+          indexLocoRegional<-indexLocoRegional | (localRecurrence & !rejectByBiopsy)
+        }
+        distantRecureceBiopsyVariables<-c('diffhist_biopsy_val','otherlobe_biopsy_val','contra_lung_biopsy_val','contra_supra_biopsy_val',
+                                          'mult_lungmet_biopsy_val','pleura_efus_biopsy_val','brain_biopsy_val','liver_biopsy_val',
+                                          'andrenal_biopsy_val','bone_biopsy_val','cutis_biopsy_val','other_recurrence_type')
+        indexDistant<-rep(FALSE,nrow(dftemp))
+        for (iBiopsy in seq_along(distantRecureceBiopsyVariables)){
+          distantRecurrence<-dftemp[[paste('distant_recurrence_loc___',iBiopsy,'.factor',sep='')]]=='Checked'
+          distantRecurrence[is.na(distantRecurrence)]<-FALSE
+          rejectByBiopsy<-dftemp[[distantRecureceBiopsyVariables[iBiopsy]]]==3 | dftemp[[distantRecureceBiopsyVariables[iBiopsy]]]==4
+          rejectByBiopsy[is.na(rejectByBiopsy)]<-FALSE
+          indexDistant<-indexDistant | (distantRecurrence & !rejectByBiopsy)
+        }
+
         if (any(indexLocoRegional)){
           dateLocoRegional<-min(dftemp$date_of_imaging[indexLocoRegional])
         }
@@ -43,7 +64,6 @@ ExtractImagingRecurrenceDates <- function(df){
         }
       }
     }
-    indexPt <- datadf$patient_id==pts[iPts]
     datadf[indexPt,'dateLocoRegional'] <- dateLocoRegional
     datadf[indexPt,'dateDistant'] <- dateDistant
     datadf[indexPt,'dateLastImaging'] <- dateLastImaging

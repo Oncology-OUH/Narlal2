@@ -41,7 +41,10 @@ custom_tab_Narlal <- function(df, header, footer=c()){
     flextable::autofit(part = "body") %>%
     flextable::bg(part = "body", bg = "#f5f5f5") %>%
     flextable::align(part = "all", align = "center") %>%
-    flextable::align(j = 1, part = "all", align = "left")
+    flextable::align(j = 1, part = "all", align = "left") %>%
+    flextable::height(i = NULL, height=.6, part = "body", unit = "cm") %>%
+    flextable::hrule(rule = "exact", part = "body") %>%
+    flextable::valign(i = NULL, j = NULL, valign = "center", part = "body")
 }
 #' customtab_defaults_Narlal
 #' @description An internal function used to define the defaults for the flextable used to produce the table of the package

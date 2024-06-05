@@ -63,15 +63,18 @@ CalculatePVaulesEarlyTox<-function(rawdata,maxMonth=6,nBootImputation=20,randomS
   index<-monthNumbers<=maxMonth
   monthNumbers<-monthNumbers[index]
 
-
   index<-grepl('_fu_mdr_',names(rawdata)) | grepl('_rt_uge_',names(rawdata))
   toxVariables <- names(rawdata)[index]
   toxVariables <- gsub("_rt_uge_\\d+.*", "", toxVariables)
   toxVariables <- gsub("_fu_mdr_\\d+.*", "", toxVariables)
   toxVariables <- unique(toxVariables)
 
-  result<-list()
+  #Remove late prospective tox variables e.g. heart_late_pro
+  indexLatePro<-grepl('_late_pro',toxVariables)
+  toxVariables<-toxVariables[!indexLatePro]
 
+
+  result<-list()
   #Calculate probabilities during RT
 
   for (iTox in seq_along(toxVariables)){
@@ -79,8 +82,8 @@ CalculatePVaulesEarlyTox<-function(rawdata,maxMonth=6,nBootImputation=20,randomS
     print(varName)
     #Start by collecting the relevant data
 
-    #For SAE tox and pneumonitis there should not be made a during RT analysis
-    if (!grepl('^SAE_',varName) & varName!='pneumonitis'){
+    #For SAE tox, allToxGroup and pneumonitis there should not be made a during RT analysis
+    if (!grepl('^SAE_',varName) & varName!='pneumonitis' &varName!='allToxGroup'){
 
 
       #Start creating data frame for the probability calculation for during rt
@@ -150,8 +153,8 @@ CalculatePVaulesEarlyTox<-function(rawdata,maxMonth=6,nBootImputation=20,randomS
           }
         }
       }
-      #If SAE tox or pneumonitis also the tox during RT should be included
-      if (grepl('^SAE_',varName) | varName=='pneumonitis'){
+      #If SAE tox, allToxGroup, or pneumonitis also the tox during RT should be included
+      if (grepl('^SAE_',varName) | varName=='pneumonitis' | varName=='allToxGroup'){
         for (jPt in seq_along(rawdata$patient_id)){
           for (iWeek in seq_along(weekNumbers)){
             if (iWeek>1){

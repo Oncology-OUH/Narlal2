@@ -7,7 +7,13 @@
 #'   groups No, Yes, and  Potentially. The returned toxicity data will only
 #'   include SAEs with RT relations as those specified in this variable. The
 #'   default is to return all SAE toxicity information.
-#' @param variablesToImpute is a list of toxicity varibales to impute.
+#' @param LateToxRelationToInclude Describe which of late toxicity to include in
+#'   the toxicity data. The late toxicities are classified by their relation to
+#'   the radiotherapy in the groups No, Yes, and  Potentially. The returned
+#'   toxicity data will only include late toxicity with RT relations as those
+#'   specified in this variable. The default is to return all late toxicity
+#'   information.
+#' @param variablesToImpute is a list of toxicity variables to impute.
 #'   Imputation is performed per toxicity. The imputation will be performed if
 #'   all toxicity values (per patient/toxicity) are grade 0 or 1. In that case,
 #'   all data points that are in time before the last entered values will be
@@ -21,15 +27,92 @@
 #'   scores after local failure to NA. The default is to keep all toxicity.
 #' @param removeToxAfterDistantFailure will, if set to TRUE, set all toxicity
 #'   scores after distant failure to NA. The default is to keep all toxicity.
-#'
+#' @param addLateRetroToLateProspective is a boolean that, if true, will add the
+#'   late retrospective toxicity score to the late prospectively scored
+#'   toxicity. If the retro toxicity is scored at the lowest level, there will
+#'   not be any date information. In that case, the zero values will be placed
+#'   in the nine-month follow-up (unless a score is already present). This
+#'   procedure is made to ensure that all zero values are represented in the
+#'   late toxicity score. The default value of addLateRetroToLateProspective is
+#'   true
 #' @return data.frame that contain toxicity data
 #' @export ExtractToxicityData
-#'
+#' @details In the RedCap database, there are five sources of toxicity
+#'   variables:
+#'   \enumerate{
+#'    \item Prospectively scored toxicity during RT
+#'    \item Prospectively scored toxicity at follow-up months 3-120
+#'    \item Prospectively scored late toxicity
+#'    \item Retrospective scored toxicity
+#'    \item SAE reports
+#'   }
+#'   Typical variable names returned from this function related to the four
+#'   categories are:
+#'   \enumerate{
+#'   \item Infection_rt_uge_3: The first part, infection_rt, is a variable name
+#'   from RedCap (the rt refers to that it is during RT), and uge_3 (Danish for
+#'   week 3) is the RedCap event name. So, in general the names will be
+#'   variableName_rt_ug_x (x=1-8)
+#'   \item fatigue_fu_mdr_6: The first part,
+#'   fatigue_fu, is a variable name from RedCap (the fu refers to that this is
+#'   related to a follow-up visit), and mdr_6 (Danish for Month 6) is the RedCap
+#'   event name. So in general the names will be variableName_fu_mdr_x (x=3-120)
+#'   \item lung_late_pro_fu_mdr_12: The first part lung describes the type of
+#'   toxicity, late_pro states that this is a late prospectively scored
+#'   toxicity, and fu_mdr_12 states the months of the follow-up visit.
+#'   \item SAE_heart_fu_mdr_18 or SAE_heart_rt_uge_2. The first part, SAE,
+#'   indicates that it is an SAE, heart indicates the type of toxicity, while
+#'   fu_mdr_18 or rt_uge indicates that it is related to follow-up at 18 months
+#'   or at week 2 during RT.
+#'   }
+#'   On top of all these individual variables, several aggregate the above
+#'   variables. There are five different types of time aggregation, each
+#'   reporting the maximum value of the aggregated variables.
+#'   \enumerate{
+#'   \item During: e.g., During_cough_rt is the maximum value of cough during RT
+#'   \item Early: e.g., Early_fatigue_fu is the maximum value of fatigue during the
+#'   two early follow-up visits defined as the visits at months 3 and 6 after
+#'   randomization
+#'   \item DuringAndEarly: e.g., DuringAndEarly_sens_neuropati_rtfu
+#'   is the maximum value of the variable sens_neuropati during RT and at
+#'   follow-up months 3 and 6 (hence the rtfu ending)
+#'   \item Late: e.g.,
+#'   Late_pain_late_pro_fu or Late_dyspnoe_fu is the maximum grade at follow-up
+#'   visits after the follow-up visit at 6 months for the in the example for the
+#'   two variables  pain in the late perspective scoring or dyspnoe during the
+#'   follow-up visits from month 9-120
+#'   \item AllMax: e.g., AllMax_nausea_rtfu is
+#'   the maximum score over all values of, in this case, nausea during RT and
+#'   follow-up visits
+#'   }
+#'   Furthermore, there are three aggregations across variables:
+#'   \enumerate{
+#'   \item lungOrgan Group is the aggregation over cough, dyspnoe, and pneumonitis.
+#'   Variable example names are lungOrganGroup_fu_mdr_12 or
+#'   Early_lungOrganGroup_fu. The latter combines the Early group from above
+#'   with the aggregation over the stated variables.
+#'   \item gastroOrgan Group is the
+#'   aggregation over constipation, vomiting, diaria, and nausea. Example
+#'   variables names are: DuringAndEarly_gastroOrganGroup_rtfu
+#'   \item allTox Group
+#'   is the aggregation over all toxicitites except for the type “other”.
+#'   Example variable names are allToxGroup_rt_uge_6 and
+#'   DuringAndEarly_allToxGroup_rtfu. The latter being the maximum toxicity
+#'   score for measured toxicities (except for the type other) during RT and the
+#'   follow-up months at 3 and 6 months
+#'   }
+
+
 #' @examples file <- system.file('extdata','DemoData.csv',package="Narlal2")
 #' df <- LoadAndPrepareData(filename=file)
 #' PtTox <- ExtractToxicityData(df,SAERelationToInclude=c('No','Yes','Potentially'))
 ExtractToxicityData <- function(rawdata,SAERelationToInclude=c('No','Yes','Potentially'),
-                                variablesToImpute=c('fatigue','cough','dyspnoe','constipation','nausea','vomiting','dysphagia','pain','sens_neuropati','infection','diaria','skinreaction','other_tox'),
+                                LateToxRelationToInclude=c('No','Yes','Potentially'),
+                                addLateRetroToLateProspective=TRUE,
+                                variablesToImpute=c('fatigue','cough','dyspnoe','constipation','nausea','vomiting','dysphagia','pain','sens_neuropati','infection','diaria','skinreaction','other_tox',
+                                                    'heart_late_pro','lung_late_pro','esoph_late_pro',
+                                                    'pain_late_pro','bron_late_pro','trachea_late_pro',
+                                                    'rtmyelo_late_pro','cutis_late_pro'),
                                 removeToxAfterLocalFailure=FALSE,removeToxAfterDistantFailure=FALSE){
 
 
@@ -43,6 +126,9 @@ ExtractToxicityData <- function(rawdata,SAERelationToInclude=c('No','Yes','Poten
                        'sens_neuropati_fu','infection_fu','other_tox1_fu',
                        'other_tox2_fu','other_tox3_fu')
 
+  tox_variable_fuLate <- c('heart_late_pro','lung_late_pro','esoph_late_pro',
+                           'pain_late_pro','bron_late_pro','trachea_late_pro',
+                           'rtmyelo_late_pro','cutis_late_pro')
 
   week_number <- seq_len(8)
   month_number <- c(3,6,9,12,15,18,21,24,30,36,42,48,54,60,72,84,96,108,120)
@@ -79,7 +165,7 @@ ExtractToxicityData <- function(rawdata,SAERelationToInclude=c('No','Yes','Poten
   #Add the tox varibales with value NA to df
 
   for (j in week_number){
-    redcap_name <- paste("uge_",as.character(j),"_arm_1",sep="")
+    #redcap_name <- paste("uge_",as.character(j),"_arm_1",sep="")
     for (k in tox_variable_rt){
       varname_name <- paste(k,"_uge_",as.character(j),sep="")
       df[[varname_name]] <- NA
@@ -88,11 +174,22 @@ ExtractToxicityData <- function(rawdata,SAERelationToInclude=c('No','Yes','Poten
   }
 
   for (j in month_number){
-    redcap_name <- paste(as.character(j),"_mdr_followup_arm_1",sep="")
+    #redcap_name <- paste(as.character(j),"_mdr_followup_arm_1",sep="")
     for (k in tox_variable_fu){
       varname_name <- paste(k,"_mdr_",as.character(j),sep="")
       df[[varname_name]] <- NA
       df[[varname_name]] <- factor(df[[varname_name]],levels = levels(rawdata[[paste(k,'.factor',sep='')]]),ordered = TRUE)
+    }
+  }
+  #add the specific 8 late toxicities scores included from the 9 month visit
+  for (j in month_number){
+    if (j>=9){
+      #redcap_name <- paste(as.character(j),"_mdr_followup_arm_1",sep="")
+      for (k in tox_variable_fuLate){
+        varname_name <- paste(k,"_fu_mdr_",as.character(j),sep="")
+        df[[varname_name]] <- NA
+        df[[varname_name]] <- factor(df[[varname_name]],levels = levels(rawdata[[paste(k,'_degree.factor',sep='')]]),ordered = TRUE)
+      }
     }
   }
   #Add the values of all the toxicities
@@ -100,7 +197,7 @@ ExtractToxicityData <- function(rawdata,SAERelationToInclude=c('No','Yes','Poten
   index_haendelse <- rawdata$redcap_event_name == 'haendelser_arm_1'
   index_followup1 <- rawdata$redcap_event_name == '1_followup_arm_1'
   for (i in seq_len(nrow(df))){
-    index <- rawdata$patient_id==df$patient_id[i] #index is used to identify the specifc patient in the rawdata
+    index <- rawdata$patient_id==df$patient_id[i] #index is used to identify the specific patient in the rawdata
     #ptdata <- rawdata[index,]
     #index_registration <- ptdata$redcap_event_name == 'registration_arm_1'
     #index_haendelse <- ptdata$redcap_event_name == 'haendelser_arm_1'
@@ -127,6 +224,29 @@ ExtractToxicityData <- function(rawdata,SAERelationToInclude=c('No','Yes','Poten
         if (sum(indextemp)==1){
           if (!is.null(rawdata[[paste(k,'.factor',sep='')]])){
             df[[varname_name]][[i]] <- rawdata[[paste(k,'.factor',sep='')]][indextemp]
+          }
+        }
+      }
+      #Now add the values for the late prospective scored variables
+      for (k in tox_variable_fuLate){
+        varname_name <- paste(k,"_fu_mdr_",as.character(j),sep="")
+        indextemp <- redcap_index & index
+        if (sum(indextemp)==1){
+          if (!is.null(rawdata[[paste(k,'_degree.factor',sep='')]])){
+            if (!is.na(rawdata[[paste(k,'_degree.factor',sep='')]][indextemp])){
+              if(rawdata[[paste(k,'_degree.factor',sep='')]][indextemp]==0){
+                df[[varname_name]][[i]] <- rawdata[[paste(k,'_degree.factor',sep='')]][indextemp]
+              }else{
+                if (is.na(rawdata[[paste(k,'_related.factor',sep='')]][indextemp])){
+                  warning(paste('Whether the late toxicity is related to the treatment is not defined for at least one toxicity for patient: ',rawdata$patient_id[indextemp],sep=''))
+                  #browser()
+                }
+
+                if (rawdata[[paste(k,'_related.factor',sep='')]][indextemp] %in%  LateToxRelationToInclude){
+                  df[[varname_name]][[i]] <- rawdata[[paste(k,'_degree.factor',sep='')]][indextemp]
+                }
+              }
+            }
           }
         }
       }
@@ -204,41 +324,182 @@ ExtractToxicityData <- function(rawdata,SAERelationToInclude=c('No','Yes','Poten
     df[[var2]] <- NULL
     df[[var3]] <- NULL
   }
+  #browser()
+  #If requested add the late retro toxicity to late prospective toxicity
+  if (addLateRetroToLateProspective){
+    month_number_from9<-month_number[month_number>=9]
+    daysSinceRandomization <- numeric(length(month_number_from9))
+    for (iMonthNr in seq_along(month_number_from9)){
+      daysSinceRandomization[iMonthNr] <- month_number_from9[iMonthNr]*365.25/12
+    }
+    tempData<-rawdata[rawdata$redcap_event_name=='retro_tox_arm_1',]
+    #browser()
+    for (iPt in seq_along(tempData$patient_id)){
+      dfIndex<-df$patient_id==tempData$patient_id[iPt]
+      if (sum(dfIndex)==1){
+        #Do only include if the patient survived more than 7 months
+        if (is.na(df[dfIndex,]$d_mors) | as.numeric(difftime(df[dfIndex,]$d_mors,df[dfIndex,]$date_of_randomization,units = 'days'))>7*365.25/12){
+          for (iVar in seq_along(tox_variable_fuLate)){
 
-  #Start the imputation
-  if (length(variablesToImpute)>0){
-    pts<-unique(df$patient_id)
-    for (iPts in seq_along(pts)){
-      indexPt <- df$patient_id == pts[iPts]
-      for (iVarImpute in seq_along(variablesToImpute)){
-        tempImputeVars <- character(length(week_number)+length(month_number))
-        for (iWeekNr in seq_along(week_number)){
-          tempImputeVars[iWeekNr] <- paste(variablesToImpute[iVarImpute],'_rt_uge_',as.character(week_number[iWeekNr]),sep='')
-        }
-        if (!(variablesToImpute[iVarImpute] %in% c('constipation','skinreaction','ototox'))){
-          for (iMonthNr in seq_along(month_number)){
-            tempImputeVars[iMonthNr+length(week_number)] <- paste(variablesToImpute[iVarImpute],'_fu_mdr_',as.character(month_number[iMonthNr]),sep='')
-          }
-        }else{
-          tempImputeVars <- tempImputeVars[1:length(week_number)]
-        }
 
-        dataValues <- df[indexPt,tempImputeVars]
-        if (any(!is.na(dataValues))){
-          maxValue <- apply(dataValues,1,max,na.rm=TRUE)
-          if (maxValue<="1"){
-            indexMax<-max(which(!is.na(dataValues)))
-            indexImpute<-c(rep(TRUE,indexMax),rep(FALSE,length(tempImputeVars)-indexMax)) & is.na(dataValues)
-            if (any(indexImpute)){
-              df[indexPt,tempImputeVars[indexImpute]] <-'0'
+            redcapToxName <- paste(gsub('_pro','_retro',tox_variable_fuLate[iVar]),'_degree.factor',sep='')
+            redcapToxDate <- paste(gsub('_pro','_retro',tox_variable_fuLate[iVar]),'_date',sep='')
+            redcapToxrelated <- paste(gsub('_pro','_retro',tox_variable_fuLate[iVar]),'_related.factor',sep='')
+            dfVarName<-paste(tox_variable_fuLate[iVar],'_fu_mdr_9',sep='')
+            toxScore<-tempData[iPt,][[redcapToxName]]
+            #The following two lines will make the level the same for toxScore and df$dfVarName. toxScore might have the first levels combined
+            levels(toxScore)[levels(toxScore) == levels(toxScore)[1]] <- 0
+            toxScore<-factor(toxScore,levels = levels(df[[dfVarName]]),ordered=TRUE)
+            if (!is.na(toxScore)){
+              if (toxScore!=0){
+                toxRelated<-tempData[iPt,][[redcapToxrelated]]
+                if (is.na(toxRelated)){
+                  warning(paste('Whether the late retrospective toxicity is related to the treatment is not defined for at least one toxicity for patient: ',tempData$patient_id[iPt],sep=''))
+                }
+                #browser()
+                if (toxRelated %in% LateToxRelationToInclude){
+                  toxDate<-tempData[iPt,][[redcapToxDate]]
+                  if (is.na(toxDate)){
+                    warning(paste('There is lacking date information for late retrospective toxicity for patient: ',tempData$patient_id[iPt],sep=''))
+                  }else{
+
+                    toxTime<-as.numeric(difftime(toxDate,df[dfIndex,'date_of_randomization'],units = 'days'))
+                    if (toxTime<7*30){
+                      #The noted toxicity is before the late toxicity thus it should at the 9 months value be scored as zero
+                      dfVarName<-paste(tox_variable_fuLate[iVar],'_fu_mdr_9',sep='')
+                      if (is.na(df[[dfVarName]][dfIndex])){
+                        df[[dfVarName]][dfIndex]<-0
+                      }
+                      #warning(paste('The time of a late retro tox is before 7 months from randomization for patient: ',tempData$patient_id[iPt],sep=''))
+                    }else{
+                      toxIndex<-which.min(abs(daysSinceRandomization-toxTime))
+                      dfVarName<-paste(tox_variable_fuLate[iVar],'_fu_mdr_',as.character(month_number_from9[toxIndex]),sep='')
+                      if (is.na(df[[dfVarName]][dfIndex])){
+                        df[[dfVarName]][dfIndex]<-toxScore
+                      }else{
+                        #browser()
+                        df[[dfVarName]][dfIndex]<-max(df[[dfVarName]][dfIndex],toxScore)
+                      }
+                    }
+                  }
+                }else{
+                  #It is a toxicity that should not be included; thus, to ensure
+                  #that all zero values are counted, add it as zero at the
+                  #nine-month follow-up visit
+                  dfVarName<-paste(tox_variable_fuLate[iVar],'_fu_mdr_9',sep='')
+                  if (is.na(df[[dfVarName]][dfIndex])){
+                    df[[dfVarName]][dfIndex]<-0
+                  }
+                }
+              }else{
+                #Here, retro toxicity has a value of 0 a; thus, no date
+                #information is provided. We will use the follow-up visit at nine
+                #months for the zero-value. This is done to represent all the zero
+                #values in the late toxicity score. The zero values will only be
+                #placed at nine months if there is no score at nine months already
+                dfVarName<-paste(tox_variable_fuLate[iVar],'_fu_mdr_9',sep='')
+                if (is.na(df[[dfVarName]][dfIndex])){
+                  df[[dfVarName]][dfIndex]<-0
+                }
+              }
             }
           }
         }
       }
     }
   }
-  #Done with imputation
+  #End adding the late retro toxicity to late prospective toxicity
 
+  #Start the imputation
+  if (length(variablesToImpute)>0){
+    pts<-unique(df$patient_id)
+    for (iPts in seq_along(pts)){
+      indexPt <- df$patient_id == pts[iPts]
+      #Start by finding the weeks and months for which there are data for the patient. There should only be made imputation in case the patient has been for the follow-up visit
+      indexDataAtWeek<-rep(FALSE,length(week_number))
+      indexDataAtMonth<-rep(FALSE,length(month_number))
+      for (iVarImpute in seq_along(variablesToImpute)){
+        for (iWeekNr in seq_along(week_number)){
+          tempVarName<- paste(variablesToImpute[iVarImpute],'_rt_uge_',as.character(week_number[iWeekNr]),sep='')
+          if(tempVarName %in% names(df)){
+            if (!is.na(df[[tempVarName]][indexPt])){
+              indexDataAtWeek[iWeekNr]=TRUE
+            }
+          }
+        }
+        for (iMonthNr in seq_along(month_number)){
+          tempVarName <- paste(variablesToImpute[iVarImpute],'_fu_mdr_',as.character(month_number[iMonthNr]),sep='')
+          if(tempVarName %in% names(df)){
+            if (!is.na(df[[tempVarName]][indexPt])){
+              indexDataAtMonth[iMonthNr]=TRUE
+            }
+          }
+        }
+      }
+
+      #Now loop over the individual tox variables
+      for (iVarImpute in seq_along(variablesToImpute)){
+        tempImputeVars<-c()
+        for (iWeekNr in seq_along(week_number)){
+          tempVarName<- paste(variablesToImpute[iVarImpute],'_rt_uge_',as.character(week_number[iWeekNr]),sep='')
+          if(tempVarName %in% names(df)){
+            tempImputeVars<-c(tempImputeVars,tempVarName)
+          }
+        }
+        for (iMonthNr in seq_along(month_number)){
+          tempVarName <- paste(variablesToImpute[iVarImpute],'_fu_mdr_',as.character(month_number[iMonthNr]),sep='')
+          if(tempVarName %in% names(df)){
+            tempImputeVars<-c(tempImputeVars,tempVarName)
+          }
+        }
+        # browser()
+        #
+        # tempImputeVars <- character(length(week_number)+length(month_number))
+        # for (iWeekNr in seq_along(week_number)){
+        #   tempImputeVars[iWeekNr] <- paste(variablesToImpute[iVarImpute],'_rt_uge_',as.character(week_number[iWeekNr]),sep='')
+        # }
+        # if (!(variablesToImpute[iVarImpute] %in% c('constipation','skinreaction','ototox'))){
+        #   for (iMonthNr in seq_along(month_number)){
+        #     tempImputeVars[iMonthNr+length(week_number)] <- paste(variablesToImpute[iVarImpute],'_fu_mdr_',as.character(month_number[iMonthNr]),sep='')
+        #   }
+        # }else{
+        #   tempImputeVars <- tempImputeVars[1:length(week_number)]
+        # }
+        dataValues <- df[indexPt,tempImputeVars]
+        #make index that is positive if the patient have been at the visit
+        indexWasAtVisit<-rep(FALSE,length(tempImputeVars))
+        for (iVar in seq_along(tempImputeVars)){
+          if (grepl('_rt_uge_',tempImputeVars[iVar])){
+            weeknr <- as.numeric(gsub(".*?(\\d+)$", "\\1", tempImputeVars[iVar]))
+            if (weeknr %in% week_number[indexDataAtWeek]){
+              indexWasAtVisit[iVar]<-TRUE
+            }
+          }
+          if (grepl('_fu_mdr_',tempImputeVars[iVar])){
+            monthnr <- as.numeric(gsub(".*?(\\d+)$", "\\1", tempImputeVars[iVar]))
+            if (monthnr %in% month_number[indexDataAtMonth]){
+              indexWasAtVisit[iVar]<-TRUE
+            }
+          }
+        }
+
+        if (any(!is.na(dataValues))){
+          maxValue <- apply(dataValues,1,max,na.rm=TRUE)
+          if (maxValue<="1"){
+            indexMax<-max(which(!is.na(dataValues)))
+            indexImpute<-c(rep(TRUE,indexMax),rep(FALSE,length(tempImputeVars)-indexMax)) & is.na(dataValues) & indexWasAtVisit
+            if (any(indexImpute)){
+              df[indexPt,tempImputeVars[indexImpute]] <-'0'
+            }
+          }
+        }
+        #browser(expr={variablesToImpute[iVarImpute]=='dysphagia'})
+
+      }
+    }
+  }
+  #Done with imputation
+  #browser()
   #Add pneumonitis tox from retrotox
   pneuminitVarNames<-character(length(week_number)+length(month_number))
   daysSinceRandomization <- numeric(length(week_number)+length(month_number))
@@ -270,19 +531,10 @@ ExtractToxicityData <- function(rawdata,SAERelationToInclude=c('No','Yes','Poten
       #df[iRow,toxVarNames] <- lapply(df[iRow,toxVarNames],factor,levels = levelNames,ordered = TRUE)
     }
   }
-
-
-
-
-
   #End initialize pneumonit data
-
-
 
   #df[,pneuminitVarNames] <- NA
   #df[,pneuminitVarNames] <- lapply(df[,pneuminitVarNames],factor,levels = levels(rawdata$pneumonitis_w_degree.factor),ordered = TRUE)
-
-
 
   dftempPneumonitis<-as.data.frame(rawdata[rawdata$redcap_event_name=='retro_tox_arm_1',c("patient_id","pneumonitis_w_degree.factor","pneumonitis_w_date")])
   for (iPneumonit in seq_len(nrow(dftempPneumonitis))){
@@ -366,7 +618,6 @@ ExtractToxicityData <- function(rawdata,SAERelationToInclude=c('No','Yes','Poten
 
   #If requested by the input remove tox after tumor failures
 
-
   if (removeToxAfterLocalFailure | removeToxAfterDistantFailure){
     indexVariables <- grepl('_fu_mdr_',names(df)) | grepl('_rt_uge_',names(df))
     variableToRemoveTox <- unique(sub("_rt_uge_.*", "",sub("_fu_mdr_.*", "", names(df)[indexVariables])))
@@ -400,11 +651,13 @@ ExtractToxicityData <- function(rawdata,SAERelationToInclude=c('No','Yes','Poten
           daysSinceRandomization <- daysSinceRandomization[1:length(week_number)]
         }
         indexRemove<- daysSinceRandomization >= daysDelteAfter
+
+        tempRemoveVars<-tempRemoveVars[indexRemove]
+        indexRemove<-tempRemoveVars %in% names(df)
         df[indexPt,tempRemoveVars[indexRemove]] <- NA
       }
     }
   }
-
   #Done remove tox
 
   #Add organ system as used in early tox article
@@ -437,13 +690,15 @@ ExtractToxicityData <- function(rawdata,SAERelationToInclude=c('No','Yes','Poten
     early_vars[1] <- paste(k,"_mdr_",as.character(3),sep="")
     early_vars[2] <- paste(k,"_mdr_",as.character(6),sep="")
 
-    data_max <- df[,early_vars]
-    indexRowAllNA<- apply(is.na(data_max), 1,all)
-    data_max[is.na(data_max)]<-levels(data_max[[names(data_max)[1]]])[1]
-    maxValue <- factor(apply(data_max, 1,max),levels=levels(data_max[[names(data_max)[1]]]),ordered=TRUE)
-    maxValue[indexRowAllNA] <- NA
-    varname <- paste("Early_",k,sep="")
-    df[[varname]]<- maxValue
+    if (early_vars[1] %in% names(df) & early_vars[2] %in% names(df)){
+      data_max <- df[,early_vars]
+      indexRowAllNA<- apply(is.na(data_max), 1,all)
+      data_max[is.na(data_max)]<-levels(data_max[[names(data_max)[1]]])[1]
+      maxValue <- factor(apply(data_max, 1,max),levels=levels(data_max[[names(data_max)[1]]]),ordered=TRUE)
+      maxValue[indexRowAllNA] <- NA
+      varname <- paste("Early_",k,sep="")
+      df[[varname]]<- maxValue
+    }
   }
 
   #Add variable with maximum degree during RT and months 3 and 6
@@ -459,26 +714,29 @@ ExtractToxicityData <- function(rawdata,SAERelationToInclude=c('No','Yes','Poten
       all_vars <-c(all_vars, paste(k,"_fu_mdr_",as.character(3),sep=""))
       all_vars <-c(all_vars, paste(k,"_fu_mdr_",as.character(6),sep=""))
     }
-
-    data_max <- df[,all_vars]
-    indexRowAllNA<- apply(is.na(data_max), 1,all)
-    data_max[is.na(data_max)]<-levels(data_max[[names(data_max)[1]]])[1]
-    maxValue <- factor(apply(data_max, 1,max),levels=levels(data_max[[names(data_max)[1]]]),ordered=TRUE)
-    maxValue[indexRowAllNA] <- NA
-    varname <- paste("DuringAndEarly_",k,'_rtfu',sep="")
-    df[[varname]]<- maxValue
+    if (all(all_vars %in% names(df))){
+      data_max <- df[,all_vars]
+      indexRowAllNA<- apply(is.na(data_max), 1,all)
+      data_max[is.na(data_max)]<-levels(data_max[[names(data_max)[1]]])[1]
+      maxValue <- factor(apply(data_max, 1,max),levels=levels(data_max[[names(data_max)[1]]]),ordered=TRUE)
+      maxValue[indexRowAllNA] <- NA
+      varname <- paste("DuringAndEarly_",k,'_rtfu',sep="")
+      df[[varname]]<- maxValue
+    }
   }
 
 
   #Add variable with maximum degree after 6 months
 
   for (k in monthToxVar){
+
     late_vars<-c()
     for (j in seq_along(month_number)){
       if (month_number[j]!=3 & month_number[j]!=6){
         late_vars <- c(late_vars,paste(k,"_mdr_",as.character(month_number[j]),sep=""))
       }
     }
+
     data_max <- df[,late_vars]
     indexRowAllNA<- apply(is.na(data_max), 1,all)
     data_max[is.na(data_max)]<-levels(data_max[[names(data_max)[1]]])[1]
@@ -506,7 +764,9 @@ ExtractToxicityData <- function(rawdata,SAERelationToInclude=c('No','Yes','Poten
         all_vars <- all_vars[1:length(week_number)]
       }
     }
-    data_max <- df[,all_vars]
+
+    indexVarExist<-all_vars %in% names(df)
+    data_max <- df[,all_vars[indexVarExist]]
     indexRowAllNA<- apply(is.na(data_max), 1,all)
     data_max[is.na(data_max)]<-levels(data_max[[names(data_max)[1]]])[1]
     maxValue <- factor(apply(data_max, 1,max),levels=levels(data_max[[names(data_max)[1]]]),ordered=TRUE)
@@ -565,7 +825,7 @@ AddOrganSystemToxicity<-function(rawdata){
     toxValue[index]<-NA
     rawdata[,varNameRes]<-toxValue
 
-    #Make garsto organ group
+    #Make gastro organ group
     varName1<-paste('constipation_rt_uge_',as.character(weekNumbers[iWeek]),sep='')
     varName2<-paste('vomiting_rt_uge_',as.character(weekNumbers[iWeek]),sep='')
     varName3<-paste('diaria_rt_uge_',as.character(weekNumbers[iWeek]),sep='')
@@ -606,7 +866,7 @@ AddOrganSystemToxicity<-function(rawdata){
     toxValue[index]<-NA
     rawdata[,varNameRes]<-toxValue
 
-    #Make garsto organ group
+    #Make gastro organ group
     varName2<-paste('vomiting_fu_mdr_',as.character(monthNumbers[iMonth]),sep='')
     varName3<-paste('diaria_fu_mdr_',as.character(monthNumbers[iMonth]),sep='')
     varName4<-paste('nausea_fu_mdr_',as.character(monthNumbers[iMonth]),sep='')
@@ -635,3 +895,4 @@ AddOrganSystemToxicity<-function(rawdata){
   }
   return(rawdata)
 }
+

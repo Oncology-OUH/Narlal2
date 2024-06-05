@@ -4,13 +4,22 @@
 \alias{PlotGradeTwoAndThreeEarlyTox}
 \title{Plot grade two and three early toxicity}
 \usage{
-PlotGradeTwoAndThreeEarlyTox(rawdata, outputDirectory = "c:/home/cab/temp")
+PlotGradeTwoAndThreeEarlyTox(
+  rawdata,
+  outputDirectory = "c:/home/cab/temp",
+  ChangeText = c(),
+  plotVariables = c()
+)
 }
 \arguments{
 \item{rawdata}{The input data frame containing toxicity data. The data is the
 output from the function ExtractToxicityData}
 
 \item{outputDirectory}{is a path to where the plots are saved}
+
+\item{ChangeText}{a variable used to change the text on plots just before they are plotted (see example below).}
+
+\item{plotVariables}{a variable that defines which toxicities should be included in the output.}
 }
 \value{
 The output is the saved plots, and no R-data is returned
@@ -25,5 +34,10 @@ The function produces the time-dependent toxicity graphs for the early toxicity 
 file <- system.file('extdata','DemoData.csv',package="Narlal2")
 df <- LoadAndPrepareData(filename=file)
 PtTox <- ExtractToxicityData(df)
+ChangeText <-c(
+lungOrganGroup='Lunge group',
+gastroOrganGroup='Gastro group',
+dysphagia='Esophagitis')
+plotVariables<-c('lungOrganGroup','gastroOrganGroup','dysphagia','pneumonitis')
 PlotGradeTwoAndThreeEarlyTox(PtTox,outputDirectory='c:/home/cab/temp')
 }

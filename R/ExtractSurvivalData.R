@@ -1,6 +1,7 @@
 #' Extract survival data
 #' @description 'ExtracSurvivalData' extract the survival data from the initial raw data obtained using LoadAndPrepareData
 #' @param rawdata the data.frame obtained from LoadAndPrepareData
+#' @param maxFollowUpTime time in months, after which all data are censored. Default time is infinity
 #'
 #' @return data.frame that contain survival data
 #' @export ExtractSurvivalData
@@ -8,7 +9,7 @@
 #' @examples file <- system.file('extdata','DemoData.csv',package="Narlal2")
 #' df <- LoadAndPrepareData(filename=file)
 #' PtSurv <- ExtractSurvivalData(df)
-ExtractSurvivalData <- function(rawdata){
+ExtractSurvivalData <- function(rawdata,maxFollowUpTime=Inf){
   patient_id <- unique((rawdata$patient_id))
   index <- !is.na(patient_id)
   patient_id <- patient_id[index]
@@ -99,7 +100,7 @@ ExtractSurvivalData <- function(rawdata){
   #overall survival time
   #Date of event is the date of death
   #If no event use clinical update date
-  #If no clincal update date use day of randomisation. This should niot be possible to happen since clinical update date should be defined for all patients
+  #If no clincal update date use day of randomisation. This should not be possible to happen since clinical update date should be defined for all patients
   indexEvent<-!is.na(df$d_mors)
   eventDate<-rep(as.Date(NA),nrow(df))
   eventDate[indexEvent] <- df$d_mors[indexEvent]
@@ -141,5 +142,24 @@ ExtractSurvivalData <- function(rawdata){
   df$event_firstevent <- factor(first_event)
 
   df$t_firstevent<-as.numeric(difftime(date_first_event,df$date_of_randomization,units='days'))*12/365.25
+
+  #Make time censoring
+  #local control
+  index<-df$t_localcontrol>maxFollowUpTime
+  df$t_localcontrol[index]<-maxFollowUpTime
+  df$event_localcontrol[index]<-FALSE
+  #progression
+  index<-df$t_progression>maxFollowUpTime
+  df$t_progression[index]<-maxFollowUpTime
+  df$event_progression[index]<-FALSE
+  #survival
+  index<-df$t_os>maxFollowUpTime
+  df$t_os[index]<-maxFollowUpTime
+  df$event_os[index]<-FALSE
+  #firstevent
+  index<-df$t_firstevent>maxFollowUpTime
+  df$t_firstevent[index]<-maxFollowUpTime
+  df$event_firstevent[index]<-'censoring'
+
   return(df)
 }

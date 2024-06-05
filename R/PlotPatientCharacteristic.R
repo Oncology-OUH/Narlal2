@@ -4,6 +4,8 @@
 #' @param df the output from the the function ExtracPatientCharacteristic
 #' @param filepath the filepath to the directory where the patient characteristics shall be stored
 #' @param ChangeText a variable used to change the text on plots just before they are plotted. The variable is defined in three part (see example below) that is used to change the text in variable/names, levels, and labels on the tables and plots. Note that ChangeText can also be used to combine different levels by mapping them to a common name (see the example in which sublevels of T1 are mapped to the same name)
+#' @param listVars is a list of variables to include in the patient's characteristics. If left empty, it will be the list created for the primary endpoint
+#' @param catVars is a list of variables that should be handled as categorical variables within the patient characteristics
 #' @return Is returning word files with tables of patient characteristics data and cumulative and differential plots of all non-categorical parameters separated in the two treatment groups
 #' @export PlotPatientCharacteristic
 #'
@@ -28,12 +30,16 @@
 #'   Kvinde='Female'
 #' )
 #' PlotPatientCharacteristic(df=PtChar,filepath='c:/home/cab/temp',ChangeText=ChangeText)
-PlotPatientCharacteristic <- function(df,filepath,ChangeText=c()){
+PlotPatientCharacteristic <- function(df,filepath,ChangeText=c(),listVars=c(),catVars=c()){
 
-  listVars <- c("age", "gender","histology","Stadium","Perform","FEV1_percent","DLCO_percent","previous_smoker","fx_factor","daysRT","MeanDose_T","MeanDose_N","MeanLung","Vol_T","Vol_N","n_nav_rt","n_platin_rt")
-  catVars <- c("gender","histology","Stadium","Perform","previous_smoker","fx_factor","n_platin_rt")
-  nonNormalVars <- c("age","FEV1_percent","DLCO_percent","daysRT","MeanDose_T","MeanDose_N","MeanLung","Vol_T","Vol_N","n_nav_rt")
-
+  if (length(listVars)==0){
+    listVars <- c("gender","age", "histology_squamous","Stadium","Perform","FEV1_percent","DLCO_percent","previous_smoker","fx_factor","daysRT","n_nav_rt","n_platin_rt","durvalumab","Vol_T","Vol_N","vol_ptv_total","MeanDose_T","MeanDose_N","MeanLung")
+  }
+  if (length(catVars)==0){
+    catVars <- c("gender","histology_squamous","Stadium","Perform","previous_smoker","fx_factor","n_platin_rt","durvalumab")
+  }
+  #nonNormalVars <- c("age","FEV1_percent","DLCO_percent","daysRT","MeanDose_T","MeanDose_N","MeanLung","Vol_T","Vol_N","n_nav_rt")
+  nonNormalVars <-setdiff(listVars,catVars)
 
   #DurvalumabLabel <- c('AllDurvalumab','YesDurvalumab','NoDurvalumab')
   DurvalumabLabel <- c('AllDurvalumab')
@@ -84,8 +90,14 @@ PlotPatientCharacteristic <- function(df,filepath,ChangeText=c()){
       tempnonNormalVars<-ChangeVar_vector(nonNormalVars,ChangeText)
 
       table1 <- tableone::CreateTableOne(vars = templistVars, data = tempdf, factorVars = tempcatVars,strata = tempstratavar,includeNA = TRUE,test=FALSE,addOverall=TRUE)
-      tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = tempcatVars,test = T, contDigits = 1, printToggle = F,nonnormal=tempnonNormalVars,
-                     dropEqual = F,explain = T)
+      tab1_word <- print(table1, quote = F, noSpaces = T,cramVars = tempcatVars,test = T, contDigits = 1, printToggle = F,nonnormal=tempnonNormalVars,
+                     dropEqual = T,explain = F)
+      #Remove the text median [IQR] from all the lines
+      #rownames(tab1_word)<-gsub(' \\(median \\[IQR\\]\\)','',rownames(tab1_word))
+      #Remove the text (%) from all the lines
+      #rownames(tab1_word)<-gsub(' \\(%\\)','',rownames(tab1_word))
+      #Change = to :
+      rownames(tab1_word)<-gsub('=',':',rownames(tab1_word))
       tab1_word <- cbind(rownames(tab1_word),tab1_word)
       colnames(tab1_word)[1] <- "Variable"
       tab1_df <- as.data.frame(tab1_word)
@@ -93,6 +105,8 @@ PlotPatientCharacteristic <- function(df,filepath,ChangeText=c()){
       #tab1_df[1,1]<-'N'
       customtab_defaults_Narlal()
       header <- paste("Patient characteristics and treatment details.",paste(headerlabel,collapse=", "),sep=" ")
+
+
       #filename<-gsub(':', '',header)
       #filename<-gsub('\\.', '',filename)
       #filename<-gsub(',', '',filename)
@@ -117,11 +131,11 @@ PlotPatientCharacteristic <- function(df,filepath,ChangeText=c()){
       p_combined_differential<-list()
       varnames<-setdiff(templistVars,tempcatVars)
       for (k in seq_along(varnames)){
-        palette_temp<-c("red","blue")
+        palette_temp<-c("blue","red")
         #p<-ggplot2::ggplot(tempdf, ggplot2::aes(ggplot2::.data[[varnames[k]]], colour = ggplot2::.data[[tempstratavar]])) + ggplot2::theme_classic()+ggplot2::stat_ecdf()  +ggplot2::scale_colour_manual(values=palette_temp)
         indexNonNa<-!is.na(tempdf[[varnames[k]]])
         p<-ggplot2::ggplot(tempdf[indexNonNa,], ggplot2::aes( !!ggplot2::sym(varnames[k]), colour =  !!ggplot2::sym(tempstratavar))) + ggplot2::theme_classic()+ggplot2::stat_ecdf()  +ggplot2::scale_colour_manual(values=palette_temp)
-        p<-p+ ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank())#+ggplot2::guides(color=ggplot2::guide_legend(nrow=1, byrow=TRUE))
+        p<-p+ ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank())+ ggplot2::scale_x_continuous(expand = ggplot2::expand_scale(mult=c(0,0.1)))+ ggplot2::scale_y_continuous(expand = ggplot2::expand_scale(mult=c(0,0.1)))
         #p<-p+ theme(legend.justification = c(1, 0),legend.position = c(1,0))
         p<-ChageLabels_ggplot(p,ChangeText=ChangeText)
 
@@ -174,11 +188,12 @@ PlotPatientCharacteristic <- function(df,filepath,ChangeText=c()){
         x<-y<-NULL #Hack to prevent check error related to ggplot
         p_combined_differential[[k]]<-ggplot2::ggplot(data=boxdata, ggplot2::aes(x=x, y=y, fill = col)) +
           ggplot2::geom_bar(width =0.3*binwidth,stat = "identity") +
-          ggplot2::scale_x_continuous() +
-          ggplot2::scale_fill_manual(values = c('#ff0000FF','#0000ffFF'))+
+          #ggplot2::scale_x_continuous() +
+          ggplot2::scale_fill_manual(values = c('#0000ffFF','#ff0000FF'))+
           ggplot2::theme_classic()+
           ggplot2::labs(y= "Number of observations", x = varnames[k]) +
-          ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank())
+          ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank())+
+          ggplot2::scale_x_continuous(expand = ggplot2::expand_scale(mult=c(0,0.1)))+ ggplot2::scale_y_continuous(expand = ggplot2::expand_scale(mult=c(0,0.1)))
 
         #filename<-paste('PatientCharacteristicsPlot',paste(headerlabel,collapse=", "),'Variable',varnames[k],sep='_')
         #filename<-gsub(':', '',filename)
@@ -202,7 +217,7 @@ PlotPatientCharacteristic <- function(df,filepath,ChangeText=c()){
       filename<-paste(filename,'.png',sep='')
       filename <- file.path(filepath,filename)
       filename <- file.path(filepath,paste('Patient_characteristics_plots',DurvalumabLabel[i],'_',HistologyLabel[j],'.png',sep=''))
-      ggplot2::ggsave(filename,plot=p_combined,device = ragg::agg_png,bg ="white",width=20, height=24, units="cm", res =300, scaling=.4)
+      ggplot2::ggsave(filename,plot=p_combined,device = ragg::agg_png,bg ="white",width=20, height=24, units="cm", dpi =1200, scaling=.3)
       #End plotting cumulative distributions
     }
   }

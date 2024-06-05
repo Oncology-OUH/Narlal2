@@ -17,6 +17,14 @@
 #'   Controlling the False Discovery Rate: A Practical and Powerful Approach to
 #'   Multiple Testing. Journal of the Royal Statistical Society Series B
 #'   (Methodological). 1995;57:289-300. (the default value is 0.1)
+#' @param plotVariables is a list of variables that should be plotted in the
+#'   table. The variables will be plotted in the order they appear in
+#'   plotVariables. If not provided, all toxicity variables will be plotted
+#' @param ChangeText is a character list of variable names and the names that
+#'   should be used in the plot e.g. ChangeText = c(pneumonitis='Pneumonitis',
+#'   ps='Performance status')
+#' @param OutPutFileName is the filename (including full path) for where the
+#'   toxicity tables are stored
 #' @return A flextable that can be saved as a Word file
 #' @export PlotEarlyToxTables
 #' @details This function produces the table values needed to compare the
@@ -37,9 +45,10 @@
 #'   pr_section =  officer::prop_section(page_size =
 #'   officer::page_size(orient = "portrait"), type = "continuous"))
 
-PlotEarlyToxTables <- function(rawdata,maxMonth=6,nBootImputation=20,p_values=NULL,p_value_save_path=NULL,Q=0.1){
+PlotEarlyToxTables <- function(rawdata,maxMonth=6,nBootImputation=20,p_values=NULL,p_value_save_path=NULL,Q=0.1,plotVariables=NULL,ChangeText=c(),OutPutFileName='c:/home/cab/temp/EarlyToxTable.docx'){
   weekNumbers<-c(1,2,3,4,5,6,7)
-  monthNumbers <- c(3,6)
+  monthNumbers <- c(3,6,9,12,15,18,21,24,30,36,42,48,54,60,72,84,96,108,120)
+  monthNumbers <- monthNumbers[monthNumbers<=maxMonth]
 
   #start by removing sens_neuropati and ototox which according to thee SAP
   #should not be reported
@@ -56,54 +65,63 @@ PlotEarlyToxTables <- function(rawdata,maxMonth=6,nBootImputation=20,p_values=NU
   counter<-0
   namesInDuring<-setdiff(toxVariables,c('sens_neuropati','ototox','pneumonitis',
                                         'SAE_neutropeni','SAE_hemoptysis','SAE_heart',
-                                        'SAE_emboli','SAE_infection','SAE_othertox'))
+                                        'SAE_emboli','SAE_infection','SAE_othertox','allToxGroup'))
   namesInEarly<-setdiff(toxVariables,c('sens_neuropati','ototox','constipation','skinreaction','pneumonitis',
                                        'SAE_neutropeni','SAE_hemoptysis','SAE_heart',
-                                       'SAE_emboli','SAE_infection','SAE_othertox'))
+                                       'SAE_emboli','SAE_infection','SAE_othertox','allToxGroup'))
   namesInCombined<-c('pneumonitis','SAE_neutropeni','SAE_hemoptysis','SAE_heart',
-                     'SAE_emboli','SAE_infection','SAE_othertox')
+                     'SAE_emboli','SAE_infection','SAE_othertox','allToxGroup')
 
+
+  if (length(plotVariables)==0){
+    plotVariables<-toxVariables
+  }
 
   #Start by combining tox level in accordance with the description in the SAP
-
-  varNames<-unique(c(namesInDuring,namesInEarly,namesInCombined))
-  for (varName in varNames){
-    #Re-code levels in accordance with the SAP (no re-coding for ps)
-    varNameDuringRT<-paste('During_',varName,'_rt',sep='')
-    varNameEarly<-paste('Early_',varName,'_fu',sep='')
-    varNameCombined<-paste('DuringAndEarly_',varName,'_rtfu',sep='')
-    if (varName!='ps'){
-      if (varName %in% namesInDuring){
-        rawdata[[varNameDuringRT]][rawdata[[varNameDuringRT]]==1]<-0
-        rawdata[[varNameDuringRT]]<-factor(rawdata[[varNameDuringRT]], levels=setdiff(levels(rawdata[[varNameDuringRT]]),'1'),ordered=TRUE)
-        levelNames<-levels(rawdata[[varNameDuringRT]])
-        levelNames[1]<-"0-1"
-        levels(rawdata[[varNameDuringRT]])<-levelNames
-      }
-      if (varName %in% namesInEarly){
-        rawdata[[varNameEarly]][rawdata[[varNameEarly]]==1]<-0
-        rawdata[[varNameEarly]]<-factor(rawdata[[varNameEarly]], levels=setdiff(levels(rawdata[[varNameEarly]]),'1'),ordered=TRUE)
-        levelNames<-levels(rawdata[[varNameEarly]])
-        levelNames[1]<-"0-1"
-        levels(rawdata[[varNameEarly]])<-levelNames
-      }
-      if (varName %in% namesInCombined){
-        rawdata[[varNameCombined]][rawdata[[varNameCombined]]==1]<-0
-        rawdata[[varNameCombined]]<-factor(rawdata[[varNameCombined]], levels=setdiff(levels(rawdata[[varNameCombined]]),'1'),ordered=TRUE)
-        levelNames<-levels(rawdata[[varNameCombined]])
-        levelNames[1]<-"0-1"
-        levels(rawdata[[varNameCombined]])<-levelNames
-        if (varName %in% setdiff(namesInCombined,'pneumonitis')){
-          rawdata[[varNameCombined]][rawdata[[varNameCombined]]==2]<-'0-1'
-          rawdata[[varNameCombined]]<-factor(rawdata[[varNameCombined]], levels=setdiff(levels(rawdata[[varNameCombined]]),'2'),ordered=TRUE)
-          levelNames<-levels(rawdata[[varNameCombined]])
-          levelNames[1]<-"0-2"
-          levels(rawdata[[varNameCombined]])<-levelNames
-        }
-      }
-    }
-    #End re-coding
+  index<-grepl('_rt_uge_',names(rawdata))
+  for (month in monthNumbers){
+    index<-index | grepl(paste('_fu_mdr_',as.character(month),'$',sep=''),names(rawdata))
   }
+  toxVar <- names(rawdata)[index]
+  toxType <- gsub("_rt_uge_\\d+.*", "", toxVar)
+  toxType <- gsub("_fu_mdr_\\d+.*", "", toxType)
+  listRecoding<-data.frame(varName=toxVar,toxType=toxType)
+
+  for (toxType in unique(toxType)){
+    varName<-paste('During_',toxType,'_rt',sep='')
+    if (varName %in% names(rawdata)){
+      listRecoding[nrow(listRecoding)+1,'varName']<-varName
+      listRecoding[nrow(listRecoding),'toxType']<-toxType
+    }
+    varName<-paste('Early_',toxType,'_fu',sep='')
+    if (varName %in% names(rawdata)){
+      listRecoding[nrow(listRecoding)+1,'varName']<-varName
+      listRecoding[nrow(listRecoding),'toxType']<-toxType
+    }
+    varName<-paste('DuringAndEarly_',toxType,'_rtfu',sep='')
+    if (varName %in% names(rawdata)){
+      listRecoding[nrow(listRecoding)+1,'varName']<-varName
+      listRecoding[nrow(listRecoding),'toxType']<-toxType
+    }
+  }
+  index<-listRecoding$toxType!='ps'
+  listRecoding<-listRecoding[index,]
+  for (varName in listRecoding$varName){
+    rawdata[[varName]][rawdata[[varName]]==1]<-0
+    rawdata[[varName]]<-factor(rawdata[[varName]],levels=setdiff(levels(rawdata[[varName]]),'1'),ordered = TRUE)
+    levelNames<-levels(rawdata[[varName]])
+    levelNames[1]<-"0-1"
+    levels(rawdata[[varName]])<-levelNames
+    if (grepl('^SAE_',varName) | grepl('_SAE_',varName)){
+      rawdata[[varName]][rawdata[[varName]]==2]<-'0-1'
+      rawdata[[varName]]<-factor(rawdata[[varName]],levels=setdiff(levels(rawdata[[varName]]),'2'),ordered = TRUE)
+      levelNames<-levels(rawdata[[varName]])
+      levelNames[1]<-"0-2"
+      levels(rawdata[[varName]])<-levelNames
+    }
+  }
+
+  #End re-coding
 
   if(length(p_values)==0){
     p_values<-CalculatePVaulesEarlyTox(rawdata,maxMonth=maxMonth,nBootImputation=nBootImputation)
@@ -115,11 +133,23 @@ PlotEarlyToxTables <- function(rawdata,maxMonth=6,nBootImputation=20,p_values=NU
   BHCriticalValue<-BenjaminiHochbergCriticalValue(p_values,Q=Q)
   boldIndexDuringRT<-c()
   boldIndexEarly<-c()
-  for (iTox in seq_along(toxVariables)){
-    varName<-toxVariables[iTox]
+
+  for (iTox in seq_along(plotVariables)){
+    varName<-plotVariables[iTox]
     varNameDuringRT<-paste('During_',varName,'_rt',sep='')
     varNameEarly<-paste('Early_',varName,'_fu',sep='')
     varNameCombined<-paste('DuringAndEarly_',varName,'_rtfu',sep='')
+    #If there is no level 4 and 5 tox combine level 4 and 5 for more compact plotting
+    if (sum(rawdata[[varNameCombined]]==4 | rawdata[[varNameCombined]]==5,na.rm = TRUE)==0 & (5 %in% levels(rawdata[[varNameCombined]]))){
+      for (varTemp in c(varNameDuringRT,varNameEarly,varNameCombined)){
+        if (varTemp %in% names(rawdata)){
+          rawdata[[varTemp]]<-factor(rawdata[[varTemp]],levels=setdiff(levels(rawdata[[varTemp]]),'5'),ordered = TRUE)
+          levelNames<-levels(rawdata[[varTemp]])
+          levelNames[length(levelNames)]<-"4-5"
+          levels(rawdata[[varTemp]])<-levelNames
+        }
+      }
+    }
     if ((varName %in% namesInDuring) | (varName %in% namesInEarly) | (varName %in% namesInCombined)){
 
       counter<-counter+1
@@ -163,8 +193,13 @@ PlotEarlyToxTables <- function(rawdata,maxMonth=6,nBootImputation=20,p_values=NU
         }
         dftemp[counter,'p_val2']<-temp
       }
-
-      dftemp[counter,'Toxicity']<-varName
+      plotVarName<-varName
+      if (length(ChangeText)>0){
+        if (varName %in% names(ChangeText)){
+          plotVarName<-ChangeText[[varName]]
+        }
+      }
+      dftemp[counter,'Toxicity']<-plotVarName
       indexStandard<-rawdata$arm=='Standard'
       if ((varName %in% namesInDuring) | (varName %in% namesInEarly)){
         varLevels<-levels(rawdata[[varNameDuringRT]])
@@ -237,10 +272,21 @@ PlotEarlyToxTables <- function(rawdata,maxMonth=6,nBootImputation=20,p_values=NU
   ft <- flextable::fontsize(ft, size = 7, part = "header")
   ft <- flextable::fontsize(ft, size = 7)
   ft <- flextable::align(ft, align = "center", part = "all")
-  ft <- flextable::autofit(ft,part = "body")
-  ft<-flextable::bold(ft, i = boldIndexDuringRT, j=6, bold = TRUE, part = "body")
-  ft<-flextable::bold(ft, i = boldIndexEarly, j=10, bold = TRUE, part = "body")
-  return(ft)
+  ft <- flextable::autofit(ft,part = c("body","header"))
+  ft <- flextable::fit_to_width(ft, max_width = 16,unit = 'cm')
+  ft <- flextable::height(ft, height=.5, part = "body", unit = "in")
+  ft <- flextable::height(ft, i = NULL, height=.6, part = "body", unit = "cm")
+  ft <- flextable::hrule(ft, rule = "exact", part = "body")
+  ft <- flextable::valign(ft, i = NULL, j = NULL, valign = "center", part = "body")
+  if (length(boldIndexDuringRT)>0){
+    ft<-flextable::bold(ft, i = boldIndexDuringRT, j=6, bold = TRUE, part = "body")
+  }
+  if (length(boldIndexEarly)>0){
+    ft<-flextable::bold(ft, i = boldIndexEarly, j=10, bold = TRUE, part = "body")
+  }
+  flextable::save_as_docx(ft, path = OutPutFileName,
+                          pr_section =  officer::prop_section(page_size = officer::page_size(orient = "portrait"), type = "continuous"))
+
 }
 BenjaminiHochbergCriticalValue<-function(p_values,Q=0.1){
   #Implemented using
@@ -251,11 +297,13 @@ BenjaminiHochbergCriticalValue<-function(p_values,Q=0.1){
   p_array<-c()
   for (iTox in seq_along(names(p_values)) ){
     varName<-names(p_values)[iTox]
-    if ('DuringRT' %in% names(p_values[[varName]])){
-      p_array<-c(p_array,p_values[[varName]]$DuringRT)
-    }
-    if ('Early' %in% names(p_values[[varName]])){
-      p_array<-c(p_array,p_values[[varName]]$Early)
+    if (varName!="other_tox" & varName!="SAE_othertox"){
+      if ('DuringRT' %in% names(p_values[[varName]])){
+        p_array<-c(p_array,p_values[[varName]]$DuringRT)
+      }
+      if ('Early' %in% names(p_values[[varName]])){
+        p_array<-c(p_array,p_values[[varName]]$Early)
+      }
     }
   }
   #Sort p-values and compare with (i/m)Q

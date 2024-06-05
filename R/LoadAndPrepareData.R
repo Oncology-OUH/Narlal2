@@ -57,6 +57,7 @@ LoadAndPrepareData <- function(filename='ExternalData/DemoData.csv'){
                                             "other_tox1_rt_type"=readr::col_character(),
                                             "other_tox2_rt_type"=readr::col_character(),
                                             "other_tox3_rt_type"=readr::col_character(),
+                                            "mors_and"=readr::col_character(),
                                             "d_and2_rt"=readr::col_date(),
                                             "d_and2_rtsl"=readr::col_date(),
                                             "d_and3_rt"=readr::col_date(),

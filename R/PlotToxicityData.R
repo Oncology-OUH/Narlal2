@@ -1,10 +1,36 @@
 #' Write word files containing patient toxicity data
-#' @description
-#' Creates patient toxicity tables divided by treatment arm and saves these as word files. For all plots, three versions are created: one for all patients and two for patients with tumours of histology squamous or non-squamous. Furthermore, eight different versions of the table are made for each of the three histologies. Four different versions are created for the different time windows: During RT, Early, combined During and Early, and late. For each of these four, two versions are created one that includes toxicity until the first recurrence and one that includes all toxicity independent of recurrence status.
+#' @description Creates patient toxicity tables divided by treatment arm and
+#' saves these as word files. For all plots, three versions are created: one for
+#' all patients and two for patients with tumours of histology squamous or
+#' non-squamous. Furthermore, eight different versions of the table are made for
+#' each of the three histologies. Four different versions are created for the
+#' different time windows: During RT, Early, combined During and Early, and
+#' late. For each of these four, two versions are created one that includes
+#' toxicity until the first recurrence and one that includes all toxicity
+#' independent of recurrence status.
 #' @param df the output from the the function ExtractToxicityData
-#' @param filepath the filepath to the directory where the patient toxicity shall be stored
-#' @param ChangeText is a variable used to change the text on plots just before they are plotted. The variable is defined in three part (see example below) that is used to change the text in variable/names, levels, and labels on the tables and plots. Note that ChangeText can also be used to combine different levels by mapping them to a common name (see the example in which toxicity levels 0, 1, and 2 are mapped to the same name)
-#' @param VariablesInclInTox is used to select a subset of the available variables for the toxicity table. The variable is divided into four parts (see example below) such that variable selection can be made independently for toxicity during RT, early after RT, a combination of during and early, and late toxicity. For all tables, the values are the maximum score for the patient within the period. During is the toxicity scored during the RT course. Early includes all scheduled evaluations after RT until and including the 6-months follow-up visit. Late is all toxicity score after the 6-month follow-up visit (the 6-month visit is not included in late toxicity). If VariablesInclInTox includes the string  ‘All’, all available toxicity parameters will be included (also if other toxicity names are listed in VariablesInclInTox). Similarly, if VariablesInclInTox is not provided to the function, all toxicity variables will be included in the table.
+#' @param filepath the filepath to the directory where the patient toxicity
+#'   shall be stored
+#' @param ChangeText is a variable used to change the text on plots just before
+#'   they are plotted. The variable is defined in three part (see example below)
+#'   that is used to change the text in variable/names, levels, and labels on
+#'   the tables and plots. Note that ChangeText can also be used to combine
+#'   different levels by mapping them to a common name (see the example in which
+#'   toxicity levels 0, 1, and 2 are mapped to the same name)
+#' @param VariablesInclInTox is used to select a subset of the available
+#'   variables for the toxicity table. The variable is divided into four parts
+#'   (see example below) such that variable selection can be made independently
+#'   for toxicity during RT, early after RT, a combination of during and early,
+#'   and late toxicity. For all tables, the values are the maximum score for the
+#'   patient within the period. During is the toxicity scored during the RT
+#'   course. Early includes all scheduled evaluations after RT until and
+#'   including the 6-months follow-up visit. Late is all toxicity score after
+#'   the 6-month follow-up visit (the 6-month visit is not included in late
+#'   toxicity). If VariablesInclInTox includes the string  ‘All’, all available
+#'   toxicity parameters will be included (also if other toxicity names are
+#'   listed in VariablesInclInTox). Similarly, if VariablesInclInTox is not
+#'   provided to the function, all toxicity variables will be included in the
+#'   table.
 #'
 #' @return Is returning word files with tables of patient toxicity data
 #' @export PlotToxicityData
@@ -156,7 +182,7 @@ PlotToxicityData <- function(df,filepath,ChangeText=c(),VariablesInclInTox=c()){
         dftemp$arm<-dfSelected$arm
         #extracted_text <- sub("^[^_]+_(.*)_[^_]+$", "\\1", names(dftemp))
 
-        names(dftemp) <- sub("^[^_]+_(.*)_[^_]+$", "\\1", names(dftemp)) #Extract the partt of the name between the first and the last underscore
+        names(dftemp) <- sub("^[^_]+_(.*)_[^_]+$", "\\1", names(dftemp)) #Extract the part of the name between the first and the last underscore
         listVars <- names(dftemp)
         listVars <- setdiff(listVars,c('arm'))
         if (length(listVars)>0){
@@ -171,9 +197,9 @@ PlotToxicityData <- function(df,filepath,ChangeText=c(),VariablesInclInTox=c()){
           listVars<-ChangeVar_vector(listVars,ChangeText=ChangeText)
           #table1 <- tableone::CreateTableOne(vars = listVars, data = dftemp, factorVars = catVars,strata = treatarm,includeNA = FALSE,test=TRUE,addOverall=TRUE)
 
-          table1 <- tableone::CreateTableOne(vars = listVars, data = dftemp,strata = treatarm,includeNA = TRUE,test=TRUE,addOverall=TRUE)
+          table1 <- tableone::CreateTableOne(vars = listVars, data = dftemp,strata = treatarm,includeNA = FALSE,test=TRUE,addOverall=TRUE)
           tab1_word <- print(table1, quote = F, noSpaces = F,cramVars = catVars,test = T, contDigits = 1, printToggle = F, exact = catVars,
-                             dropEqual = F,explain = T,showAllLevels = TRUE)
+                             dropEqual = F,explain = F,showAllLevels = TRUE)
           tab1_word <- cbind(rownames(tab1_word),tab1_word)
           colnames(tab1_word)[1] <- "Variable"
           tab1_df <- as.data.frame(tab1_word)

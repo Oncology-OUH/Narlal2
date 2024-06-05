@@ -4,10 +4,12 @@
 \alias{ExtractSurvivalData}
 \title{Extract survival data}
 \usage{
-ExtractSurvivalData(rawdata)
+ExtractSurvivalData(rawdata, maxFollowUpTime = Inf)
 }
 \arguments{
 \item{rawdata}{the data.frame obtained from LoadAndPrepareData}
+
+\item{maxFollowUpTime}{time in months, after which all data are censored. Default time is infinity}
 }
 \value{
 data.frame that contain survival data

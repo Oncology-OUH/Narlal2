@@ -15,7 +15,8 @@ SelectFirstNPatients <- function(df,n){
   if (n>nrow(cprData)){
     n<-nrow(cprData)
   }
-  index<-cprData$d_registrering<=sort(cprData$date_of_randomization)[n]
+  #index<-cprData$d_registrering<=sort(cprData$date_of_randomization)[n]
+  index<-cprData$date_of_randomization<=sort(cprData$date_of_randomization)[n]
   cprToInclude<-cprData[index,]$patient_id
   index<-df$patient_id %in% cprToInclude
   return(df[index,])

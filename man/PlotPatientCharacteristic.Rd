@@ -4,7 +4,13 @@
 \alias{PlotPatientCharacteristic}
 \title{Write word files containing patient characteristics}
 \usage{
-PlotPatientCharacteristic(df, filepath, ChangeText = c())
+PlotPatientCharacteristic(
+  df,
+  filepath,
+  ChangeText = c(),
+  listVars = c(),
+  catVars = c()
+)
 }
 \arguments{
 \item{df}{the output from the the function ExtracPatientCharacteristic}
@@ -12,6 +18,10 @@ PlotPatientCharacteristic(df, filepath, ChangeText = c())
 \item{filepath}{the filepath to the directory where the patient characteristics shall be stored}
 
 \item{ChangeText}{a variable used to change the text on plots just before they are plotted. The variable is defined in three part (see example below) that is used to change the text in variable/names, levels, and labels on the tables and plots. Note that ChangeText can also be used to combine different levels by mapping them to a common name (see the example in which sublevels of T1 are mapped to the same name)}
+
+\item{listVars}{is a list of variables to include in the patient's characteristics. If left empty, it will be the list created for the primary endpoint}
+
+\item{catVars}{is a list of variables that should be handled as categorical variables within the patient characteristics}
 }
 \value{
 Is returning word files with tables of patient characteristics data and cumulative and differential plots of all non-categorical parameters separated in the two treatment groups
