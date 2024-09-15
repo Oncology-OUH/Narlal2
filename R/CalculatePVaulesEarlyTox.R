@@ -191,6 +191,7 @@ makeMixedFit<-function(df,nBootImputation){
   df$toxScore<-droplevels(df$toxScore)
 
   res<-rep(NA,nBootImputation)
+  reschi2<-rep(NA,nBootImputation)
   for (iBoot in seq_len(nBootImputation)){
     dffit<-ImputeBaselineTox(df)
     dffit$baseLineTox<-droplevels(dffit$baseLineTox)
@@ -212,9 +213,32 @@ makeMixedFit<-function(df,nBootImputation){
     pkgcond::suppress_warnings(resFull <- ordinal::clmm(formFull,data=dffit,control = ordinal::clmm.control(innerCtrl = c("noWarn"))), "Hessian is numerically singular")
     pkgcond::suppress_warnings(resNoArm <- ordinal::clmm(formNoArm,data=dffit,control = ordinal::clmm.control(innerCtrl = c("noWarn"))), "Hessian is numerically singular")
     #browser()
+    reschi2[iBoot]<-2*abs(resFull$logLik-resNoArm$logLik)
     res[iBoot]<-stats::pchisq(2*abs(resFull$logLik-resNoArm$logLik), 1, lower.tail = FALSE)
 
   }
+  #Implementation of the aggregation method by Li K-H, Meng X-L, Raghunathan TE, et al. SIGNIFICANCE LEVELS FROM REPEATED p-VALUES WITH MULTIPLY-IMPUTED DATA. Statistica Sinica. 1991;1:65-92.
+  #Not planed to be used in the publication but implemented to check that these p-values will be larger than when using the median p-value
+  #browser()
+
+  # if (nBootImputation>1){
+  #   #No imputation was needed
+  #   d<-reschi2
+  #   m<-length(d)
+  #   k<-1
+  #   r2<-(1+1/m)*var(sqrt(d))
+  #   v2<-0.5*(1+1/k)*(m-1)*(1+1/r2)^2
+  #   W2<-(1/(1+r2))*((mean(d)/k)-r2*(m+1)/(m-1))
+  #   combined_p<-1-pf(W2,k,v2)
+  # }else{
+  #   combined_p<-res[1]
+  # }
+  # print(combined_p)
+  # if (is.na(combined_p)){
+  #   browser()
+  # }
+  # return(combined_p)
+
   print(stats::median(res))
   return(stats::median(res))
 }

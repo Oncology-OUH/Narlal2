@@ -162,6 +162,7 @@ ExtractPatientCharacteristic <- function(rawdata){
   index<-df$gender=="Kvinde"
   df$FEV1_percent[index] <- 100*df$FEV1[index]/(-1.35015-0.00024*df$age[index]^2+0.02923*df$height[index])
   df$FEV1_percent[!index] <- 100*df$FEV1[!index]/(-2.87615-0.00026*df$age[!index]^2+0.04201*df$height[!index])
+
   #Extract as one variable the sum of n_carbo_rt and n_cis_rt
   #df$n_platin_rt <- apply(cbind(df$n_cis_rt,df$n_carbo_rt),1,max,na.rm=TRUE)
   df$n_platin_rt <- df$n_cis_rt

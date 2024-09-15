@@ -135,7 +135,7 @@ PlotPatientCharacteristic <- function(df,filepath,ChangeText=c(),listVars=c(),ca
         #p<-ggplot2::ggplot(tempdf, ggplot2::aes(ggplot2::.data[[varnames[k]]], colour = ggplot2::.data[[tempstratavar]])) + ggplot2::theme_classic()+ggplot2::stat_ecdf()  +ggplot2::scale_colour_manual(values=palette_temp)
         indexNonNa<-!is.na(tempdf[[varnames[k]]])
         p<-ggplot2::ggplot(tempdf[indexNonNa,], ggplot2::aes( !!ggplot2::sym(varnames[k]), colour =  !!ggplot2::sym(tempstratavar))) + ggplot2::theme_classic()+ggplot2::stat_ecdf()  +ggplot2::scale_colour_manual(values=palette_temp)
-        p<-p+ ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank())+ ggplot2::scale_x_continuous(expand = ggplot2::expand_scale(mult=c(0,0.1)))+ ggplot2::scale_y_continuous(expand = ggplot2::expand_scale(mult=c(0,0.1)))
+        p<-p+ ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank())+ ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult=c(0,0.1)))+ ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult=c(0,0.1)))
         #p<-p+ theme(legend.justification = c(1, 0),legend.position = c(1,0))
         p<-ChageLabels_ggplot(p,ChangeText=ChangeText)
 
@@ -193,7 +193,7 @@ PlotPatientCharacteristic <- function(df,filepath,ChangeText=c(),listVars=c(),ca
           ggplot2::theme_classic()+
           ggplot2::labs(y= "Number of observations", x = varnames[k]) +
           ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank())+
-          ggplot2::scale_x_continuous(expand = ggplot2::expand_scale(mult=c(0,0.1)))+ ggplot2::scale_y_continuous(expand = ggplot2::expand_scale(mult=c(0,0.1)))
+          ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult=c(0,0.1)))+ ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult=c(0,0.1)))
 
         #filename<-paste('PatientCharacteristicsPlot',paste(headerlabel,collapse=", "),'Variable',varnames[k],sep='_')
         #filename<-gsub(':', '',filename)
