@@ -311,12 +311,21 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
       for (iModels in seq_len(length(bootdata[["surv"]]))){
         dfExcell[nrow(dfExcell)+1,'text']<-'Model:'
         dfExcell[nrow(dfExcell),'v1']<-Reduce(paste, deparse(bootdata[["surv"]][[iModels]][["main"]][["call"]]))
+        dfExcell[nrow(dfExcell)+1,'v1']<-'Potential follow up time months'
+        dfExcell[nrow(dfExcell),'v2']<- bootdata[["surv"]][[iModels]][["potentialFollowUp"]]
         dfExcell[nrow(dfExcell)+1,'v1']<-'Restriced mean survival'
         dfExcell[nrow(dfExcell)+1,'v1']<-'cutOffTime'
         dfExcell[nrow(dfExcell),'v2']<-'p'
+        dfExcell[nrow(dfExcell),'v3']<-'estimated Value'
+        dfExcell[nrow(dfExcell),'v4']<-'lower'
+        dfExcell[nrow(dfExcell),'v5']<-'upper'
         index<-nrow(dfExcell)
+
         dfExcell[(index+1):(index+nrow(bootdata[["surv"]][[iModels]][["rmst"]])),'v1']<-bootdata[["surv"]][[iModels]][["rmst"]][,1]
         dfExcell[(index+1):(index+nrow(bootdata[["surv"]][[iModels]][["rmst"]])),'v2']<-bootdata[["surv"]][[iModels]][["rmst"]][,2]
+        dfExcell[(index+1):(index+nrow(bootdata[["surv"]][[iModels]][["rmst"]])),'v3']<-bootdata[["surv"]][[iModels]][["rmst"]][,3]
+        dfExcell[(index+1):(index+nrow(bootdata[["surv"]][[iModels]][["rmst"]])),'v4']<-bootdata[["surv"]][[iModels]][["rmst"]][,4]
+        dfExcell[(index+1):(index+nrow(bootdata[["surv"]][[iModels]][["rmst"]])),'v5']<-bootdata[["surv"]][[iModels]][["rmst"]][,5]
         for (strataName in names(bootdata[["surv"]][[iModels]][["boot"]][["strata"]])){
           dfExcell[nrow(dfExcell)+1,'v1']<-paste('Survival values', strataName)
           dfExcell[nrow(dfExcell)+1,'v1']<-'Month'
@@ -334,6 +343,15 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
           dfExcell[(index+1):(index+length(timeValues)),'v2']<-stats::approx(time,surv,timeValues,method='constant',f=0)$y
           dfExcell[(index+1):(index+length(timeValues)),'v3']<-stats::approx(time,lower,timeValues,method='constant',f=0)$y
           dfExcell[(index+1):(index+length(timeValues)),'v4']<-stats::approx(time,upper,timeValues,method='constant',f=0)$y
+
+          #median values
+          index<-nrow(dfExcell)
+
+          dfExcell[(index+1):(index+1),'v1']<-'Median survival'
+          dfExcell[(index+1):(index+1),'v2']<-summary(bootdata[["surv"]][[iModels]][["main"]])$table[[strataName,'median']]
+          dfExcell[(index+1):(index+1),'v3']<-summary(bootdata[["surv"]][[iModels]][["main"]])$table[[strataName,'0.95LCL']]
+          dfExcell[(index+1):(index+1),'v4']<-summary(bootdata[["surv"]][[iModels]][["main"]])$table[[strataName,'0.95UCL']]
+
         }
       }
 
@@ -420,6 +438,10 @@ bootstrap_narlal <- function(df,formcox,formsurv,nboot=10,conf.int=.95,seed=42){
   bootres$surv <- vector(mode = "list", length = length(formsurv))
   for (i in seq_len(length(formsurv))){
     bootres$surv[[i]]$main <- survival::survfit(formsurv[[i]],conf.int=conf.int,data=df)
+    #Make survival fit with inverted event to measure potential followup timebased on inverse KM
+    formulaFollowUp<-as.formula(paste(gsub('event_','!event_',as.character(formsurv[[i]])[2]),'~ 1',sep=''))
+    bootres$surv[[i]]$potentialFollowUp<-summary(survival::survfit(formulaFollowUp,data=df))$table[['median']]
+
     #The next line is fix of a problem in survfit that it does not replace the calling function which creates problems in ggplot
     bootres$surv[[i]]$main$call$formula <-formsurv[[i]]
     #Add information about restricted mean survival test
@@ -430,13 +452,18 @@ bootstrap_narlal <- function(df,formcox,formsurv,nboot=10,conf.int=.95,seed=42){
 
     tauList<-c(12,24,36,48,60)
     pList<-c()
+    estList<-c()
+    lowerList<-c()
+    upperList<-c()
     for (tau in tauList){
       temp<-survRM2::rmst2(time=time_rms, status=event_rms, arm=arm_rms, tau = tau)
       temp<-temp[["unadjusted.result"]]
-      temp<-temp["RMST (arm=1)-(arm=0)","p"]
-      pList<-c(pList,temp)
+      pList<-c(pList,temp["RMST (arm=1)-(arm=0)","p"])
+      estList<-c(estList,temp["RMST (arm=1)-(arm=0)","Est."])
+      lowerList<-c(lowerList,temp["RMST (arm=1)-(arm=0)","lower .95"])
+      upperList<-c(upperList,temp["RMST (arm=1)-(arm=0)","upper .95"])
     }
-    bootres$surv[[i]]$rmst<-data.frame(cutOffTime=tauList,p=pList)
+    bootres$surv[[i]]$rmst<-data.frame(cutOffTime=tauList,p=pList,est=estList,lower=lowerList,upper=upperList)
   }
 
   bootres$comprisk$main <- cmprsk::cuminc(ftime = df$t_firstevent, fstatus = df$event_firstevent, cencode = "censoring",group=df[[treatarm]])
