@@ -133,12 +133,12 @@ PlotPatientCharacteristic <- function(df,filepath,ChangeText=c(),listVars=c(),ca
       for (k in seq_along(varnames)){
         palette_temp<-c("blue","red")
         #p<-ggplot2::ggplot(tempdf, ggplot2::aes(ggplot2::.data[[varnames[k]]], colour = ggplot2::.data[[tempstratavar]])) + ggplot2::theme_classic()+ggplot2::stat_ecdf()  +ggplot2::scale_colour_manual(values=palette_temp)
+
         indexNonNa<-!is.na(tempdf[[varnames[k]]])
         p<-ggplot2::ggplot(tempdf[indexNonNa,], ggplot2::aes( !!ggplot2::sym(varnames[k]), colour =  !!ggplot2::sym(tempstratavar))) + ggplot2::theme_classic()+ggplot2::stat_ecdf()  +ggplot2::scale_colour_manual(values=palette_temp)
-        p<-p+ ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank())+ ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult=c(0,0.1)))+ ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult=c(0,0.1)))
+        p<-p+ ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank(),axis.title=ggplot2::element_text(size=8,face="bold"))+ ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult=c(0,0.1)))+ ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult=c(0,0.1)))
         #p<-p+ theme(legend.justification = c(1, 0),legend.position = c(1,0))
         p<-ChageLabels_ggplot(p,ChangeText=ChangeText)
-
         #p_combined[[length(p_combined)+1]]<-p
         p_combined[[k]]<-p
         boundary<-min(tempdf[[varnames[k]]],na.rm=TRUE)
@@ -192,7 +192,7 @@ PlotPatientCharacteristic <- function(df,filepath,ChangeText=c(),listVars=c(),ca
           ggplot2::scale_fill_manual(values = c('#0000ffFF','#ff0000FF'))+
           ggplot2::theme_classic()+
           ggplot2::labs(y= "Number of observations", x = varnames[k]) +
-          ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank())+
+          ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank(),axis.title=ggplot2::element_text(size=8,face="bold"))+
           ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult=c(0,0.1)))+ ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult=c(0,0.1)))
 
         #filename<-paste('PatientCharacteristicsPlot',paste(headerlabel,collapse=", "),'Variable',varnames[k],sep='_')
@@ -209,15 +209,19 @@ PlotPatientCharacteristic <- function(df,filepath,ChangeText=c(),listVars=c(),ca
       p_combined<-cowplot::plot_grid(plotlist=p_combined,ncol=nCol)
       p_combined_differential<-cowplot::plot_grid(plotlist=p_combined_differential,ncol=nCol)
       p_combined<-cowplot::plot_grid(p_combined,p_combined_differential,ncol=2)
-      filename<-paste('PatientCharacteristicsPlot',paste(headerlabel,collapse=", "),'Variables_combined',sep='_')
-      filename<-gsub(':', '',filename)
-      filename<-gsub('\\.', '',filename)
-      filename<-gsub(',', '',filename)
-      filename<-gsub(' ', '_',filename)
-      filename<-paste(filename,'.png',sep='')
-      filename <- file.path(filepath,filename)
-      filename <- file.path(filepath,paste('Patient_characteristics_plots',DurvalumabLabel[i],'_',HistologyLabel[j],'.png',sep=''))
-      ggplot2::ggsave(filename,plot=p_combined,device = ragg::agg_png,bg ="white",width=20, height=24, units="cm", dpi =1200, scaling=.3)
+      #filename<-paste('PatientCharacteristicsPlot',paste(headerlabel,collapse=", "),'Variables_combined',sep='_')
+      #filename<-gsub(':', '',filename)
+      #filename<-gsub('\\.', '',filename)
+      #filename<-gsub(',', '',filename)
+      #filename<-gsub(' ', '_',filename)
+      #filename<-paste(filename,'.pdf',sep='')
+      #filename <- file.path(filepath,filename)
+      filename <- file.path(filepath,paste('Patient_characteristics_plots',DurvalumabLabel[i],'_',HistologyLabel[j],'.pdf',sep=''))
+      #ggplot2::ggsave(filename,plot=p_combined,device = ragg::agg_png,bg ="white",width=20, height=24, units="cm", dpi =1200, scaling=.3)
+      grDevices::pdf(width=20,height=24,file=filename)
+      print(p_combined)
+      grDevices::dev.off()
+
       #End plotting cumulative distributions
     }
   }

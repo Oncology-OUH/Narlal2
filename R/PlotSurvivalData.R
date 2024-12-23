@@ -337,7 +337,7 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
           surv<- bootdata[["surv"]][[iModels]][["boot"]][["strata"]][[strataName]]$survival
           lower<-bootdata[["surv"]][[iModels]][["boot"]][["strata"]][[strataName]]$lower_boot
           upper<-bootdata[["surv"]][[iModels]][["boot"]][["strata"]][[strataName]]$upper_boot
-          timeValues<-c(12,24,36,48,60)
+          timeValues<-seq(from=3,to=60,by=3)
           index<-nrow(dfExcell)
           dfExcell[(index+1):(index+length(timeValues)),'v1']<-timeValues
           dfExcell[(index+1):(index+length(timeValues)),'v2']<-stats::approx(time,surv,timeValues,method='constant',f=0)$y

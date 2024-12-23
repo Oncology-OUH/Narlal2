@@ -17,12 +17,14 @@ Description: The package is designed to analyse the primary endpoint of
     after import of the library.
 License: MIT + file LICENSE
 Imports: 
+    Cairo,
     cmprsk,
     cowplot,
     data.table,
     flextable,
     ggplot2,
     ggprism,
+    grDevices,
     Hmisc,
     lubridate,
     officer,

@@ -87,6 +87,7 @@ PlotGradeTwoAndThreeEarlyTox<-function(rawdata,outputDirectory='c:/home/cab/temp
   }
   plotPerPage<-5
   while( length(plot) %% 5 !=0){
+    #Add empty plot such that the total number is dividable by 5
     plot[[length(plot)+1]]<-ggplot2::ggplot() + ggplot2::theme_void()
   }
 
@@ -99,8 +100,11 @@ PlotGradeTwoAndThreeEarlyTox<-function(rawdata,outputDirectory='c:/home/cab/temp
       endIndex<-length(plot)
     }
     plotForPage<-cowplot::plot_grid(plotlist=plot[startIndex:endIndex], ncol=1)
-    filename <- file.path(outputDirectory,paste('ToxPlotNr_',as.character(counter),'.png',sep=''))
-    ggplot2::ggsave(filename,plot=plotForPage,device = ragg::agg_png,bg ="white",width=21, height=29, units="cm", res =300, scaling=1)
+    filename <- file.path(outputDirectory,paste('ToxPlotNr_',as.character(counter),'.pdf',sep=''))
+    #ggplot2::ggsave(filename,plot=plotForPage,device = ragg::agg_png,bg ="white",width=21, height=29, units="cm", res =300, scaling=1)
+    Cairo::CairoPDF(width=21,height=29,file=filename)
+    print(plotForPage)
+    grDevices::dev.off()
     startIndex<-endIndex+1
   }
 
@@ -146,33 +150,46 @@ makeGplot <- function(df,ChangeText){
   }
   yScaleVar<-max(c(plotData$G2Standard_upper,plotData$G2Escalated_upper))+.01
   plot[[1]]<-ggplot2::ggplot(plotData) +
-    ggplot2::geom_line(ggplot2::aes(x = time, y = G2Standard_est,color="Standard"), show.legend = TRUE) +
-    ggplot2::geom_line(ggplot2::aes(x = time_offset, y = G2Escalated_est,color="Escalated"), show.legend = TRUE)+
-    ggplot2::geom_errorbar(ggplot2::aes(x = time, ymin = G2Standard_lower, ymax = G2Standard_upper), width = 0.2, color = 'blue')+
-    ggplot2::geom_errorbar(ggplot2::aes(x = time_offset, ymin = G2Escalated_lower, ymax = G2Escalated_upper), width = 0.2, color = 'red')+
+    ggplot2::geom_line(ggplot2::aes(x = time, y = G2Standard_est,color="Standard"), show.legend = TRUE,size = 1) +
+    ggplot2::geom_line(ggplot2::aes(x = time_offset, y = G2Escalated_est,color="Escalated"), show.legend = TRUE,size = 1)+
+    ggplot2::geom_errorbar(ggplot2::aes(x = time, ymin = G2Standard_lower, ymax = G2Standard_upper), width = 0.2, color = 'blue',size=1)+
+    ggplot2::geom_errorbar(ggplot2::aes(x = time_offset, ymin = G2Escalated_lower, ymax = G2Escalated_upper), width = 0.2, color = 'red',size=1)+
     ggplot2::labs(x = "Time [weeks]", y = "Fraction", color = "Curve") +
     ggplot2::scale_color_manual(values = c("Standard" = "blue", "Escalated"= "red"),name = "")+
-    ggplot2::ggtitle(paste(plotVarName,' grade \u2265','2',sep='')) +
+    #ggplot2::ggtitle(paste(plotVarName,' grade \u2265','2',sep='')) +
+    ggplot2::ggtitle(bquote(.(plotVarName) ~ "grade" ~ "\u2265" ~ 2)) +
     ggplot2::theme_classic()+
     ggplot2::theme(legend.position = "top")+
     ggplot2::scale_x_continuous( limits = c(0,30),breaks=seq(0,30,5),minor_breaks=seq(0,30,1))+
     ggplot2::scale_y_continuous(limits = c(0, yScaleVar))+
-    ggplot2::guides(x = ggprism::guide_prism_minor())
+    ggplot2::guides(x = ggprism::guide_prism_minor())+
+    ggplot2::theme(axis.text = ggplot2::element_text(size = 24),  # Scale axis tick labels
+                   axis.title = ggplot2::element_text(size = 24), # Scale axis titles
+                   legend.text = ggplot2::element_text(size = 24), # Scale legend text
+                   legend.title = ggplot2::element_text(size = 24), # Scale legend title)
+                   plot.title = ggplot2::element_text(size = 24)) #Scale title of plot
+
 
   yScaleVar<-max(c(plotData$G3Standard_upper,plotData$G3Escalated_upper))+.01
   plot[[2]]<-ggplot2::ggplot(plotData) +
-    ggplot2::geom_line(ggplot2::aes(x = time, y = G3Standard_est,color="Standard"), show.legend = TRUE) +
-    ggplot2::geom_line(ggplot2::aes(x = time_offset, y = G3Escalated_est,color="Escalated"), show.legend = TRUE)+
-    ggplot2::geom_errorbar(ggplot2::aes(x = time, ymin = G3Standard_lower, ymax = G3Standard_upper), width = 0.2, color = 'blue')+
-    ggplot2::geom_errorbar(ggplot2::aes(x = time_offset, ymin = G3Escalated_lower, ymax = G3Escalated_upper), width = 0.2, color = 'red')+
+    ggplot2::geom_line(ggplot2::aes(x = time, y = G3Standard_est,color="Standard"), show.legend = TRUE,size=1) +
+    ggplot2::geom_line(ggplot2::aes(x = time_offset, y = G3Escalated_est,color="Escalated"), show.legend = TRUE,size=1)+
+    ggplot2::geom_errorbar(ggplot2::aes(x = time, ymin = G3Standard_lower, ymax = G3Standard_upper), width = 0.2, color = 'blue',size=1)+
+    ggplot2::geom_errorbar(ggplot2::aes(x = time_offset, ymin = G3Escalated_lower, ymax = G3Escalated_upper), width = 0.2, color = 'red',size=1)+
     ggplot2::labs(x = "Time [weeks]", y = "Fraction", color = "Curve") +
     ggplot2::scale_color_manual(values = c("Standard" = "blue", "Escalated"= "red"),name = "")+
-    ggplot2::ggtitle(paste(plotVarName,' grade \u2265','3',sep='') ) +
+    #ggplot2::ggtitle(paste(plotVarName,' grade \u2265','3',sep='') ) +
+    ggplot2::ggtitle(bquote(.(plotVarName) ~ "grade" ~ "\u2265" ~ 3) ) +
     ggplot2::theme_classic()+
     ggplot2::theme(legend.position = "top") +
     ggplot2::scale_x_continuous( limits = c(0,30),breaks=seq(0,30,5),minor_breaks=seq(0,30,1))+
     ggplot2::scale_y_continuous(limits = c(0, yScaleVar))+
-    ggplot2::guides(x = ggprism::guide_prism_minor())
+    ggplot2::guides(x = ggprism::guide_prism_minor())+
+    ggplot2::theme(axis.text = ggplot2::element_text(size = 24),  # Scale axis tick labels
+                   axis.title = ggplot2::element_text(size = 24), # Scale axis titles
+                   legend.text = ggplot2::element_text(size = 24), # Scale legend text
+                   legend.title = ggplot2::element_text(size = 24),# Scale legend title
+                   plot.title = ggplot2::element_text(size = 24)) #Scale title of plot
 
 
   return(cowplot::plot_grid(plotlist=plot, ncol=2))
