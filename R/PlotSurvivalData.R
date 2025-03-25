@@ -82,12 +82,28 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
       splots <- list()
       for (k in seq_along(formulatext_surv)){
         cox_res<-bootdata$cox[[k]]$main
-        pvalue <- pchisq(cox_res$score, df=1, lower.tail=FALSE)
-        if(pvalue<.001){pvaluelable <- c('p = <0.001')} else {pvaluelable <- paste('p = ',sprintf("%.3f",round(pvalue,digits=3)),sep='')}
-        h1lable <- sprintf("%.3f",round(exp(bootdata$cox[[k]]$boot$coefficients),digits=3))
-        h2lable <- sprintf("%.3f",round(exp(bootdata$cox[[k]]$boot$coefficients_lower),digits=3))
-        h3lable <- sprintf("%.3f",round(exp(bootdata$cox[[k]]$boot$coefficients_upper),digits=3))
-        hlable <- paste('HR = ',h1lable,' (',h2lable,'-',h3lable,')',sep='')
+        # If test for proportional hazard above 0.05 use standard otherwise reporte restricted mean survival p values
+        if (bootdata[["cox"]][[k]][["coxzph"]][["table"]]['GLOBAL','p']>0.05){
+          pvalue <- pchisq(cox_res$score, df=1, lower.tail=FALSE)
+          if(pvalue<.001){pvaluelable <- c('p = <0.001')} else {pvaluelable <- paste('p = ',sprintf("%.3f",round(pvalue,digits=3)),sep='')}
+          h1lable <- sprintf("%.3f",round(exp(bootdata$cox[[k]]$boot$coefficients),digits=3))
+          h2lable <- sprintf("%.3f",round(exp(bootdata$cox[[k]]$boot$coefficients_lower),digits=3))
+          h3lable <- sprintf("%.3f",round(exp(bootdata$cox[[k]]$boot$coefficients_upper),digits=3))
+          hlable <- paste('HR = ',h1lable,' (',h2lable,'-',h3lable,')',sep='')
+        }else{
+          pvaluelable<-list()
+
+          for (rmstLevel in seq_along(bootdata[["surv"]][[k]][["rmst"]][["p"]])){
+            pvalue <- round(bootdata[["surv"]][[k]][["rmst"]][["p"]][rmstLevel],digits=3)
+
+            #pvaluelable[[rmstLevel]] <- bquote(bold(p[.(rmstLevel*12)] == .(pvalue) ))
+            #pvaluelable[[rmstLevel]] <- expression(bold(p[.(rmstLevel*12)] == .(pvalue) ))
+            #pvaluelable[[rmstLevel]] <- paste('p',rmstLevel*12,' = ',pvalue,sep='')
+            pvaluelable[[rmstLevel]]<-paste('bold(p["',rmstLevel*12,'"]*" = ',pvalue,'")',sep='')
+          }
+          hlable<-''
+        }
+
         #fit<-survival::survfit(as.formula(formulatext[[k]]),data=dftemp)
         #fit$call$formula <- as.formula(formulatext[[k]])
         fit <- bootdata$surv[[k]]$main
@@ -146,8 +162,19 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
         temp$plot <- temp$plot + ggplot2::geom_step(ggplot2::aes(y = upper, x=time),direction = "hv",alpha = 0.5,size=.2,linetype=2,color=palette_temp[2],inherit.aes = FALSE,data=temp_bootdata)
 
         #Add the p-value and the hazard value as text labels
-        temp$plot <- temp$plot + ggplot2::annotate("text", x = 2, y = 0.1, label = pvaluelable, cex=4.5, col="black", vjust=0, hjust = 0.0, fontface=2)
-        temp$plot <- temp$plot + ggplot2::annotate("text", x = 2, y = 0.03, label = hlable, cex=4.5, col="black", vjust=0, hjust = 0, fontface=2)
+
+        if (is.list(pvaluelable)){
+          for (iLabels in seq_along(pvaluelable)){
+            yvalues<-0.3-.05*iLabels
+            labelvalue<-pvaluelable[[iLabels]]
+
+            temp$plot <- temp$plot + ggplot2::annotate("text", x = 2, y = yvalues, label = labelvalue, cex=4.5, col="black", vjust=0, hjust = 0.0, fontface=2,parse=TRUE)
+          }
+        }else{
+          temp$plot <- temp$plot + ggplot2::annotate("text", x = 2, y = 0.1, label = pvaluelable, cex=4.5, col="black", vjust=0, hjust = 0.0, fontface=2)
+          temp$plot <- temp$plot + ggplot2::annotate("text", x = 2, y = 0.03, label = hlable, cex=4.5, col="black", vjust=0, hjust = 0, fontface=2)
+        }
+
         #Update labels on the plot as requested via ChangeText
         temp$plot<-ChageLabels_ggplot(temp$plot,ChangeText=ChangeText)
         temp$table<-ChageLabels_ggplot(temp$table,ChangeText=ChangeText)
@@ -156,6 +183,7 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
         splots[[k]] <- temp
       }
       #Plot the survival plots
+
       survivalplot <- survminer::arrange_ggsurvplots(splots, print = FALSE,ncol = 3, nrow = 1, risk.table.height = 0.2)
       filename <- file.path(filepath,paste('Survival_',DurvalumabLabel[i],'_',HistologyLabel[j],'.png',sep=''))
       ggplot2::ggsave(filename,plot=survivalplot,device = ragg::agg_png,bg ="white",width=15, height=6.75, units="cm", res =300, scaling=.375)
@@ -169,7 +197,9 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
       #Start plot of each endpoint in separate windows with both arms in the same window ####
       est<-arm<-upper_boot<-lower_boot<-NULL
       splots <- list()
-      plot_endpoints<-ChangeLevel_vector(c('local','met','local+met','mors'),ChangeText)
+      #plot_endpoints<-ChangeLevel_vector(c('local','met','local+met','mors'),ChangeText)
+      plot_endpoints<-ChangeLevel_vector(c('local','local+met','met','mors'),ChangeText)
+      #plot_endpoints<-ChangeLevel_vector(c('local+met','met','local','mors'),ChangeText)
       plot_arms<-ChangeLevel_vector(c('Standard','Eskaleret'),ChangeText)
       palette_temp<-c()
       palette_temp[[plot_arms[1]]]="blue"
@@ -261,7 +291,7 @@ PlotSurvivalData <- function(df,filepath,nboot=10,conf.int=.95,seed=42,ChangeTex
           hjust=1
           cumlist[[karm]]<-cumlist[[karm]]+ggplot2::scale_x_reverse()+ggplot2::scale_y_continuous(limits=c(0,1),position = "right")
         }
-        cumlist[[karm]]<-cumlist[[karm]]+ ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank())
+        cumlist[[karm]]<-cumlist[[karm]]+ ggplot2::theme(legend.position="top",legend.title=ggplot2::element_blank(), legend.text = ggplot2::element_text(size = 8))
         cumlist[[karm]]<-cumlist[[karm]]+ggplot2::xlab('Time [Months]') + ggplot2::ylab('Stacked probability of first event')
         cumlist[[karm]]<-cumlist[[karm]]+ ggplot2::annotate("text", x = 0, y = .9, label = plot_arms[karm], cex=4.5, col="black", vjust=0, hjust = hjust, fontface=2)
         cumlist[[karm]]<-cumlist[[karm]]+ ggplot2::guides(fill=ggplot2::guide_legend(nrow=2,byrow=TRUE))

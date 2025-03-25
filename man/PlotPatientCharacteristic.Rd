@@ -9,7 +9,8 @@ PlotPatientCharacteristic(
   filepath,
   ChangeText = c(),
   listVars = c(),
-  catVars = c()
+  catVars = c(),
+  plotTotalColumn = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ PlotPatientCharacteristic(
 \item{listVars}{is a list of variables to include in the patient's characteristics. If left empty, it will be the list created for the primary endpoint}
 
 \item{catVars}{is a list of variables that should be handled as categorical variables within the patient characteristics}
+
+\item{plotTotalColumn}{is a Boolean to define whether a total column is plotted. Default is TRUE}
 }
 \value{
 Is returning word files with tables of patient characteristics data and cumulative and differential plots of all non-categorical parameters separated in the two treatment groups

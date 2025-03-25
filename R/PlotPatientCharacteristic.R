@@ -6,6 +6,7 @@
 #' @param ChangeText a variable used to change the text on plots just before they are plotted. The variable is defined in three part (see example below) that is used to change the text in variable/names, levels, and labels on the tables and plots. Note that ChangeText can also be used to combine different levels by mapping them to a common name (see the example in which sublevels of T1 are mapped to the same name)
 #' @param listVars is a list of variables to include in the patient's characteristics. If left empty, it will be the list created for the primary endpoint
 #' @param catVars is a list of variables that should be handled as categorical variables within the patient characteristics
+#' @param plotTotalColumn is a Boolean to define whether a total column is plotted. Default is TRUE
 #' @return Is returning word files with tables of patient characteristics data and cumulative and differential plots of all non-categorical parameters separated in the two treatment groups
 #' @export PlotPatientCharacteristic
 #'
@@ -30,7 +31,7 @@
 #'   Kvinde='Female'
 #' )
 #' PlotPatientCharacteristic(df=PtChar,filepath='c:/home/cab/temp',ChangeText=ChangeText)
-PlotPatientCharacteristic <- function(df,filepath,ChangeText=c(),listVars=c(),catVars=c()){
+PlotPatientCharacteristic <- function(df,filepath,ChangeText=c(),listVars=c(),catVars=c(),plotTotalColumn=TRUE){
 
   if (length(listVars)==0){
     listVars <- c("gender","age", "histology_squamous","Stadium","Perform","FEV1_percent","DLCO_percent","previous_smoker","fx_factor","daysRT","n_nav_rt","n_platin_rt","durvalumab","Vol_T","Vol_N","vol_ptv_total","MeanDose_T","MeanDose_N","MeanLung")
@@ -89,7 +90,7 @@ PlotPatientCharacteristic <- function(df,filepath,ChangeText=c(),listVars=c(),ca
       tempstratavar<-ChangeVar_vector(c("arm"),ChangeText)
       tempnonNormalVars<-ChangeVar_vector(nonNormalVars,ChangeText)
 
-      table1 <- tableone::CreateTableOne(vars = templistVars, data = tempdf, factorVars = tempcatVars,strata = tempstratavar,includeNA = TRUE,test=FALSE,addOverall=TRUE)
+      table1 <- tableone::CreateTableOne(vars = templistVars, data = tempdf, factorVars = tempcatVars,strata = tempstratavar,includeNA = TRUE,test=FALSE,addOverall=plotTotalColumn)
       tab1_word <- print(table1, quote = F, noSpaces = T,cramVars = tempcatVars,test = T, contDigits = 1, printToggle = F,nonnormal=tempnonNormalVars,
                      dropEqual = T,explain = F)
       #Remove the text median [IQR] from all the lines
